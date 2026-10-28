@@ -1,427 +1,314 @@
-/* Angara GenAI Agent — sales demo (static sample data). */
+/**
+ * Scroll-driven product story.
+ * Sticky stage stays fixed; scroll position swaps scenes with transitions.
+ */
 
 const PASS_MIN = 70;
+/** Viewport-heights of scroll per scene (feel of the story pace). */
+const VH_PER_SCENE = 1.05;
 
-const AGENT_ANCHORS = {
-  generate: '#sample',
-  cr: '#sample',
-  cua: '#run-agents',
-  automation: '#run-agents',
-  'qa-agent': '#agents',
-  mcp: '#run-agents',
-  jira: '#run-agents',
-  audits: '#agents',
-};
+let scenes = [];
+let active = -1;
+let raf = 0;
 
-function el(tag, attrs = {}, children = []) {
-  const node = document.createElement(tag);
+function el(tag, attrs = {}, kids = []) {
+  const n = document.createElement(tag);
   for (const [k, v] of Object.entries(attrs)) {
-    if (k === 'className') node.className = v;
-    else if (k === 'text') node.textContent = v;
-    else if (k === 'html') node.innerHTML = v;
-    else if (v !== undefined && v !== null) node.setAttribute(k, v);
+    if (k === 'className') n.className = v;
+    else if (k === 'text') n.textContent = v;
+    else if (k === 'html') n.innerHTML = v;
+    else if (v != null) n.setAttribute(k, String(v));
   }
-  for (const child of [].concat(children)) {
-    if (child == null || child === false) continue;
-    node.append(child.nodeType ? child : document.createTextNode(String(child)));
+  for (const c of [].concat(kids)) {
+    if (c == null || c === false) continue;
+    n.append(c.nodeType ? c : document.createTextNode(String(c)));
   }
-  return node;
+  return n;
 }
 
 function pill(text, kind = '') {
   return el('span', { className: `pill ${kind}`.trim(), text });
 }
 
-function observeReveals() {
-  const nodes = document.querySelectorAll('.reveal');
-  if (!('IntersectionObserver' in window)) {
-    nodes.forEach((n) => n.classList.add('in'));
-    return;
-  }
-  const io = new IntersectionObserver(
-    (entries) => {
-      for (const e of entries) {
-        if (e.isIntersecting) {
-          e.target.classList.add('in');
-          io.unobserve(e.target);
-        }
-      }
-    },
-    { threshold: 0.12, rootMargin: '0px 0px -40px 0px' },
-  );
-  nodes.forEach((n) => io.observe(n));
-}
+function buildScene(data, index, total) {
+  const root = el('article', {
+    className: 'scene',
+    id: `scene-${data.id}`,
+    'data-id': data.id,
+    'aria-hidden': 'true',
+  });
 
-function renderHero(data) {
-  const p = data.product;
-  document.getElementById('hero-eyebrow').textContent = p.eyebrow;
-  document.getElementById('hero-lead').textContent = p.tagline;
-  document.getElementById('hero-sub').textContent = p.sub;
-  document.getElementById('cta-primary').textContent = p.ctaPrimary;
-  document.getElementById('cta-secondary').textContent = p.ctaSecondary;
-  document.title = `${p.name} — GenAI QA platform`;
+  root.append(el('h2', { text: data.title }));
+  if (data.body) root.append(el('p', { className: 'body', text: data.body }));
 
-  document.getElementById('hero-stats').replaceChildren(
-    ...(data.heroProof || []).map((s) =>
-      el('div', { className: 'stat' }, [el('strong', { text: s.value }), el('span', { text: s.label })]),
-    ),
-  );
-}
-
-function renderWhy(data) {
-  const w = data.painVsUs;
-  if (!w) return;
-  document.getElementById('why-title').textContent = w.title;
-  document.getElementById('why-sub').textContent = w.subtitle;
-  document.getElementById('compare-rows').replaceChildren(
-    ...w.rows.map((row) =>
-      el('div', { className: 'compare-row reveal' }, [
-        el('div', { className: 'compare-card them' }, [
-          el('div', { className: 'label', text: 'Normal tools' }),
-          el('h3', { text: row.them }),
-          el('p', { text: row.themDetail }),
-        ]),
-        el('div', { className: 'compare-card us' }, [
-          el('div', { className: 'label', text: 'Angara GenAI Agent' }),
-          el('h3', { text: row.us }),
-          el('p', { text: row.usDetail }),
-        ]),
-      ]),
-    ),
-  );
-}
-
-function renderLoop(data) {
-  document.getElementById('power-loop').replaceChildren(
-    ...(data.powerLoop || []).map((step) =>
-      el('li', {}, [
-        el('span', { className: 'n', text: step.n }),
-        el('strong', { text: step.title }),
-        el('p', { text: step.text }),
-      ]),
-    ),
-  );
-}
-
-function renderAgents(data) {
-  document.getElementById('agent-grid').replaceChildren(
-    ...(data.agents || []).map((a) =>
-      el('a', { className: 'agent-card reveal', href: AGENT_ANCHORS[a.id] || '#agents' }, [
-        el('div', { className: 'power', text: a.power || a.id }),
-        el('h3', { text: a.name }),
-        el('p', { className: 'blurb', text: a.blurb }),
+  switch (data.id) {
+    case 'hero':
+      root.append(
         el(
-          'ul',
-          {},
-          (a.bullets || []).map((b) => el('li', { text: b })),
+          'div',
+          { className: 'stats' },
+          (data.stats || []).map((s) =>
+            el('div', { className: 'stat' }, [el('strong', { text: s.v }), el('span', { text: s.l })]),
+          ),
         ),
-        el('div', { className: 'sample', text: a.sample }),
-      ]),
-    ),
-  );
-}
+      );
+      break;
 
-function renderTicket(data) {
-  const t = data.ticket;
-  const run = data.run;
-  document.getElementById('ticket-panel').replaceChildren(
-    el('div', { className: 'mr-head' }, [
-      pill(run.mode, 'cr'),
-      ...run.options.map((o) => pill(o)),
-      pill(`${run.casesAfterDedupe} cases`),
-      pill(`${run.checklistProven} proven`, 'pass'),
-      pill(run.cost),
-      pill(run.duration),
-    ]),
-    el('div', { className: 'kicker', style: 'margin-top:0.85rem', text: `${t.type} · ${t.priority}` }),
-    el('div', { className: 'ticket-key', text: t.key }),
-    el('h3', { text: t.summary, style: 'margin:0.35rem 0 0.75rem;font-size:1.2rem;font-family:var(--display);font-weight:550' }),
-    el('div', { className: 'kicker', text: 'Acceptance criteria' }),
-    el(
-      'ul',
-      { className: 'ac-list' },
-      t.acceptanceCriteria.map((line) => el('li', { text: line })),
-    ),
-    el('p', {
-      style: 'margin:0.9rem 0 0;font-size:0.85rem;color:var(--muted)',
-      text: `QA scope: ${t.qaNote}`,
-    }),
-  );
-}
-
-function renderTimeline(data) {
-  document.getElementById('timeline').replaceChildren(
-    ...data.timeline.map((step) =>
-      el('li', { className: step.highlight === 'cr' ? 'cr' : '' }, [
-        el('span', { className: 't', text: step.t }),
-        el('div', {}, [
-          el('strong', { text: step.label }),
-          el('div', { className: 'detail', text: step.detail }),
-          step.highlight === 'cr' ? pill('CR ∥ generate', 'cr') : null,
-        ]),
-      ]),
-    ),
-  );
-}
-
-function renderCr(data) {
-  const cr = data.codeReview;
-  const root = document.getElementById('cr-panel');
-  const mrs = cr.byMr.map((mr) => {
-    const bugs = (mr.bugs || []).map((b) =>
-      el('div', { className: 'bug' }, [
-        el('div', {}, [
-          pill(b.severity, b.severity === 'HIGH' ? 'high' : 'warn'),
-          ' ',
-          pill(b.rule),
-          ' ',
-          pill(`→ ${b.becameF}`, 'cr'),
-        ]),
-        el('h4', { text: b.title }),
-        el('div', { className: 'loc', text: b.location }),
-        el('p', { text: b.problem }),
-      ]),
-    );
-    return el('div', { className: 'panel' }, [
-      el('div', { className: 'mr-head' }, [
-        el('strong', { text: mr.label }),
-        el('span', { className: 'ticket-key', text: `!${mr.iid}` }),
-        el('span', { style: 'font-size:0.8rem;color:var(--muted)', text: `→ ${mr.target}` }),
-        pill(mr.verdict, mr.verdict.includes('No blocking') ? 'pass' : 'warn'),
-      ]),
-      mr.note ? el('p', { style: 'margin:0 0 0.5rem;font-size:0.82rem;color:var(--muted)', text: mr.note }) : null,
-      ...(bugs.length
-        ? bugs
-        : [el('p', { style: 'margin:0.35rem 0 0;font-size:0.82rem;color:var(--muted)', text: 'No AI findings after shared-file skip — locale & conflict checks still ran.' })]),
-    ]);
-  });
-
-  root.replaceChildren(
-    el('div', { className: 'panel', style: 'margin-bottom:0.85rem' }, [
-      el('div', { className: 'mr-head' }, [
-        pill('Multi-MR · runs with generate', 'cr'),
-        pill(`Store scope: ${cr.storeScope}`, 'warn'),
-        pill(`${cr.byMr.length} MRs`),
-        pill(cr.verdict, 'warn'),
-      ]),
-      el('p', {
-        style: 'margin:0.5rem 0 0;font-size:0.9rem',
-        text: 'Accept/Deny gates Save. Generation continues — confirmed bugs land as F items on the checklist.',
-      }),
-    ]),
-    ...mrs,
-    el('div', { className: 'arrow-note', text: cr.generationLink }),
-  );
-}
-
-function renderQuality(data) {
-  const q = data.qualityGate;
-  const rows = q.scores.map((p) => {
-    const below = p.score < PASS_MIN;
-    return el('div', { className: 'param-row' }, [
-      el('span', { text: p.label }),
-      el('span', { className: `bar${below ? ' below' : ''}`, 'aria-hidden': 'true' }, [
-        el('i', { style: `width:${p.score}%` }),
-      ]),
-      el('span', { className: 'param-score', text: below ? `${p.score} · below` : String(p.score) }),
-    ]);
-  });
-
-  const findings = q.findings?.length
-    ? el('div', { style: 'margin-top:1rem' }, [
-        el('div', { className: 'kicker', text: 'Findings' }),
+    case 'pain':
+      root.append(
         el(
-          'ul',
-          { style: 'margin:0.35rem 0 0;padding-left:1.1rem;font-size:0.85rem' },
-          q.findings.map((f) =>
-            el('li', {}, [
-              el('strong', { text: `${f.param}: ` }),
-              f.issue,
-              el('span', { style: 'color:var(--muted)', text: ` — Fix: ${f.fix}` }),
+          'div',
+          { className: 'card-grid' },
+          (data.cards || []).map((c) =>
+            el('div', { className: `mini-card ${c.bad ? 'bad' : 'good'}` }, [
+              el('h3', { text: c.h }),
+              el('p', { text: c.p }),
             ]),
           ),
         ),
-      ])
-    : null;
+      );
+      break;
 
-  document.getElementById('quality-panel').replaceChildren(
-    el('div', { className: 'score-head' }, [
-      el('div', { className: 'score-big', html: `${q.overall}<span> / 100</span>` }),
-      pill(q.passed ? 'Pass' : 'Below bar', q.passed ? 'pass' : 'warn'),
-      el('span', { style: 'font-size:0.78rem;color:var(--muted)', text: q.note }),
-    ]),
-    ...rows,
-    findings,
-  );
-}
-
-function renderDedupe(data) {
-  const d = data.dedupe;
-  document.getElementById('dedupe-panel').replaceChildren(
-    el('div', { className: 'mr-head' }, [
-      pill(`${d.before} → ${d.after} cases`, 'pass'),
-      pill(`${d.merges.length} merges shown`),
-    ]),
-    ...d.merges.map((m) =>
-      el('div', { className: 'merge' }, [
-        el('strong', { text: `Kept ${m.kept}` }),
-        el('div', { className: 'folded', text: `Folded: ${m.folded.join(' · ')}` }),
-        el('div', { className: 'folded', text: m.why }),
-      ]),
-    ),
-    el('div', { className: 'arrow-note', text: d.guard }),
-  );
-}
-
-function renderHouse(data) {
-  document.getElementById('house-grid').replaceChildren(
-    ...data.houseCases.map((h) =>
-      el('div', { className: 'panel house-card' }, [
-        pill(h.tag, 'oob'),
-        el('h3', { text: h.summary }),
-        el('p', { text: h.why }),
-        el('p', { style: 'margin-top:0.4rem;color:var(--text)', text: `Expected: ${h.expected}` }),
-      ]),
-    ),
-  );
-}
-
-function renderCases(data) {
-  document.getElementById('cases-panel').replaceChildren(
-    ...data.cases.map((c) => {
-      const badge =
-        c.badge && c.badge.includes('CR')
-          ? pill(c.badge, 'cr')
-          : c.badge
-            ? pill(c.badge, 'oob')
-            : null;
-      return el('details', { className: 'case', open: c.n <= 2 ? '' : null }, [
-        el('summary', { className: 'case-head' }, [
-          el('span', { className: 'n', text: `#${c.n}` }),
-          pill(c.priority),
-          pill(c.type),
-          badge,
-          el('strong', { style: 'flex:1 1 12rem', text: c.summary }),
-        ]),
-        el('div', {
-          style: 'margin-top:0.45rem;font-size:0.78rem;color:var(--muted)',
-          text: `Covers: ${c.covers.join(', ')} · ${c.tags.join(', ')}`,
-        }),
+    case 'loop':
+      root.append(
         el(
-          'ol',
-          { className: 'steps' },
-          c.steps.map((s) =>
-            el('li', {}, [
-              el('div', { className: 'a', text: s.action }),
-              el('div', { className: 'e', text: s.expected }),
+          'div',
+          { className: 'steps-row' },
+          (data.steps || []).map((s) =>
+            el('div', { className: 'step' }, [
+              el('span', { className: 'n', text: s.n }),
+              el('strong', { text: s.h }),
+              el('p', { text: s.p }),
             ]),
           ),
+        ),
+      );
+      break;
+
+    case 'generate': {
+      const t = data.ticket || {};
+      root.append(
+        el('div', { className: 'pill-row' }, (data.pills || []).map((p) => pill(p, p.includes('proven') ? 'pass' : 'cr'))),
+        el('div', { className: 'ticket-box' }, [
+          el('div', { className: 'ticket-key', text: t.key || '' }),
+          el('h3', { text: t.summary || '' }),
+          el(
+            'ul',
+            {},
+            (t.ac || []).map((line) => el('li', { text: line })),
+          ),
+        ]),
+      );
+      break;
+    }
+
+    case 'cr':
+      root.append(
+        el(
+          'div',
+          { className: 'mr-row' },
+          (data.mrs || []).map((mr) =>
+            el('div', { className: 'mr-card' }, [
+              el('header', {}, [
+                el('strong', { text: mr.label }),
+                pill(mr.iid, 'cr'),
+                pill(mr.verdict, mr.verdict === 'Clean' ? 'pass' : 'warn'),
+              ]),
+              ...(mr.bugs || []).length
+                ? mr.bugs.map((b) =>
+                    el('div', { className: 'bug-line' }, [
+                      pill(b.sev, b.sev === 'HIGH' ? 'high' : 'warn'),
+                      ' ',
+                      pill(`→ ${b.f}`, 'cr'),
+                      el('div', { text: b.t, style: 'margin-top:0.25rem' }),
+                    ]),
+                  )
+                : [el('div', { className: 'bug-line', text: 'Shared diffs skipped · locale checks ran' })],
+            ]),
+          ),
+        ),
+      );
+      break;
+
+    case 'gate': {
+      const left = el('div', { className: 'score-orb' }, [
+        el('div', { className: 'big', text: String(data.overall) }),
+        el('div', { className: 'sub', text: '/ 100' }),
+        pill(data.passed ? 'Pass' : 'Below', data.passed ? 'pass' : 'warn'),
+      ]);
+      const right = el('div', {}, [
+        ...(data.scores || []).map((p) =>
+          el('div', { className: 'param' }, [
+            el('span', { text: p.l }),
+            el('span', { className: 'bar' }, [el('i', { style: `width:${p.s}%` })]),
+            el('span', { text: String(p.s) }),
+          ]),
+        ),
+        el('div', { className: 'note', text: data.dedupe || '' }),
+        el(
+          'div',
+          { className: 'house-pills' },
+          (data.house || []).map((h) => pill(h, 'pass')),
         ),
       ]);
-    }),
-  );
-}
+      root.append(el('div', { className: 'gate-layout' }, [left, right]));
+      break;
+    }
 
-function renderAgentSamples(data) {
-  const s = data.agentSamples || {};
-  const cards = [];
-
-  if (s.cua) {
-    cards.push(
-      el('div', { className: 'panel sample-panel reveal' }, [
-        pill('CUA Browser Agent', 'cr'),
-        el('h3', { text: s.cua.title }),
-        el('p', { style: 'font-size:0.88rem;margin:0.35rem 0', text: s.cua.intent }),
-        el('div', { className: 'mr-head' }, [
-          pill(s.cua.verdict, 'pass'),
-          pill(s.cua.cost),
-          pill(s.cua.device),
-        ]),
+    case 'run':
+      root.append(
         el(
-          'ol',
-          { className: 'mono-list' },
-          s.cua.steps.map((step) => el('li', { text: step })),
+          'div',
+          { className: 'run-panels' },
+          (data.panels || []).map((p) =>
+            el('div', { className: 'run-panel' }, [
+              pill(p.tag, 'cr'),
+              el('h3', { text: p.h, style: 'margin:0.4rem 0 0;font-size:1.05rem' }),
+              el(
+                'ol',
+                {},
+                (p.lines || []).map((line) => el('li', { text: line })),
+              ),
+            ]),
+          ),
         ),
-        el('p', { style: 'margin:0.65rem 0 0;font-size:0.8rem;color:var(--muted)', text: s.cua.note }),
-      ]),
-    );
-  }
+      );
+      break;
 
-  if (s.automation) {
-    cards.push(
-      el('div', { className: 'panel sample-panel reveal' }, [
-        pill('Automation Workbench', 'oob'),
-        el('h3', { text: s.automation.title }),
-        el('p', { style: 'font-size:0.88rem;margin:0.35rem 0', text: s.automation.instruction }),
-        el('div', { className: 'mr-head' }, [
-          pill(`Confidence ${s.automation.confidence}`, 'pass'),
-          ...s.automation.artifacts.map((a) => pill(a)),
-          ...s.automation.classes.map((c) => pill(c)),
-        ]),
-        el('p', { style: 'margin:0.65rem 0 0;font-size:0.8rem;color:var(--muted)', text: s.automation.note }),
-      ]),
-    );
-  }
-
-  if (s.mcp) {
-    cards.push(
-      el('div', { className: 'panel sample-panel reveal' }, [
-        pill('MCP Skills & CLI'),
-        el('h3', { text: s.mcp.title }),
+    case 'platform':
+      root.append(
         el(
-          'ol',
-          { className: 'mono-list' },
-          s.mcp.flow.map((step) => el('li', { text: step })),
+          'div',
+          { className: 'plat-grid' },
+          (data.grid || []).map((g) =>
+            el('div', { className: 'mini-card good' }, [el('h3', { text: g.h }), el('p', { text: g.p })]),
+          ),
         ),
-        el('p', { style: 'margin:0.65rem 0 0;font-size:0.8rem;color:var(--muted)', text: s.mcp.note }),
-      ]),
-    );
-  }
+      );
+      break;
 
-  if (s.jira) {
-    cards.push(
-      el('div', { className: 'panel sample-panel reveal' }, [
-        pill('Jira + Xray', 'warn'),
-        el('h3', { text: s.jira.title }),
+    case 'why':
+      root.append(
         el(
           'ul',
-          { className: 'mono-list' },
-          s.jira.items.map((item) => el('li', { text: item })),
+          { className: 'points' },
+          (data.points || []).map((p) => el('li', { text: p })),
         ),
-      ]),
-    );
+      );
+      break;
+
+    case 'close':
+      root.append(el('div', { className: 'cta-line', text: data.cta || 'Scroll to replay' }));
+      break;
+
+    default:
+      break;
   }
 
-  document.getElementById('agent-samples').replaceChildren(...cards);
+  void total;
+  void index;
+  return root;
 }
 
-function renderPoints(data) {
-  document.getElementById('talking-points').replaceChildren(
-    ...data.talkingPoints.map((t) => el('li', { text: t })),
-  );
-  document.getElementById('footer-disclaimer').textContent = data.product.disclaimer;
+function auroraTone(id) {
+  const aurora = document.querySelector('.aurora');
+  if (!aurora) return;
+  aurora.className = 'aurora';
+  if (id === 'pain') aurora.classList.add('tone-pain');
+  else if (id === 'loop' || id === 'generate') aurora.classList.add('tone-loop');
+  else if (id === 'gate' || id === 'cr') aurora.classList.add('tone-gate');
+  else if (id === 'run') aurora.classList.add('tone-run');
+}
+
+function setActive(i) {
+  if (i === active || i < 0 || i >= scenes.length) return;
+  const prev = active;
+  active = i;
+
+  const nodes = document.querySelectorAll('.scene');
+  nodes.forEach((node, idx) => {
+    const on = idx === i;
+    node.classList.toggle('active', on);
+    node.classList.toggle('exit-up', !on && idx === prev && prev > i);
+    node.setAttribute('aria-hidden', on ? 'false' : 'true');
+  });
+
+  const s = scenes[i];
+  document.getElementById('scene-index').textContent = String(i + 1).padStart(2, '0');
+  document.getElementById('scene-kicker').textContent = s.kicker || '';
+  document.getElementById('scroll-hint').classList.toggle('hide', i > 0);
+
+  document.querySelectorAll('.scene-dots button').forEach((btn, idx) => {
+    btn.setAttribute('aria-current', idx === i ? 'true' : 'false');
+  });
+
+  auroraTone(s.id);
+}
+
+function sceneFromScroll() {
+  const track = document.getElementById('scroll-track');
+  const max = Math.max(1, track.offsetHeight - window.innerHeight);
+  const y = Math.min(max, Math.max(0, window.scrollY));
+  const t = y / max;
+  const idx = Math.min(scenes.length - 1, Math.floor(t * scenes.length));
+  document.getElementById('progress-bar').style.width = `${Math.round(t * 100)}%`;
+  setActive(idx);
+}
+
+function onScroll() {
+  if (raf) return;
+  raf = requestAnimationFrame(() => {
+    raf = 0;
+    sceneFromScroll();
+  });
+}
+
+function jumpTo(i) {
+  const track = document.getElementById('scroll-track');
+  const max = Math.max(1, track.offsetHeight - window.innerHeight);
+  const target = ((i + 0.15) / scenes.length) * max;
+  window.scrollTo({ top: target, behavior: 'smooth' });
+}
+
+function layoutTrack() {
+  const track = document.getElementById('scroll-track');
+  const h = Math.round(scenes.length * VH_PER_SCENE * window.innerHeight);
+  track.style.height = `${h}px`;
 }
 
 async function main() {
   const res = await fetch(`data/demo.json?v=${Date.now()}`, { cache: 'no-store' });
-  if (!res.ok) throw new Error(`Failed to load demo.json (${res.status})`);
+  if (!res.ok) throw new Error(`demo.json ${res.status}`);
   const data = await res.json();
-  renderHero(data);
-  renderWhy(data);
-  renderLoop(data);
-  renderAgents(data);
-  renderTicket(data);
-  renderTimeline(data);
-  renderCr(data);
-  renderQuality(data);
-  renderDedupe(data);
-  renderHouse(data);
-  renderCases(data);
-  renderAgentSamples(data);
-  renderPoints(data);
-  observeReveals();
+  scenes = data.scenes || [];
+  document.title = data.product?.name || 'Angara GenAI Agent';
+  document.getElementById('foot-note').textContent = data.product?.disclaimer || '';
+
+  const frame = document.getElementById('stage-frame');
+  const dots = document.getElementById('scene-dots');
+  frame.replaceChildren(...scenes.map((s, i) => buildScene(s, i, scenes.length)));
+  dots.replaceChildren(
+    ...scenes.map((s, i) =>
+      el('button', {
+        type: 'button',
+        title: s.kicker || s.title,
+        'aria-label': s.kicker || s.title,
+        onclick: () => jumpTo(i),
+      }),
+    ),
+  );
+
+  layoutTrack();
+  setActive(0);
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', () => {
+    layoutTrack();
+    sceneFromScroll();
+  });
+  sceneFromScroll();
 }
 
 main().catch((err) => {
-  document.getElementById('hero-lead').textContent = `Demo failed to load: ${err.message}`;
+  document.getElementById('scene-kicker').textContent = 'Error';
+  document.getElementById('stage-frame').textContent = String(err.message || err);
 });

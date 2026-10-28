@@ -4,8 +4,10 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Angara GenAI Agent</title>
-  <meta name="description" content="Angara GenAI Agent — ticket to proven suite, multi-MR code review while generating, browser agents, Xray. Why it beats chatbots and classic TMS." />
+  <meta name="description" content="Scroll-driven product story — Angara GenAI Agent for enterprise QA." />
   <meta name="robots" content="noindex,nofollow" />
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+  <link rel="apple-touch-icon" href="assets/mark.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -15,124 +17,35 @@
   <div class="aurora" aria-hidden="true"></div>
 
   <header class="topbar">
-    <div class="wrap topbar-inner">
-      <div class="brand">Angara <em>GenAI Agent</em></div>
-      <nav class="nav" aria-label="Sections">
-        <a href="#why">Why us</a>
-        <a href="#loop">How it works</a>
-        <a href="#agents">Capabilities</a>
-        <a href="#sample">Sample run</a>
-        <a href="#run-agents">Execute</a>
-      </nav>
-      <a class="btn btn-sm" href="#sample">Watch sample</a>
+    <a class="brand" href="#top" aria-label="Angara GenAI Agent home">
+      <img src="assets/logo.svg" width="160" height="40" alt="Angara GenAI Agent" />
+    </a>
+    <div class="progress-wrap" aria-hidden="true">
+      <div class="progress-bar" id="progress-bar"></div>
     </div>
+    <div class="scene-dots" id="scene-dots" role="tablist" aria-label="Story chapters"></div>
   </header>
 
-  <main>
-    <section class="hero wrap reveal">
-      <p class="kicker" id="hero-eyebrow">Enterprise QA · GenAI platform</p>
-      <h1 id="hero-title">Ship QA that can defend itself.</h1>
-      <p class="lead" id="hero-lead"></p>
-      <p class="sublead" id="hero-sub"></p>
-      <div class="hero-cta">
-        <a class="btn" href="#sample" id="cta-primary">See a live sample run</a>
-        <a class="btn btn-ghost" href="#why" id="cta-secondary">Why we’re different</a>
+  <!-- Sticky stage: same frame; content morphs on scroll -->
+  <div class="stage" id="top">
+    <div class="stage-inner">
+      <div class="stage-meta">
+        <span class="scene-index" id="scene-index">01</span>
+        <span class="scene-kicker" id="scene-kicker"></span>
       </div>
-      <div class="stats hero-stats" id="hero-stats"></div>
-    </section>
-
-    <section class="block wrap" id="why">
-      <div class="section-head reveal">
-        <p class="kicker">Competitive edge</p>
-        <h2 id="why-title">Why we’re better than normal tools</h2>
-        <p class="sub" id="why-sub"></p>
+      <div class="stage-frame" id="stage-frame">
+        <!-- scenes injected -->
       </div>
-      <div class="compare" id="compare-rows"></div>
-    </section>
-
-    <section class="block wrap" id="loop">
-      <div class="section-head reveal">
-        <p class="kicker">The agent loop</p>
-        <h2>One run. Five moments of power.</h2>
-        <p class="sub">From intake to Xray — review and generate overlap so defects become cases before anyone saves.</p>
-      </div>
-      <ol class="power-loop reveal" id="power-loop"></ol>
-    </section>
-
-    <section class="block wrap" id="agents">
-      <div class="section-head reveal">
-        <p class="kicker">Platform</p>
-        <h2>Everything under Angara GenAI Agent</h2>
-        <p class="sub">Eight surfaces. One workspace. Click through to the proof below.</p>
-      </div>
-      <div class="agent-grid" id="agent-grid"></div>
-    </section>
-
-    <section class="block sample-stage" id="sample">
-      <div class="wrap">
-        <div class="section-head reveal">
-          <p class="kicker">Interactive sample</p>
-          <h2>One story. Suite + multi-MR review + gate.</h2>
-          <p class="sub">Frozen DEMO run — same shape as production. Scroll the proof stack.</p>
-        </div>
-
-        <div class="panel glow reveal" id="ticket-panel"></div>
-
-        <div class="grid-2 sample-split">
-          <div>
-            <h3 class="mini-h">Timeline · CR ∥ generate</h3>
-            <div class="panel">
-              <ol class="timeline" id="timeline"></ol>
-            </div>
-          </div>
-          <div>
-            <h3 class="mini-h">Quality gate · 7 parameters</h3>
-            <div class="panel" id="quality-panel"></div>
-          </div>
-        </div>
-
-        <h3 class="mini-h">Multi-MR code review → checklist F items</h3>
-        <div id="cr-panel"></div>
-
-        <div class="grid-2 sample-split">
-          <div>
-            <h3 class="mini-h">Semantic dedupe</h3>
-            <div class="panel" id="dedupe-panel"></div>
-          </div>
-          <div>
-            <h3 class="mini-h">Out-of-the-box cases</h3>
-            <div class="house-grid" id="house-grid"></div>
-          </div>
-        </div>
-
-        <h3 class="mini-h">Suite excerpt</h3>
-        <div class="panel" id="cases-panel"></div>
-      </div>
-    </section>
-
-    <section class="block wrap" id="run-agents">
-      <div class="section-head reveal">
-        <p class="kicker">After the suite exists</p>
-        <h2>Run it. Automate it. Publish it.</h2>
-        <p class="sub">Browser agents, Playwright codegen, MCP in the IDE, Xray sync — same platform.</p>
-      </div>
-      <div class="grid-2" id="agent-samples"></div>
-    </section>
-
-    <section class="block wrap closer reveal" id="points">
-      <p class="kicker">Bottom line</p>
-      <h2>QA that proves coverage — not just produces text.</h2>
-      <ul class="points" id="talking-points"></ul>
-      <div class="hero-cta" style="margin-top:1.5rem">
-        <a class="btn" href="#sample">Replay the sample</a>
-      </div>
-    </section>
-  </main>
-
-  <footer class="footer">
-    <div class="wrap">
-      <p id="footer-disclaimer"></p>
+      <p class="scroll-hint" id="scroll-hint">Scroll to explore</p>
     </div>
+  </div>
+
+  <!-- Tall scroll track — drives scene index -->
+  <div class="scroll-track" id="scroll-track" aria-hidden="true"></div>
+
+  <footer class="foot">
+    <img src="assets/mark.svg" width="20" height="20" alt="" />
+    <span id="foot-note"></span>
   </footer>
 
   <script src="app.js" defer></script>
