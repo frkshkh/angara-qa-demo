@@ -151,16 +151,22 @@ a:hover { text-decoration: underline; }
 .stage-wrap {
   position: sticky;
   top: 0;
+  height: 100vh;
   height: 100dvh;
+  max-height: 100dvh;
   display: grid;
   place-items: center;
   padding: 4.75rem 1rem 1.5rem;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 .stage-shell {
   width: min(920px, 100%);
-  height: min(580px, calc(100dvh - 6.5rem));
+  height: min(560px, calc(100dvh - 7rem));
+  max-height: calc(100dvh - 7rem);
   display: flex;
   flex-direction: column;
+  min-height: 0;
 }
 .stage-meta {
   display: flex;
@@ -168,6 +174,7 @@ a:hover { text-decoration: underline; }
   gap: 0.65rem;
   margin-bottom: 0.65rem;
   min-height: 1.25rem;
+  flex: 0 0 auto;
 }
 .scene-index { font-family: var(--mono); font-size: 0.78rem; color: var(--accent); font-weight: 600; }
 .scene-kicker {
@@ -178,12 +185,14 @@ a:hover { text-decoration: underline; }
   font-weight: 700;
 }
 .stage-frame {
-  flex: 1;
+  flex: 1 1 auto;
+  min-height: 0;
   position: relative;
-  background: var(--card);
-  border: 1px solid var(--line-strong);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
+  background: #162033;
+  background: var(--card, #162033);
+  border: 1px solid rgba(125, 211, 252, 0.45);
+  border-radius: 18px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.45);
   overflow: hidden;
 }
 .scroll-hint {
@@ -206,16 +215,16 @@ a:hover { text-decoration: underline; }
   opacity: 0;
   visibility: hidden;
   transform: translateY(24px);
-  filter: blur(6px);
   pointer-events: none;
-  transition: opacity 0.5s cubic-bezier(0.22,1,0.36,1), transform 0.5s cubic-bezier(0.22,1,0.36,1), filter 0.5s ease, visibility 0.5s;
+  color: #f4f7fb;
+  transition: opacity 0.45s cubic-bezier(0.22,1,0.36,1), transform 0.45s cubic-bezier(0.22,1,0.36,1), visibility 0.45s;
 }
 .scene.active {
   opacity: 1;
   visibility: visible;
   transform: none;
-  filter: none;
   pointer-events: auto;
+  z-index: 2;
 }
 .scene h2 {
   font-family: var(--display);
@@ -239,10 +248,11 @@ a:hover { text-decoration: underline; }
 }
 .panel {
   width: min(760px, 100%);
-  background: var(--card);
-  border: 1px solid var(--line-strong);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
+  background: #162033;
+  background: var(--card, #162033);
+  border: 1px solid rgba(125, 211, 252, 0.45);
+  border-radius: 18px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.45);
   padding: clamp(1.35rem, 3.5vw, 2rem);
   position: relative;
   overflow: hidden;
