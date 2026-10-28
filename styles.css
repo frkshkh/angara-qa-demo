@@ -124,7 +124,16 @@ a:hover { text-decoration: underline; }
   color: var(--muted);
   line-height: 1.2;
 }
-.credit-line strong { color: var(--text); font-weight: 650; }
+.credit-line strong,
+.author-link {
+  color: var(--text);
+  font-weight: 650;
+  text-decoration: none;
+}
+.author-link:hover {
+  color: var(--accent);
+  text-decoration: underline;
+}
 .nav-links { display: flex; align-items: center; gap: 0.55rem; flex-wrap: wrap; }
 @media (max-width: 720px) {
   .topbar .credit-line .js-copyright { display: none; }
