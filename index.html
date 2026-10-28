@@ -11,16 +11,23 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=12" />
+  <link rel="stylesheet" href="styles.css?v=13" />
 </head>
 <body class="mode-home" data-frame="go">
   <div class="aurora" aria-hidden="true"></div>
   <div class="fx-ring" aria-hidden="true"></div>
 
   <header class="topbar">
-    <a class="brand" href="./" id="brand-home">
-      <img src="assets/logo.svg" width="160" height="40" alt="Angara GenAI Agent" />
-    </a>
+    <div class="brand-block">
+      <a class="brand" href="./" id="brand-home">
+        <img src="assets/logo.svg" width="160" height="40" alt="Angara GenAI Agent" />
+      </a>
+      <p class="credit-line" id="header-credit">
+        <span>Author <strong class="js-author">Farukh Sheikh</strong></span>
+        <span class="foot-sep" aria-hidden="true">·</span>
+        <span class="js-copyright">© 2026 Angara Ecommerce Pvt Ltd</span>
+      </p>
+    </div>
     <div class="progress-wrap tour-only" aria-hidden="true"><div class="progress-bar" id="progress-bar"></div></div>
     <div class="top-status journey-only" id="top-status" hidden>
       <span class="live-dot" aria-hidden="true"></span>
@@ -113,14 +120,14 @@
     <img src="assets/mark.svg" width="18" height="18" alt="" />
     <div class="foot-copy">
       <span id="foot-note"></span>
-      <span class="foot-meta">
-        <span>Author <strong id="foot-author">Farukh Sheikh</strong></span>
+      <span class="foot-meta credit-line">
+        <span>Author <strong class="js-author">Farukh Sheikh</strong></span>
         <span class="foot-sep" aria-hidden="true">·</span>
-        <span id="foot-copyright">© 2026 Angara Ecommerce Pvt Ltd</span>
+        <span class="js-copyright">© 2026 Angara Ecommerce Pvt Ltd</span>
       </span>
     </div>
   </footer>
 
-  <script src="app.js?v=12" defer></script>
+  <script src="app.js?v=13" defer></script>
 </body>
 </html>

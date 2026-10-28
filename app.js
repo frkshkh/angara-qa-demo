@@ -1056,10 +1056,14 @@ async function main() {
   scenes = data.scenes || [];
   document.title = data.product.name;
   document.getElementById('foot-note').textContent = data.product.disclaimer;
-  const authorEl = document.getElementById('foot-author');
-  const copyEl = document.getElementById('foot-copyright');
-  if (authorEl) authorEl.textContent = data.product.author || 'Farukh Sheikh';
-  if (copyEl) copyEl.textContent = data.product.copyright || '© 2026 Angara Ecommerce Pvt Ltd';
+  const author = data.product.author || 'Farukh Sheikh';
+  const copyright = data.product.copyright || '© 2026 Angara Ecommerce Pvt Ltd';
+  document.querySelectorAll('.js-author').forEach((n) => {
+    n.textContent = author;
+  });
+  document.querySelectorAll('.js-copyright').forEach((n) => {
+    n.textContent = copyright;
+  });
 
   const L = data.landing;
   document.getElementById('landing-greet').textContent = L.greeting;

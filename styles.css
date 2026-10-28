@@ -106,9 +106,29 @@ a:hover { text-decoration: underline; }
   backdrop-filter: blur(14px);
   border-bottom: 1px solid var(--line);
 }
+.brand-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
 .brand { display: flex; align-items: center; gap: 0.55rem; text-decoration: none; color: inherit; }
 .brand img { height: 34px; width: auto; display: block; }
+.credit-line {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.68rem;
+  color: var(--muted);
+  line-height: 1.2;
+}
+.credit-line strong { color: var(--text); font-weight: 650; }
 .nav-links { display: flex; align-items: center; gap: 0.55rem; flex-wrap: wrap; }
+@media (max-width: 720px) {
+  .topbar .credit-line .js-copyright { display: none; }
+}
 
 .btn {
   display: inline-flex;
