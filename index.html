@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=6" />
+  <link rel="stylesheet" href="styles.css?v=8" />
 </head>
 <body class="mode-home" data-frame="go">
   <div class="aurora" aria-hidden="true"></div>
@@ -37,30 +37,48 @@
     </div>
   </header>
 
-  <!-- Frame 0: Autopilot GO -->
-  <section class="frame frame-go" id="frame-go" aria-label="Autopilot">
-    <div class="panel landing" id="landing">
-      <img class="mark-lg" src="assets/mark.svg" width="52" height="52" alt="" />
-      <p class="kicker">Autopilot · closed-loop demo</p>
-      <h1>
-        <span class="greet" id="landing-greet">Hi agent,</span>
-        <span class="prompt-line" id="landing-prompt">test my Story</span>
-      </h1>
-      <label class="story-field">
-        <span class="label">Story / ticket</span>
-        <input id="story-input" type="text" autocomplete="off" />
-      </label>
-      <button type="button" class="go-btn" id="go-btn">
-        <span id="go-label">GO</span>
-        <span class="go-arrow" aria-hidden="true">→</span>
-      </button>
-      <p class="hint" id="landing-hint"></p>
-      <p class="scroll-cue" id="scroll-cue">
-        <span class="scroll-cue-line"></span>
-        Scroll for product tour
-      </p>
+  <!-- Sticky pin: GO + tour scrub in one viewport -->
+  <div class="pin-wrap" id="pin-wrap">
+    <div class="pin-stage" id="pin-stage">
+      <!-- Layer 0: Autopilot GO -->
+      <section class="layer layer-go" id="layer-go" aria-label="Autopilot">
+        <div class="panel landing" id="landing">
+          <img class="mark-lg" src="assets/mark.svg" width="52" height="52" alt="" />
+          <p class="kicker">Autopilot · closed-loop demo</p>
+          <h1>
+            <span class="greet" id="landing-greet">Hi agent,</span>
+            <span class="prompt-line" id="landing-prompt">test my Story</span>
+          </h1>
+          <label class="story-field">
+            <span class="label">Story / ticket</span>
+            <input id="story-input" type="text" autocomplete="off" />
+          </label>
+          <button type="button" class="go-btn" id="go-btn">
+            <span id="go-label">GO</span>
+            <span class="go-arrow" aria-hidden="true">→</span>
+          </button>
+          <p class="hint" id="landing-hint"></p>
+          <p class="scroll-cue" id="scroll-cue">
+            <span class="scroll-cue-line"></span>
+            Scroll for product tour
+          </p>
+        </div>
+      </section>
+
+      <!-- Layer 1: Product tour frames -->
+      <section class="layer layer-tour" id="layer-tour" aria-label="Product tour">
+        <div class="stage-shell">
+          <div class="stage-meta">
+            <span class="scene-index" id="scene-index">01</span>
+            <span class="scene-kicker" id="scene-kicker"></span>
+          </div>
+          <div class="stage-frame" id="stage-frame"></div>
+          <p class="scroll-hint" id="scroll-hint">Scroll to reveal</p>
+        </div>
+      </section>
     </div>
-  </section>
+    <div class="scroll-track" id="scroll-track" aria-hidden="true"></div>
+  </div>
 
   <!-- Journey overlay (CTA path) -->
   <section class="frame frame-journey" id="frame-journey" hidden aria-live="polite">
@@ -76,26 +94,11 @@
     </div>
   </section>
 
-  <!-- Scroll presentation -->
-  <div class="tour-zone" id="tour-zone">
-    <div class="stage-wrap" id="top">
-      <div class="stage-shell">
-        <div class="stage-meta">
-          <span class="scene-index" id="scene-index">01</span>
-          <span class="scene-kicker" id="scene-kicker"></span>
-        </div>
-        <div class="stage-frame" id="stage-frame"></div>
-        <p class="scroll-hint" id="scroll-hint">Scroll to continue · Autopilot above</p>
-      </div>
-    </div>
-    <div class="scroll-track" id="scroll-track" aria-hidden="true"></div>
-  </div>
-
   <footer class="foot">
     <img src="assets/mark.svg" width="18" height="18" alt="" />
     <span id="foot-note"></span>
   </footer>
 
-  <script src="app.js?v=6" defer></script>
+  <script src="app.js?v=8" defer></script>
 </body>
 </html>

@@ -1,6 +1,7 @@
-/** One page: GO first · CTA → journey · scroll → product tour. */
+/** One page: GO first · CTA → journey · Apple-style scroll scrub. */
 
-const VH_PER_SCENE = 1.15;
+const VH_PER_UNIT = 2.15; // long runway per chapter (iPhone-site feel)
+const LERP = 0.14; // scroll progress easing (lower = silkier)
 let data = null;
 let scenes = [];
 let activeScene = -1;
@@ -10,7 +11,25 @@ let paused = false;
 let checklistTimers = [];
 let raf = 0;
 let mode = 'home'; // home | journey
-let goVisible = true;
+let lastMeta = -1;
+let scrollTarget = 0; // 0..units raw from wheel
+let scrollSmooth = 0; // lerped display progress
+let scrubLoop = 0;
+
+function clamp(v, a, b) {
+  return Math.max(a, Math.min(b, v));
+}
+function smoothstep(t) {
+  t = clamp(t, 0, 1);
+  return t * t * (3 - 2 * t);
+}
+/** Hold → blend → settle inside one unit (Apple chapter pacing). */
+function unitBlend(u) {
+  u = clamp(u, 0, 1);
+  if (u <= 0.32) return 0;
+  if (u >= 0.82) return 1;
+  return smoothstep((u - 0.32) / 0.5);
+}
 
 function el(tag, attrs = {}, kids = []) {
   const n = document.createElement(tag);
@@ -241,17 +260,21 @@ function buildScene(d) {
   return root;
 }
 
-function setActiveScene(i) {
-  if (i === activeScene || i < 0 || i >= scenes.length) return;
-  const prev = activeScene;
+function totalUnits() {
+  // Unit 0: GO → scene 0. Then one unit per remaining scene.
+  return Math.max(1, scenes.length);
+}
+
+function layoutTrack() {
+  const track = document.getElementById('scroll-track');
+  const units = totalUnits() + 0.55; // settle room on last frame
+  track.style.height = `${Math.round(units * VH_PER_UNIT * window.innerHeight)}px`;
+}
+
+function updateMeta(i) {
+  if (i === lastMeta || i < 0 || i >= scenes.length) return;
+  lastMeta = i;
   activeScene = i;
-  document.querySelectorAll('.scene').forEach((node, idx) => {
-    const on = idx === i;
-    node.classList.toggle('active', on);
-    node.classList.toggle('exit-up', !on && prev >= 0 && idx === prev && i > prev);
-    node.classList.toggle('exit-down', !on && prev >= 0 && idx === prev && i < prev);
-    node.setAttribute('aria-hidden', on ? 'false' : 'true');
-  });
   const s = scenes[i];
   document.getElementById('scene-index').textContent = String(i + 1).padStart(2, '0');
   document.getElementById('scene-kicker').textContent = s.kicker || '';
@@ -261,60 +284,157 @@ function setActiveScene(i) {
   });
 }
 
-function layoutTrack() {
-  const track = document.getElementById('scroll-track');
-  track.style.height = `${Math.round(scenes.length * VH_PER_SCENE * window.innerHeight)}px`;
-}
-
-function sceneFromTourScroll() {
-  const zone = document.getElementById('tour-zone');
-  const track = document.getElementById('scroll-track');
-  const zoneTop = zone.offsetTop;
-  const localY = Math.max(0, window.scrollY - zoneTop);
-  const max = Math.max(1, track.offsetHeight - window.innerHeight);
-  const t = Math.min(1, localY / max);
-  const idx = Math.min(scenes.length - 1, Math.floor(t * scenes.length));
-  document.getElementById('progress-bar').style.width = `${Math.round(t * 100)}%`;
-  setActiveScene(idx);
-}
-
-function updateFrameFromScroll() {
-  if (mode === 'journey') return;
-  const goH = document.getElementById('frame-go').offsetHeight || window.innerHeight;
-  const y = window.scrollY;
-  const nextGo = y < goH * 0.55;
-  if (nextGo !== goVisible) {
-    goVisible = nextGo;
-    document.body.dataset.frame = nextGo ? 'go' : 'tour';
-    document.body.classList.toggle('on-tour', !nextGo);
-    document.getElementById('scroll-cue')?.classList.toggle('hide', !nextGo || y > 40);
+/**
+ * Apple-style paint: opacity + scale + slight Y, clip reveal.
+ * No blur (blur = scroll jank).
+ * dir -1 = exiting up/zoom-out, +1 = entering from below.
+ */
+function paintScene(node, vis, dir) {
+  const v = clamp(vis, 0, 1);
+  const inv = 1 - v;
+  let y = 0;
+  let scale = 1;
+  if (dir < 0) {
+    y = -28 * inv;
+    scale = 1 + 0.06 * inv; // exit: grow + fade (product zoom away)
+  } else if (dir > 0) {
+    y = 48 * inv;
+    scale = 0.92 + 0.08 * v; // enter: rise + settle
   }
-  if (!nextGo) sceneFromTourScroll();
-  else document.getElementById('progress-bar').style.width = '0%';
+  const clipTop = dir > 0 ? inv * 18 : 0;
+  const clipBot = dir < 0 ? inv * 10 : dir > 0 ? inv * 6 : 0;
+
+  node.style.opacity = String(v);
+  node.style.transform = `translate3d(0, ${y}px, 0) scale(${scale})`;
+  node.style.clipPath = v >= 0.995 ? 'none' : `inset(${clipTop}% 0 ${clipBot}% 0)`;
+  node.style.visibility = v < 0.01 ? 'hidden' : 'visible';
+  node.style.pointerEvents = v > 0.6 ? 'auto' : 'none';
+  node.style.zIndex = String(Math.round(v * 12) + (dir > 0 ? 2 : 0));
+  node.setAttribute('aria-hidden', v > 0.5 ? 'false' : 'true');
+}
+
+function scrubScenes(fromIdx, toIdx, blend01) {
+  const nodes = [...document.querySelectorAll('.scene')];
+  const e = clamp(blend01, 0, 1);
+  nodes.forEach((node, idx) => {
+    if (fromIdx === toIdx) {
+      paintScene(node, idx === fromIdx ? 1 : 0, 0);
+      return;
+    }
+    if (idx === fromIdx) paintScene(node, 1 - e, -1);
+    else if (idx === toIdx) paintScene(node, e, 1);
+    else paintScene(node, 0, idx < fromIdx ? -1 : 1);
+  });
+  updateMeta(e > 0.5 ? toIdx : fromIdx);
+}
+
+function setLayers(goVis, tourVis) {
+  const go = document.getElementById('layer-go');
+  const tour = document.getElementById('layer-tour');
+  const cue = document.getElementById('scroll-cue');
+  const g = clamp(goVis, 0, 1);
+  const t = clamp(tourVis, 0, 1);
+  const gInv = 1 - g;
+
+  go.style.opacity = String(g);
+  go.style.transform = `translate3d(0, ${-56 * gInv}px, 0) scale(${1 - 0.08 * gInv})`;
+  go.style.pointerEvents = g > 0.55 ? 'auto' : 'none';
+  go.style.visibility = g < 0.02 ? 'hidden' : 'visible';
+  go.style.zIndex = g >= t ? '3' : '1';
+
+  tour.style.opacity = String(t);
+  tour.style.transform = `translate3d(0, ${(1 - t) * 64}px, 0) scale(${0.94 + 0.06 * t})`;
+  tour.style.pointerEvents = t > 0.55 ? 'auto' : 'none';
+  tour.style.visibility = t < 0.02 ? 'hidden' : 'visible';
+  tour.style.zIndex = t > g ? '3' : '2';
+
+  if (cue) cue.classList.toggle('hide', g < 0.85);
+  const onTour = t > 0.55;
+  document.body.dataset.frame = onTour ? 'tour' : 'go';
+  document.body.classList.toggle('on-tour', onTour);
+}
+
+function readScrollTarget() {
+  const track = document.getElementById('scroll-track');
+  const max = Math.max(1, track.offsetHeight - window.innerHeight);
+  const y = clamp(window.scrollY, 0, max);
+  document.getElementById('progress-bar').style.width = `${(y / max) * 100}%`;
+  return (y / max) * totalUnits();
+}
+
+function paintProgress(progress) {
+  if (mode === 'journey') return;
+  const n = scenes.length;
+  if (!n) {
+    setLayers(1, 0);
+    return;
+  }
+
+  // Unit 0: GO → scene 0
+  if (progress < 1) {
+    const blend = unitBlend(progress);
+    setLayers(1 - blend, blend);
+    scrubScenes(0, 0, 1);
+    const first = document.querySelector('.scene');
+    if (first) paintScene(first, blend, 1);
+    if (blend > 0.25) updateMeta(0);
+    return;
+  }
+
+  // Tour locked in
+  setLayers(0, 1);
+  if (n === 1) {
+    scrubScenes(0, 0, 1);
+    return;
+  }
+
+  const pos = progress - 1; // 0 .. n-1
+  const capped = clamp(pos, 0, n - 1 - 1e-4);
+  const i = Math.min(n - 2, Math.floor(capped));
+  const local = capped - i;
+  scrubScenes(i, i + 1, unitBlend(local));
+}
+
+function scrubTick() {
+  scrubLoop = 0;
+  if (mode === 'journey') return;
+  scrollTarget = readScrollTarget();
+  scrollSmooth += (scrollTarget - scrollSmooth) * LERP;
+  if (Math.abs(scrollTarget - scrollSmooth) < 0.0004) scrollSmooth = scrollTarget;
+  paintProgress(scrollSmooth);
+  if (Math.abs(scrollTarget - scrollSmooth) > 0.0004) {
+    scrubLoop = requestAnimationFrame(scrubTick);
+  }
 }
 
 function onScroll() {
-  if (raf) return;
-  raf = requestAnimationFrame(() => {
-    raf = 0;
-    updateFrameFromScroll();
-  });
+  scrollTarget = readScrollTarget();
+  if (!scrubLoop) scrubLoop = requestAnimationFrame(scrubTick);
+}
+
+function scrubFromScroll() {
+  scrollTarget = readScrollTarget();
+  scrollSmooth = scrollTarget;
+  paintProgress(scrollSmooth);
 }
 
 function jumpToScene(i) {
-  const zone = document.getElementById('tour-zone');
   const track = document.getElementById('scroll-track');
   const max = Math.max(1, track.offsetHeight - window.innerHeight);
-  const top = zone.offsetTop + ((i + 0.1) / scenes.length) * max;
-  window.scrollTo({ top, behavior: 'smooth' });
+  const units = totalUnits();
+  // Mid-hold of scene i (after GO unit)
+  const unit = clamp(i + 0.5 + 0.15, 0, units);
+  window.scrollTo({ top: (unit / units) * max, behavior: 'smooth' });
 }
 
 function goToAutopilot() {
   window.scrollTo({ top: 0, behavior: 'smooth' });
   document.body.dataset.frame = 'go';
   document.body.classList.remove('on-tour');
-  goVisible = true;
-  setTimeout(() => document.getElementById('story-input')?.focus(), 420);
+  setTimeout(() => {
+    scrubFromScroll();
+    document.getElementById('story-input')?.focus();
+  }, 420);
 }
 
 /* ---------- Journey renderers ---------- */
@@ -688,9 +808,7 @@ function startJourney() {
     document.body.className = 'mode-journey';
     document.body.dataset.frame = 'journey';
     document.documentElement.classList.add('lock-scroll');
-    document.getElementById('landing').hidden = true;
-    document.getElementById('frame-go').hidden = true;
-    document.getElementById('tour-zone').hidden = true;
+    document.getElementById('pin-wrap').hidden = true;
     document.getElementById('frame-journey').hidden = false;
     document.getElementById('top-status').hidden = false;
     document.getElementById('top-actions').hidden = false;
@@ -709,15 +827,14 @@ function exitJourney() {
   document.body.dataset.frame = 'go';
   document.getElementById('frame-journey').hidden = true;
   document.getElementById('frame-journey').classList.remove('enter');
-  document.getElementById('frame-go').hidden = false;
-  document.getElementById('landing').hidden = false;
-  document.getElementById('tour-zone').hidden = false;
+  document.getElementById('pin-wrap').hidden = false;
   document.getElementById('top-status').hidden = true;
   document.getElementById('top-actions').hidden = true;
   document.getElementById('go-btn').classList.remove('launching');
   setAurora('');
   window.scrollTo({ top: 0, behavior: 'smooth' });
-  goVisible = true;
+  lastMeta = -1;
+  setTimeout(scrubFromScroll, 80);
 }
 
 function restart() {
@@ -771,7 +888,10 @@ async function main() {
   );
 
   layoutTrack();
-  setActiveScene(0);
+  document.querySelectorAll('.scene').forEach((node) => {
+    node.classList.remove('active');
+    paintScene(node, 0, 1);
+  });
 
   document.getElementById('go-btn').addEventListener('click', startJourney);
   document.getElementById('story-input').addEventListener('keydown', (e) => {
@@ -791,7 +911,7 @@ async function main() {
   window.addEventListener('scroll', onScroll, { passive: true });
   window.addEventListener('resize', () => {
     layoutTrack();
-    updateFrameFromScroll();
+    scrubFromScroll();
   });
 
   if (location.hash === '#go' || location.hash === '#autopilot') {
@@ -800,7 +920,7 @@ async function main() {
     setTimeout(() => jumpToScene(0), 80);
   }
 
-  updateFrameFromScroll();
+  scrubFromScroll();
   document.body.classList.add('ready');
 }
 
