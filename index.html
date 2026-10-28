@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=17" />
+  <link rel="stylesheet" href="styles.css?v=21" />
 </head>
 <body class="mode-home" data-frame="go">
   <div class="aurora" aria-hidden="true"></div>
@@ -29,14 +29,26 @@
       </p>
     </div>
     <div class="progress-wrap tour-only" aria-hidden="true"><div class="progress-bar" id="progress-bar"></div></div>
-    <div class="top-status journey-only" id="top-status" hidden>
-      <span class="live-dot" aria-hidden="true"></span>
-      <span id="top-phase">Autopilot</span>
+    <div class="ap-progress journey-only" id="ap-progress" hidden>
+      <div class="ap-progress-meta">
+        <span class="live-dot" id="ap-dot" aria-hidden="true"></span>
+        <span id="ap-state">Auto-running</span>
+        <span class="ap-sep" aria-hidden="true">·</span>
+        <span id="ap-step">1 / 12</span>
+        <span class="ap-sep" aria-hidden="true">·</span>
+        <span id="top-phase">Autopilot</span>
+      </div>
+      <div class="ap-progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="ap-track">
+        <i class="ap-fill-overall" id="ap-fill-overall"></i>
+        <b class="ap-fill-step" id="ap-fill-step"></b>
+      </div>
     </div>
+    <!-- keep id for exitJourney / legacy -->
+    <div id="top-status" hidden class="sr" aria-hidden="true"></div>
     <div class="nav-links">
       <div class="scene-dots tour-only" id="scene-dots" role="tablist" aria-label="Tour chapters"></div>
       <div class="top-actions journey-only" id="top-actions" hidden>
-        <button type="button" class="btn btn-ghost" id="btn-pause">Pause</button>
+        <button type="button" class="btn btn-ghost" id="btn-pause" aria-pressed="false">Pause</button>
         <button type="button" class="btn btn-ghost" id="btn-skip">Skip</button>
         <button type="button" class="btn btn-ghost" id="btn-exit">Exit</button>
       </div>
@@ -126,6 +138,6 @@
     </div>
   </footer>
 
-  <script src="app.js?v=17" defer></script>
+  <script src="app.js?v=21" defer></script>
 </body>
 </html>

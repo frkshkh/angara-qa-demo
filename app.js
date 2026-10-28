@@ -25,6 +25,11 @@ let idleFrames = 0;
 let sceneNodes = [];
 /** While set, scrub loop won't pull progress back to lagging scrollY (Home/End/dots). */
 let pinProgressUntil = 0;
+/** Autopilot header step timer */
+let apTickRaf = 0;
+let apStepStarted = 0;
+let apStepDur = 0;
+let apElapsedBeforePause = 0;
 
 function clamp(v, a, b) {
   return Math.max(a, Math.min(b, v));
@@ -560,9 +565,60 @@ function nudgeScroll(deltaUnits, smooth) {
 }
 
 function onKeyNav(e) {
-  if (mode === 'journey') return;
   const tag = (e.target && e.target.tagName) || '';
   if (tag === 'INPUT' || tag === 'TEXTAREA' || e.target?.isContentEditable) return;
+
+  // Journey: arrows / PgUp/Dn / Space scroll the card (any time). P = pause.
+  if (mode === 'journey') {
+    if (e.key === 'p' || e.key === 'P') {
+      e.preventDefault();
+      togglePause();
+      return;
+    }
+    const stepPx = Math.max(64, Math.round(window.innerHeight * 0.18));
+    const pagePx = Math.max(120, Math.round(window.innerHeight * 0.45));
+    switch (e.key) {
+      case 'ArrowDown':
+      case 'Down':
+      case ' ':
+      case 'Spacebar':
+        if (e.key === ' ' && e.shiftKey) {
+          e.preventDefault();
+          scrollJourney(-stepPx, true);
+        } else {
+          e.preventDefault();
+          scrollJourney(stepPx, true);
+        }
+        break;
+      case 'ArrowUp':
+      case 'Up':
+        e.preventDefault();
+        scrollJourney(-stepPx, true);
+        break;
+      case 'PageDown':
+        e.preventDefault();
+        scrollJourney(pagePx, true);
+        break;
+      case 'PageUp':
+        e.preventDefault();
+        scrollJourney(-pagePx, true);
+        break;
+      case 'Home':
+        e.preventDefault();
+        journeyScrollPort()?.scrollTo({ top: 0, behavior: 'smooth' });
+        break;
+      case 'End':
+        e.preventDefault();
+        {
+          const el = journeyScrollPort();
+          if (el) el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
+        }
+        break;
+      default:
+        break;
+    }
+    return;
+  }
 
   const units = totalUnits();
   switch (e.key) {
@@ -925,42 +981,119 @@ function renderStage(j) {
   document.getElementById('j-stage').replaceChildren(wrap);
 }
 
+/** Keep newly revealed content in view inside the journey card. */
+function revealInStage(node) {
+  const port = document.getElementById('journey');
+  if (!node || !port) return;
+  const pRect = port.getBoundingClientRect();
+  const nRect = node.getBoundingClientRect();
+  const pad = 18;
+  if (nRect.bottom > pRect.bottom - pad) {
+    port.scrollTop += nRect.bottom - pRect.bottom + pad;
+  } else if (nRect.top < pRect.top + pad) {
+    port.scrollTop -= pRect.top - nRect.top + pad;
+  }
+}
+
 function animateGenerate() {
-  [...document.querySelectorAll('#gen-list li')].forEach((node, i) => {
-    checklistTimers.push(setTimeout(() => node.classList.add('on'), 280 + i * 420));
+  const items = [...document.querySelectorAll('#gen-list li')];
+  items.forEach((node, i) => {
+    checklistTimers.push(
+      setTimeout(() => {
+        node.classList.add('on');
+        revealInStage(node);
+      }, 280 + i * 420),
+    );
   });
-  const n = document.querySelectorAll('#gen-list li').length;
+  const n = items.length;
   checklistTimers.push(
     setTimeout(() => {
       const r = document.getElementById('gen-result');
       if (r) r.hidden = false;
       const p = document.getElementById('gen-preview');
       if (p) p.hidden = false;
+      // After checklist finishes, scroll to result + case preview
+      revealInStage(r || p);
+      if (p) {
+        checklistTimers.push(setTimeout(() => revealInStage(p.lastElementChild || p), 280));
+      }
     }, 280 + n * 420 + 160),
   );
 }
 
 function animateCua() {
   [...document.querySelectorAll('#cua-list li')].forEach((node, i) => {
-    checklistTimers.push(setTimeout(() => node.classList.add('on'), 220 + i * 480));
+    checklistTimers.push(
+      setTimeout(() => {
+        node.classList.add('on');
+        revealInStage(node);
+      }, 220 + i * 480),
+    );
   });
+}
+
+function stopApTick() {
+  if (apTickRaf) cancelAnimationFrame(apTickRaf);
+  apTickRaf = 0;
+}
+
+function paintApHeader(i, journeyLen, phase, running) {
+  const state = document.getElementById('ap-state');
+  const stepEl = document.getElementById('ap-step');
+  const phaseEl = document.getElementById('top-phase');
+  const overall = document.getElementById('ap-fill-overall');
+  const track = document.getElementById('ap-track');
+  if (state) state.textContent = running ? 'Auto-running' : 'Paused';
+  if (stepEl) stepEl.textContent = `${i + 1} / ${journeyLen}`;
+  if (phaseEl) phaseEl.textContent = phase || 'Autopilot';
+  const pct = Math.round(((i + 1) / journeyLen) * 100);
+  if (overall) overall.style.width = `${pct}%`;
+  if (track) track.setAttribute('aria-valuenow', String(pct));
+}
+
+function runApTick() {
+  const fill = document.getElementById('ap-fill-step');
+  if (!fill || apStepDur <= 0) return;
+  const tick = (now) => {
+    if (paused) {
+      apTickRaf = requestAnimationFrame(tick);
+      return;
+    }
+    const elapsed = apElapsedBeforePause + (now - apStepStarted);
+    const t = clamp(elapsed / apStepDur, 0, 1);
+    fill.style.width = `${Math.round(t * 100)}%`;
+    if (t < 1) apTickRaf = requestAnimationFrame(tick);
+    else apTickRaf = 0;
+  };
+  apTickRaf = requestAnimationFrame(tick);
+}
+
+function startApTick(duration) {
+  stopApTick();
+  const fill = document.getElementById('ap-fill-step');
+  if (fill) fill.style.width = '0%';
+  apStepDur = Math.max(0, duration || 0);
+  apElapsedBeforePause = 0;
+  apStepStarted = performance.now();
+  if (apStepDur > 0) runApTick();
+  else if (fill) fill.style.width = '100%';
 }
 
 function showStep(i) {
   clearTimers();
+  stopApTick();
   const journey = data.journey;
   if (i < 0 || i >= journey.length) return;
   step = i;
-  paused = false;
-  document.getElementById('btn-pause').textContent = 'Pause';
+  setPaused(false);
 
   const j = journey[i];
   document.getElementById('j-phase').textContent = j.phase;
   document.getElementById('j-title').textContent = j.title;
   document.getElementById('j-voice').textContent = j.voice;
-  document.getElementById('top-phase').textContent = j.phase;
   document.getElementById('j-progress').style.width = `${Math.round(((i + 1) / journey.length) * 100)}%`;
   document.getElementById('rail').style.transform = `scaleY(${(i + 1) / journey.length})`;
+  paintApHeader(i, journey.length, j.phase, true);
 
   const panel = document.getElementById('journey');
   panel.classList.remove('swap');
@@ -968,12 +1101,14 @@ function showStep(i) {
   panel.classList.add('swap');
 
   renderStage(j);
+  panel.scrollTop = 0;
   if (j.ui === 'generate') animateGenerate();
   if (['cua-testset', 'cua-manual', 'cua-adversarial', 'cua-advisory'].includes(j.ui)) animateCua();
   if (j.ui === 'cua-adversarial' || j.ui === 'bug' || (j.ui === 'pagespeed' && j.ai?.verdict === 'BAD')) setAurora('fail');
   else if (j.ui === 'done' || (j.ui === 'pagespeed' && j.ai?.verdict === 'GOOD')) setAurora('done');
   else setAurora('running');
 
+  startApTick(j.duration);
   if (j.duration > 0) {
     timer = setTimeout(() => {
       if (!paused) showStep(i + 1);
@@ -1004,7 +1139,7 @@ function startJourney() {
     document.getElementById('pin-wrap').hidden = true;
     const fj = document.getElementById('frame-journey');
     fj.hidden = false;
-    document.getElementById('top-status').hidden = false;
+    document.getElementById('ap-progress').hidden = false;
     document.getElementById('top-actions').hidden = false;
     fj.classList.add('enter');
     setAurora('running');
@@ -1014,8 +1149,10 @@ function startJourney() {
 
 function exitJourney() {
   clearTimers();
+  stopApTick();
   step = -1;
   mode = 'home';
+  setPaused(false);
   document.documentElement.classList.remove('lock-scroll');
   setBodyMode('mode-home');
   document.body.dataset.frame = 'go';
@@ -1023,7 +1160,7 @@ function exitJourney() {
   fj.hidden = true;
   fj.classList.remove('enter');
   document.getElementById('pin-wrap').hidden = false;
-  document.getElementById('top-status').hidden = true;
+  document.getElementById('ap-progress').hidden = true;
   document.getElementById('top-actions').hidden = true;
   document.getElementById('go-btn').classList.remove('launching');
   setAurora('');
@@ -1037,13 +1174,60 @@ function restart() {
   showStep(0);
 }
 
+function journeyScrollPort() {
+  return document.getElementById('journey');
+}
+
+function setPaused(next) {
+  const was = paused;
+  paused = !!next;
+  document.body.classList.toggle('is-paused', paused);
+  const btn = document.getElementById('btn-pause');
+  if (btn) {
+    btn.textContent = paused ? 'Resume' : 'Pause';
+    btn.setAttribute('aria-pressed', paused ? 'true' : 'false');
+  }
+  const state = document.getElementById('ap-state');
+  if (state) state.textContent = paused ? 'Paused' : 'Auto-running';
+  // Freeze / resume step timer bar
+  if (paused && !was) {
+    apElapsedBeforePause += performance.now() - apStepStarted;
+  } else if (!paused && was) {
+    apStepStarted = performance.now();
+    if (apStepDur > 0 && apElapsedBeforePause < apStepDur) runApTick();
+  }
+}
+
+function scrollJourney(dy, smooth) {
+  const el = journeyScrollPort();
+  if (!el) return;
+  if (smooth) el.scrollBy({ top: dy, behavior: 'smooth' });
+  else el.scrollTop += dy;
+}
+
+/** Wheel over overlay or card → scroll journey (works playing + paused). */
+function onJourneyWheel(e) {
+  if (mode !== 'journey') return;
+  const el = journeyScrollPort();
+  if (!el) return;
+  if (el.scrollHeight <= el.clientHeight + 2) return;
+  // Don't steal wheel from form fields
+  const tag = (e.target && e.target.tagName) || '';
+  if (tag === 'INPUT' || tag === 'TEXTAREA' || e.target?.isContentEditable) return;
+  e.preventDefault();
+  el.scrollTop += e.deltaY;
+}
+
 function togglePause() {
   if (step < 0) return;
-  paused = !paused;
-  document.getElementById('btn-pause').textContent = paused ? 'Resume' : 'Pause';
-  if (paused) clearTimers();
-  else if (data.journey[step].duration > 0 && step < data.journey.length - 1) {
-    timer = setTimeout(() => showStep(step + 1), 2000);
+  setPaused(!paused);
+  if (paused) {
+    clearTimers();
+  } else if (data.journey[step].duration > 0 && step < data.journey.length - 1) {
+    const left = Math.max(350, apStepDur - apElapsedBeforePause);
+    timer = setTimeout(() => {
+      if (!paused) showStep(step + 1);
+    }, left);
   }
 }
 
@@ -1110,6 +1294,14 @@ async function main() {
   document.getElementById('btn-skip').addEventListener('click', skip);
   document.getElementById('btn-exit').addEventListener('click', exitJourney);
   document.getElementById('btn-to-go').addEventListener('click', goToAutopilot);
+  document.getElementById('frame-journey').addEventListener('wheel', onJourneyWheel, { passive: false });
+  document.getElementById('journey').addEventListener(
+    'touchstart',
+    () => {
+      /* touch-action:pan-y on paused card — keep listener so iOS doesn't bounce page */
+    },
+    { passive: true },
+  );
   document.getElementById('brand-home').addEventListener('click', (e) => {
     if (mode === 'journey') {
       e.preventDefault();
