@@ -1,8 +1,13 @@
 /** One page: GO first · CTA → journey · scroll-scrubbed tour. */
 
-const VH_PER_UNIT = 1.85;
+const VH_PER_UNIT = 3.1; // deep runway — next frame waits
 /** Cap catch-up so fast wheel never skips a frame (units / second). */
-const MAX_UNITS_PER_SEC = 0.95;
+const MAX_UNITS_PER_SEC = 0.9;
+/** Within a chapter: hold current until HOLD, then blend until END. */
+const HOLD_UNTIL = 0.68;
+const BLEND_END = 0.94;
+/** Keyboard nudge as fraction of one chapter. */
+const KEY_STEP = 0.22;
 let data = null;
 let scenes = [];
 let activeScene = -1;
@@ -25,6 +30,13 @@ function clamp(v, a, b) {
 function easeInOut(t) {
   t = clamp(t, 0, 1);
   return t * t * (3 - 2 * t);
+}
+/** Local 0..1 → blend 0..1. Long hold, short crossfade. */
+function chapterBlend(local) {
+  local = clamp(local, 0, 1);
+  if (local <= HOLD_UNTIL) return 0;
+  if (local >= BLEND_END) return 1;
+  return easeInOut((local - HOLD_UNTIL) / (BLEND_END - HOLD_UNTIL));
 }
 
 function el(tag, attrs = {}, kids = []) {
@@ -274,7 +286,7 @@ function updateMeta(i) {
   const s = scenes[i];
   document.getElementById('scene-index').textContent = String(i + 1).padStart(2, '0');
   document.getElementById('scene-kicker').textContent = s.kicker || '';
-  document.getElementById('scroll-hint').classList.toggle('hide', i > 0);
+  document.getElementById('scroll-hint-tour')?.classList.toggle('hide', i > 0);
   document.querySelectorAll('.scene-dots button').forEach((btn, idx) => {
     btn.setAttribute('aria-current', idx === i ? 'true' : 'false');
   });
@@ -294,9 +306,9 @@ function paintScene(node, vis, dir) {
   node.setAttribute('aria-hidden', v > 0.5 ? 'false' : 'true');
 }
 
-/** Only ever touch the active pair — never flash a third frame. */
+/** Only ever touch the active pair — never flash a third frame. t already eased. */
 function showPair(a, b, t) {
-  const e = easeInOut(clamp(t, 0, 1));
+  const e = clamp(t, 0, 1);
   const n = sceneNodes.length;
   for (let i = 0; i < n; i++) {
     if (i !== a && i !== b) {
@@ -309,13 +321,13 @@ function showPair(a, b, t) {
       }
     }
   }
-  if (a === b || t <= 0) {
+  if (a === b || e <= 0.001) {
     paintScene(sceneNodes[a], 1, 0);
     if (b !== a) paintScene(sceneNodes[b], 0, 1);
     updateMeta(a);
     return;
   }
-  if (t >= 1) {
+  if (e >= 0.999) {
     paintScene(sceneNodes[a], 0, -1);
     paintScene(sceneNodes[b], 1, 0);
     updateMeta(b);
@@ -324,6 +336,46 @@ function showPair(a, b, t) {
   paintScene(sceneNodes[a], 1 - e, -1);
   paintScene(sceneNodes[b], e, 1);
   updateMeta(e > 0.5 ? b : a);
+}
+
+/** Side/bottom rail: where you are in current → next. */
+function updateChapterRail(opts) {
+  const rail = document.getElementById('chapter-rail');
+  if (!rail) return;
+  const { from, to, local, blend, kind } = opts;
+  const fromEl = document.getElementById('rail-from');
+  const toEl = document.getElementById('rail-to');
+  const fill = document.getElementById('rail-fill');
+  const thumb = document.getElementById('rail-thumb');
+  const hold = document.getElementById('rail-hold');
+  const hint = document.getElementById('rail-hint');
+
+  rail.hidden = false;
+  rail.dataset.phase = blend <= 0 ? 'hold' : blend >= 1 ? 'done' : 'blend';
+  if (fromEl) fromEl.textContent = from;
+  if (toEl) toEl.textContent = to;
+
+  const pct = clamp(local, 0, 1) * 100;
+  if (fill) fill.style.width = `${pct}%`;
+  if (thumb) thumb.style.left = `${pct}%`;
+  if (hold) hold.style.width = `${HOLD_UNTIL * 100}%`;
+
+  if (hint) {
+    if (kind === 'go') {
+      hint.textContent = blend <= 0 ? 'Scroll to enter tour' : blend < 1 ? 'Releasing Autopilot…' : 'Tour frame locked';
+    } else if (blend <= 0) {
+      hint.textContent = 'Hold — keep scrolling for next frame';
+    } else if (blend < 1) {
+      hint.textContent = 'Crossing to next frame…';
+    } else {
+      hint.textContent = 'Frame locked · scroll for next';
+    }
+  }
+}
+
+function hideChapterRail() {
+  const rail = document.getElementById('chapter-rail');
+  if (rail) rail.hidden = true;
 }
 
 function setLayers(goVis, tourVis) {
@@ -365,32 +417,59 @@ function paintProgress(progress) {
   const n = scenes.length;
   if (!n) {
     setLayers(1, 0);
+    hideChapterRail();
     return;
   }
 
-  // Unit 0: GO → scene 0 (linear — little-by-little)
+  // Unit 0: GO → scene 0 (long hold on GO, then blend)
   if (progress < 1) {
-    const t = clamp(progress, 0, 1);
-    setLayers(1 - t, t);
+    const local = clamp(progress, 0, 1);
+    const blend = chapterBlend(local);
+    setLayers(1 - blend, blend);
     showPair(0, 0, 0);
-    paintScene(sceneNodes[0], t, 1);
-    if (t > 0.35) updateMeta(0);
+    paintScene(sceneNodes[0], blend, 1);
+    if (blend > 0.35) updateMeta(0);
+    const s0 = scenes[0];
+    updateChapterRail({
+      kind: 'go',
+      from: 'Autopilot',
+      to: s0 ? `${String(1).padStart(2, '0')} ${s0.kicker || s0.title}` : 'Tour',
+      local,
+      blend,
+    });
     return;
   }
 
   setLayers(0, 1);
   if (n === 1) {
     showPair(0, 0, 0);
+    updateChapterRail({
+      kind: 'tour',
+      from: `01 ${scenes[0].kicker || scenes[0].title}`,
+      to: 'End',
+      local: 1,
+      blend: 1,
+    });
     return;
   }
 
-  // progress 1 → n maps across scenes 0 → n-1
-  // At progress=1: scene 0 full. At progress=n: scene n-1 full.
+  // progress 1 → n : scenes 0 → n-1. Long hold, short blend via chapterBlend.
   const pos = clamp(progress - 1, 0, n - 1 - 1e-6);
   const i = Math.floor(pos);
-  const t = pos - i; // 0..1 within this single pair only
+  const local = pos - i;
+  const blend = chapterBlend(local);
   const j = Math.min(n - 1, i + 1);
-  showPair(i, j, t);
+  showPair(i, j, blend);
+
+  const a = scenes[i];
+  const b = scenes[j];
+  updateChapterRail({
+    kind: 'tour',
+    from: `${String(i + 1).padStart(2, '0')} ${a.kicker || a.title}`,
+    to: i === j ? 'End' : `${String(j + 1).padStart(2, '0')} ${b.kicker || b.title}`,
+    local,
+    blend,
+  });
 }
 
 function scrubTick(ts) {
@@ -451,13 +530,85 @@ function scrubFromScroll() {
   paintProgress(scrollSmooth);
 }
 
-function jumpToScene(i) {
+function scrollMax() {
   const track = document.getElementById('scroll-track');
-  const max = Math.max(1, track.offsetHeight - window.innerHeight);
+  return Math.max(1, track.offsetHeight - window.innerHeight);
+}
+
+function jumpToScene(i) {
+  const max = scrollMax();
   const units = totalUnits();
-  // Settle on scene i (progress = 1 + i)
-  const unit = clamp(1 + i + 0.02, 0, units);
+  // Land in hold zone of scene i (progress = 1 + i + small)
+  const unit = clamp(1 + i + HOLD_UNTIL * 0.35, 0, units);
   window.scrollTo({ top: (unit / units) * max, behavior: 'smooth' });
+}
+
+function nudgeScroll(deltaUnits, smooth) {
+  if (mode === 'journey') return;
+  const max = scrollMax();
+  const units = totalUnits();
+  const cur = (window.scrollY / max) * units;
+  const next = clamp(cur + deltaUnits, 0, units);
+  window.scrollTo({ top: (next / units) * max, behavior: smooth ? 'smooth' : 'auto' });
+  startScrubLoop();
+}
+
+function onKeyNav(e) {
+  if (mode === 'journey') return;
+  const tag = (e.target && e.target.tagName) || '';
+  if (tag === 'INPUT' || tag === 'TEXTAREA' || e.target?.isContentEditable) return;
+
+  const units = totalUnits();
+  switch (e.key) {
+    case 'ArrowDown':
+    case 'Down':
+    case 'PageDown':
+      e.preventDefault();
+      nudgeScroll(e.key === 'PageDown' ? 0.85 : KEY_STEP, true);
+      break;
+    case 'ArrowUp':
+    case 'Up':
+    case 'PageUp':
+      e.preventDefault();
+      nudgeScroll(e.key === 'PageUp' ? -0.85 : -KEY_STEP, true);
+      break;
+    case ' ':
+    case 'Spacebar':
+      e.preventDefault();
+      nudgeScroll(e.shiftKey ? -KEY_STEP : KEY_STEP, true);
+      break;
+    case 'Home':
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      startScrubLoop();
+      break;
+    case 'End':
+      e.preventDefault();
+      window.scrollTo({ top: scrollMax(), behavior: 'smooth' });
+      startScrubLoop();
+      break;
+    case 'ArrowRight':
+    case 'Right':
+      e.preventDefault();
+      // Jump toward next chapter hold
+      {
+        const pos = (window.scrollY / scrollMax()) * units;
+        const nextChapter = Math.min(units, Math.floor(pos) + 1 + HOLD_UNTIL * 0.3);
+        nudgeScroll(nextChapter - pos, true);
+      }
+      break;
+    case 'ArrowLeft':
+    case 'Left':
+      e.preventDefault();
+      {
+        const pos = (window.scrollY / scrollMax()) * units;
+        const prevChapter = Math.max(0, Math.ceil(pos) - 1 - (1 - HOLD_UNTIL * 0.3));
+        nudgeScroll(prevChapter - pos, true);
+      }
+      break;
+    default:
+      break;
+  }
 }
 
 function goToAutopilot() {
@@ -839,6 +990,7 @@ function startJourney() {
   setTimeout(() => {
     mode = 'journey';
     stopScrubLoop();
+    hideChapterRail();
     document.body.className = 'mode-journey';
     document.body.dataset.frame = 'journey';
     document.documentElement.classList.add('lock-scroll');
@@ -951,6 +1103,7 @@ async function main() {
   });
 
   window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('keydown', onKeyNav);
   window.addEventListener('resize', () => {
     layoutTrack();
     scrubFromScroll();
