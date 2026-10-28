@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Angara GenAI Agent</title>
-  <meta name="description" content="GO autopilot: Story → test cases → multi-MR review → CUA → evidence → bug → PageSpeed." />
+  <meta name="description" content="Product tour — scroll sticky scenes. Autopilot available separately." />
   <meta name="robots" content="noindex,nofollow" />
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
   <link rel="apple-touch-icon" href="assets/mark.svg" />
@@ -17,58 +17,35 @@
   <div class="aurora" aria-hidden="true"></div>
 
   <header class="topbar">
-    <a class="brand" href="./" aria-label="Angara GenAI Agent">
+    <a class="brand" href="./">
       <img src="assets/logo.svg" width="160" height="40" alt="Angara GenAI Agent" />
     </a>
-    <div class="top-status" id="top-status" hidden>
-      <span class="live-dot" aria-hidden="true"></span>
-      <span id="top-phase">Autopilot</span>
-    </div>
-    <div class="top-actions" id="top-actions" hidden>
-      <button type="button" class="btn-ghost" id="btn-pause">Pause</button>
-      <button type="button" class="btn-ghost" id="btn-skip">Skip</button>
-      <button type="button" class="btn-ghost" id="btn-restart">Restart</button>
+    <div class="progress-wrap" aria-hidden="true"><div class="progress-bar" id="progress-bar"></div></div>
+    <div class="nav-links">
+      <div class="scene-dots" id="scene-dots" role="tablist" aria-label="Tour chapters"></div>
+      <a class="btn btn-primary" href="autopilot.html">Try Autopilot</a>
     </div>
   </header>
 
-  <main class="viewport">
-    <!-- Landing: CTA -->
-    <section class="panel landing" id="landing" aria-label="Start autopilot">
-      <img class="mark-lg" src="assets/mark.svg" width="56" height="56" alt="" />
-      <p class="kicker">Angara GenAI Agent · autopilot demo</p>
-      <h1>
-        <span class="greet" id="landing-greet">Hi agent,</span><br />
-        <span class="prompt-line" id="landing-prompt">test my Story</span>
-      </h1>
-      <label class="story-field">
-        <span class="sr">Story</span>
-        <input id="story-input" type="text" autocomplete="off" />
-      </label>
-      <button type="button" class="go-btn" id="go-btn">
-        <span id="go-label">GO</span>
-        <span class="go-arrow" aria-hidden="true">→</span>
-      </button>
-      <p class="hint" id="landing-hint"></p>
-    </section>
-
-    <!-- Journey frame (same panel morphs) -->
-    <section class="panel journey" id="journey" hidden aria-live="polite">
-      <div class="rail" id="rail" aria-hidden="true"></div>
-      <div class="journey-head">
-        <span class="phase" id="j-phase"></span>
-        <div class="journey-progress"><i id="j-progress"></i></div>
+  <div class="stage-wrap" id="top">
+    <div class="stage-shell">
+      <div class="stage-meta">
+        <span class="scene-index" id="scene-index">01</span>
+        <span class="scene-kicker" id="scene-kicker"></span>
       </div>
-      <h2 id="j-title"></h2>
-      <p class="voice" id="j-voice"></p>
-      <div class="stage" id="j-stage"></div>
-    </section>
-  </main>
+      <div class="stage-frame" id="stage-frame"></div>
+      <p class="scroll-hint" id="scroll-hint">Scroll to explore · or open Autopilot</p>
+    </div>
+  </div>
+
+  <div class="scroll-track" id="scroll-track" aria-hidden="true"></div>
 
   <footer class="foot">
     <img src="assets/mark.svg" width="18" height="18" alt="" />
     <span id="foot-note"></span>
+    <span style="margin-left:auto"><a href="autopilot.html">Autopilot →</a></span>
   </footer>
 
-  <script src="app.js" defer></script>
+  <script src="tour.js" defer></script>
 </body>
 </html>

@@ -1,18 +1,18 @@
-# Angara GenAI Agent — GO autopilot demo
+# Angara GenAI Agent — public demo
 
-Landing CTA → **GO** starts end-to-end autopilot in one frame:
+Two surfaces (same GitHub Pages site):
 
-**Story → Generate TCs → Multi-MR CR → Quality gate → CUA → Evidence → Bug (human-gated) → PageSpeed → Done**
+| URL | What |
+|-----|------|
+| `/` (`index.html`) | **General demo** — sticky frame, scroll drives scenes |
+| `/autopilot.html` | **Autopilot** — “Hi agent, test my Story” + **GO** closed loop |
 
-Live: https://frkshkh.github.io/angara-qa-demo/
+Live:
+- https://frkshkh.github.io/angara-qa-demo/
+- https://frkshkh.github.io/angara-qa-demo/autopilot.html
 
 ## Local
 
 ```bash
 cd share-demo && python3 -m http.server 8765
-# open http://127.0.0.1:8765 → click GO
 ```
-
-## Edit
-
-`data/demo.json` — `landing` + `journey[]` (phase timing via `duration` ms).

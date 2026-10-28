@@ -1,7 +1,4 @@
-/**
- * CTA → GO → autopilot journey.
- * Same frame morphs: Story → TC → CR → Gate → CUA → Evidence → Bug → PageSpeed → Done.
- */
+/** GO autopilot — separate feature from the scroll product tour. */
 
 let data = null;
 let step = -1;
@@ -43,7 +40,6 @@ function setAurora(mode) {
 }
 
 function renderStage(j) {
-  const stage = document.getElementById('j-stage');
   const wrap = el('div', { className: 'stage-inner' });
 
   switch (j.ui) {
@@ -62,7 +58,6 @@ function renderStage(j) {
       );
       break;
     }
-
     case 'generate': {
       const list = el('ul', { className: 'checklist', id: 'gen-list' });
       (j.progress || []).forEach((row, i) => {
@@ -77,7 +72,6 @@ function renderStage(j) {
       if (j.result) wrap.append(el('div', { className: 'result-banner', text: j.result, id: 'gen-result', hidden: true }));
       break;
     }
-
     case 'cr':
       wrap.append(
         el(
@@ -85,7 +79,10 @@ function renderStage(j) {
           { className: 'mr-grid' },
           (j.mrs || []).map((mr) =>
             el('div', { className: 'mr-card' }, [
-              el('header', {}, [el('span', { text: mr.label }), mr.bugs?.length ? pill('Needs decision', 'warn') : pill('Clean', 'pass')]),
+              el('header', {}, [
+                el('span', { text: mr.label }),
+                mr.bugs?.length ? pill('Needs decision', 'warn') : pill('Clean', 'pass'),
+              ]),
               ...(mr.bugs || []).length
                 ? mr.bugs.map((b) =>
                     el('div', { className: 'bug-line' }, [
@@ -101,7 +98,6 @@ function renderStage(j) {
         ),
       );
       break;
-
     case 'gate':
       wrap.append(
         el('div', { className: 'gate' }, [
@@ -124,7 +120,6 @@ function renderStage(j) {
         ]),
       );
       break;
-
     case 'cua': {
       const list = el('ul', { className: 'cua-steps', id: 'cua-list' });
       (j.steps || []).forEach((s, i) => {
@@ -136,7 +131,7 @@ function renderStage(j) {
         );
       });
       wrap.append(
-        el('div', { className: 'pill-row', style: 'display:flex;gap:0.4rem;margin-bottom:0.75rem;flex-wrap:wrap' }, [
+        el('div', { className: 'pill-row' }, [
           pill(`Verdict ${j.verdict}`, 'fail'),
           pill(j.cost || ''),
           pill('Desktop'),
@@ -145,19 +140,15 @@ function renderStage(j) {
       );
       break;
     }
-
     case 'evidence':
       wrap.append(
         el(
           'ul',
           { className: 'evidence-list' },
-          (j.items || []).map((it) =>
-            el('li', {}, [el('strong', { text: it.k }), el('span', { text: it.v })]),
-          ),
+          (j.items || []).map((it) => el('li', {}, [el('strong', { text: it.k }), el('span', { text: it.v })])),
         ),
       );
       break;
-
     case 'bug': {
       const b = j.bug;
       wrap.append(
@@ -174,10 +165,9 @@ function renderStage(j) {
       );
       break;
     }
-
     case 'pagespeed':
       wrap.append(
-        el('div', { className: 'ticket-key', text: j.url, style: 'margin-bottom:0.65rem' }),
+        el('div', { className: 'ticket-key', text: j.url, style: 'margin-bottom:0.65rem;display:block' }),
         el(
           'div',
           { className: 'metric-grid' },
@@ -188,10 +178,9 @@ function renderStage(j) {
             ]),
           ),
         ),
-        j.note ? el('div', { className: 'result-banner', text: j.note, style: 'margin-top:0.85rem' }) : null,
+        j.note ? el('div', { className: 'result-banner', text: j.note }) : null,
       );
       break;
-
     case 'done':
       wrap.append(
         el(
@@ -202,42 +191,35 @@ function renderStage(j) {
           ),
         ),
         el('div', { className: 'done-cta' }, [
-          el('button', { type: 'button', text: 'Run autopilot again', onclick: () => restart() }),
-          el('button', {
-            type: 'button',
-            className: 'ghost',
-            text: 'Back to prompt',
-            onclick: () => showLanding(),
-          }),
+          el('button', { type: 'button', className: 'btn btn-primary', text: 'Run again', onclick: () => restart() }),
+          el('a', { className: 'btn btn-secondary', href: './', text: 'Product tour' }),
+          el('button', { type: 'button', className: 'btn btn-ghost', text: 'Back to GO', onclick: () => showLanding() }),
         ]),
       );
       break;
-
     default:
-      wrap.append(el('p', { text: '…' }));
+      break;
   }
 
-  stage.replaceChildren(wrap);
+  document.getElementById('j-stage').replaceChildren(wrap);
 }
 
-function animateGenerate(j) {
-  const items = [...document.querySelectorAll('#gen-list li')];
-  items.forEach((node, i) => {
-    const id = setTimeout(() => node.classList.add('on'), 350 + i * 520);
-    checklistTimers.push(id);
+function animateGenerate() {
+  [...document.querySelectorAll('#gen-list li')].forEach((node, i) => {
+    checklistTimers.push(setTimeout(() => node.classList.add('on'), 320 + i * 480));
   });
-  const show = setTimeout(() => {
-    const r = document.getElementById('gen-result');
-    if (r) r.hidden = false;
-  }, 350 + items.length * 520 + 200);
-  checklistTimers.push(show);
+  const n = document.querySelectorAll('#gen-list li').length;
+  checklistTimers.push(
+    setTimeout(() => {
+      const r = document.getElementById('gen-result');
+      if (r) r.hidden = false;
+    }, 320 + n * 480 + 180),
+  );
 }
 
-function animateCua(j) {
-  const items = [...document.querySelectorAll('#cua-list li')];
-  items.forEach((node, i) => {
-    const id = setTimeout(() => node.classList.add('on'), 280 + i * 600);
-    checklistTimers.push(id);
+function animateCua() {
+  [...document.querySelectorAll('#cua-list li')].forEach((node, i) => {
+    checklistTimers.push(setTimeout(() => node.classList.add('on'), 260 + i * 560));
   });
 }
 
@@ -263,16 +245,14 @@ function showStep(i) {
   panel.classList.add('swap');
 
   renderStage(j);
-
-  if (j.ui === 'generate') animateGenerate(j);
+  if (j.ui === 'generate') animateGenerate();
   if (j.ui === 'cua') {
     setAurora('fail');
-    animateCua(j);
+    animateCua();
   } else if (j.ui === 'done') setAurora('done');
   else if (j.ui === 'bug') setAurora('fail');
   else setAurora('running');
 
-  // Auto-advance (done stays)
   if (j.duration > 0) {
     timer = setTimeout(() => {
       if (!paused) showStep(i + 1);
@@ -281,19 +261,15 @@ function showStep(i) {
 }
 
 function startJourney() {
-  const landing = document.getElementById('landing');
-  const journey = document.getElementById('journey');
-  const btn = document.getElementById('go-btn');
-  btn.classList.add('launching');
-
+  document.getElementById('go-btn').classList.add('launching');
   setTimeout(() => {
-    landing.hidden = true;
-    journey.hidden = false;
+    document.getElementById('landing').hidden = true;
+    document.getElementById('journey').hidden = false;
     document.getElementById('top-status').hidden = false;
     document.getElementById('top-actions').hidden = false;
     setAurora('running');
     showStep(0);
-  }, 450);
+  }, 350);
 }
 
 function showLanding() {
@@ -317,19 +293,14 @@ function togglePause() {
   if (step < 0) return;
   paused = !paused;
   document.getElementById('btn-pause').textContent = paused ? 'Resume' : 'Pause';
-  if (paused) {
-    clearTimers();
-  } else {
-    const j = data.journey[step];
-    if (j.duration > 0 && step < data.journey.length - 1) {
-      timer = setTimeout(() => showStep(step + 1), Math.min(2200, j.duration));
-    }
+  if (paused) clearTimers();
+  else if (data.journey[step].duration > 0 && step < data.journey.length - 1) {
+    timer = setTimeout(() => showStep(step + 1), 2000);
   }
 }
 
 function skip() {
-  if (step < 0) return;
-  if (step >= data.journey.length - 1) return;
+  if (step < 0 || step >= data.journey.length - 1) return;
   showStep(step + 1);
 }
 
@@ -337,8 +308,7 @@ async function main() {
   const res = await fetch(`data/demo.json?v=${Date.now()}`, { cache: 'no-store' });
   if (!res.ok) throw new Error(`demo.json ${res.status}`);
   data = await res.json();
-
-  document.title = `${data.product.name} · Autopilot`;
+  document.title = `Autopilot · ${data.product.name}`;
   document.getElementById('foot-note').textContent = data.product.disclaimer;
 
   const L = data.landing;
@@ -348,7 +318,6 @@ async function main() {
   document.getElementById('go-label').textContent = L.cta;
   const input = document.getElementById('story-input');
   input.value = L.placeholder;
-  input.placeholder = L.placeholder;
 
   document.getElementById('go-btn').addEventListener('click', startJourney);
   input.addEventListener('keydown', (e) => {
@@ -356,9 +325,7 @@ async function main() {
   });
   document.getElementById('btn-pause').addEventListener('click', togglePause);
   document.getElementById('btn-skip').addEventListener('click', skip);
-  document.getElementById('btn-restart').addEventListener('click', () => {
-    showLanding();
-  });
+  document.getElementById('btn-restart').addEventListener('click', showLanding);
 }
 
 main().catch((err) => {

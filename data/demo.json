@@ -1,22 +1,162 @@
 {
   "product": {
     "name": "Angara GenAI Agent",
-    "disclaimer": "Autopilot product story · sample data"
+    "tagline": "QA that proves itself — not just produces text.",
+    "disclaimer": "Public product demo · sample data"
   },
   "landing": {
     "greeting": "Hi agent,",
     "prompt": "test my Story",
     "placeholder": "DEMO-1414 · FedEx Pickup at checkout (US)",
     "cta": "GO",
-    "hint": "One click · end-to-end autopilot: Generate → Review → Run → Evidence → Bug → PageSpeed"
+    "hint": "Autopilot runs Story → Generate → Multi-MR review → CUA → Evidence → Bug → PageSpeed"
   },
+  "scenes": [
+    {
+      "id": "hero",
+      "kicker": "Product tour",
+      "title": "Ship QA that can defend itself.",
+      "body": "One agent loop: ticket + MRs → grounded suite → quality gate → browser run → Xray. Scroll the tour — or launch Autopilot for the live journey.",
+      "stats": [
+        { "v": "~11 min", "l": "ticket → gated suite" },
+        { "v": "109/109", "l": "checklist proven" },
+        { "v": "3 MRs", "l": "reviewed in parallel" },
+        { "v": "78/100", "l": "quality gate" }
+      ]
+    },
+    {
+      "id": "pain",
+      "kicker": "The gap",
+      "title": "Normal tools leave holes.",
+      "body": "Chatbots invent steps. TMS stays hand-written. Code review never becomes a test. Playback scripts shatter.",
+      "cards": [
+        { "bad": true, "h": "ChatGPT paste", "p": "Pretty cases. Weak grounding. No AC proof." },
+        { "bad": true, "h": "Classic TMS", "p": "Great library. Still typed by hand. Blind to MRs." },
+        { "bad": true, "h": "Standalone CR", "p": "Findings die in a tab. Ports re-reviewed 3×." },
+        { "bad": true, "h": "Brittle automation", "p": "Record-play breaks. Auto-bugs spam Jira." }
+      ]
+    },
+    {
+      "id": "loop",
+      "kicker": "Our answer",
+      "title": "One run. Five power moments.",
+      "body": "Review and generate overlap — defects become checklist items before Save.",
+      "steps": [
+        { "n": "01", "h": "Ingest", "p": "Ticket, comments, designs, every live MR" },
+        { "n": "02", "h": "Review ∥ Draft", "p": "Multi-MR CR while suite writes" },
+        { "n": "03", "h": "Prove", "p": "Coverage · dedupe · 7-param gate" },
+        { "n": "04", "h": "Run", "p": "CUA or Playwright on real site" },
+        { "n": "05", "h": "Publish", "p": "Xray / Jira — or MCP from Cursor" }
+      ]
+    },
+    {
+      "id": "generate",
+      "kicker": "Author",
+      "title": "Ticket-first. Diff-aware. Coverage proven.",
+      "body": "Ledger from the story before the code. Every checklist item proven in expected results.",
+      "ticket": {
+        "key": "DEMO-1414",
+        "summary": "FedEx Pickup at checkout — US only",
+        "ac": [
+          "Search FedEx Pickup by ZIP",
+          "Show name, address, distance, hours",
+          "Place Order disabled until location chosen",
+          "Billing not overwritten by pickup",
+          "UK/AU unchanged"
+        ]
+      },
+      "pills": ["AI-first · Full coverage", "41 cases", "109/109 proven"]
+    },
+    {
+      "id": "cr",
+      "kicker": "Review while generating",
+      "title": "Multi-MR findings become tests.",
+      "body": "Every loaded live MR in one run. Identical diffs once. Confirmed bugs → F items.",
+      "mrs": [
+        {
+          "label": "Primary",
+          "iid": "!20332",
+          "verdict": "Needs decision",
+          "bugs": [
+            { "sev": "HIGH", "rule": "ERR-STATUS", "f": "F1", "t": "API error shown as empty locations" },
+            { "sev": "MEDIUM", "rule": "SCOPE", "f": "F2", "t": "Pickup without US store guard" }
+          ]
+        },
+        {
+          "label": "Region",
+          "iid": "!21339",
+          "verdict": "Needs decision",
+          "bugs": [{ "sev": "MEDIUM", "rule": "SCOPE", "f": "F2", "t": "US-scoped change on region fork" }]
+        },
+        { "label": "Theme", "iid": "!21340", "verdict": "Clean", "bugs": [] }
+      ]
+    },
+    {
+      "id": "gate",
+      "kicker": "Prove",
+      "title": "Independent quality gate. Weakest score wins.",
+      "body": "Seven parameters. Averages cannot hide bad dedup. Pass = every param ≥ 70.",
+      "overall": 78,
+      "passed": true,
+      "scores": [
+        { "l": "AC coverage", "s": 90 },
+        { "l": "Functional depth", "s": 80 },
+        { "l": "Backend depth", "s": 80 },
+        { "l": "No duplicates", "s": 80 },
+        { "l": "Risk thinking", "s": 80 },
+        { "l": "Precision", "s": 70 },
+        { "l": "Executability", "s": 90 }
+      ],
+      "dedupe": "52 → 41 cases · coverage guard undoes bad folds",
+      "house": ["Live deploy", "Escape + focus", "Scope leak", "Phone fit"]
+    },
+    {
+      "id": "run",
+      "kicker": "Execute",
+      "title": "Real browsers. Human-gated bugs.",
+      "body": "CUA and Automation Workbench. Failures wait for a person — never auto-spam Jira.",
+      "panels": [
+        {
+          "tag": "CUA",
+          "h": "PASS · $0.42",
+          "lines": ["Open US checkout", "FedEx Pickup → ZIP", "Select facility", "Place Order enabled"]
+        },
+        {
+          "tag": "Automation",
+          "h": "HIGH confidence",
+          "lines": ["Preflight Chromium", "Codegen from English", "Escape closes popup", "Video + trace"]
+        }
+      ]
+    },
+    {
+      "id": "platform",
+      "kicker": "Platform",
+      "title": "More than a generator.",
+      "body": "MCP, Xray, knowledge RAG, cost, schedules, PageSpeed — same workspace.",
+      "grid": [
+        { "h": "MCP Skills", "p": "tc_author · cua · bug_triage in Cursor / Claude" },
+        { "h": "Jira + Xray", "p": "Publish sets & executions. Real reporter." },
+        { "h": "Knowledge RAG", "p": "Behavior packs match real store behaviour." },
+        { "h": "AI cost", "p": "Per-run spend visible to leadership." },
+        { "h": "Schedules", "p": "Picker rules generate while you sleep." },
+        { "h": "PageSpeed · SEO", "p": "Live-site quality beside functional QA." }
+      ]
+    },
+    {
+      "id": "close",
+      "kicker": "Next",
+      "title": "Tour done. Try the autopilot.",
+      "body": "Same product — GO runs the closed loop with evidence, bug gate, and PageSpeed.",
+      "cta": "Open Autopilot →"
+    }
+  ],
   "journey": [
     {
       "id": "ingest",
       "phase": "01 · Ingest",
       "title": "Story loaded.",
-      "voice": "Pulling DEMO-1414 — AC, comments, designs, and every live MR.",
-      "duration": 4200,
+      "voice": "Pulling DEMO-1414 — AC, comments, designs, every live MR.",
+      "duration": 4000,
       "ui": "ticket",
       "ticket": {
         "key": "DEMO-1414",
@@ -34,8 +174,8 @@
       "id": "generate",
       "phase": "02 · Generate",
       "title": "Test cases drafting…",
-      "voice": "Ledger first. Requirement cases without the diff. Change cases for gaps. House cases ride along.",
-      "duration": 5200,
+      "voice": "Ledger first. Requirement cases without the diff. House cases ride along.",
+      "duration": 5000,
       "ui": "generate",
       "progress": [
         { "t": "Requirement ledger", "ok": true },
@@ -50,8 +190,8 @@
       "id": "cr",
       "phase": "03 · Code review",
       "title": "Multi-MR review · while generating",
-      "voice": "Primary, Region, Theme — shared diffs once. Confirmed bugs become F items on the checklist.",
-      "duration": 5000,
+      "voice": "Primary, Region, Theme — shared diffs once. Bugs become F items.",
+      "duration": 4800,
       "ui": "cr",
       "mrs": [
         {
@@ -65,18 +205,15 @@
           "label": "Region !21339",
           "bugs": [{ "sev": "MEDIUM", "f": "F2", "t": "US-scoped change on region fork" }]
         },
-        {
-          "label": "Theme !21340",
-          "bugs": []
-        }
+        { "label": "Theme !21340", "bugs": [] }
       ]
     },
     {
       "id": "gate",
       "phase": "04 · Quality gate",
       "title": "Independent score: 78 / 100",
-      "voice": "Seven parameters. Weakest caps overall. Dedupe guarded. Suite passes the bar.",
-      "duration": 4800,
+      "voice": "Seven parameters. Weakest caps overall. Suite passes the bar.",
+      "duration": 4500,
       "ui": "gate",
       "overall": 78,
       "scores": [
@@ -93,8 +230,8 @@
       "id": "cua",
       "phase": "05 · CUA autopilot",
       "title": "Browser agent executing…",
-      "voice": "Natural-language run on the real storefront. Device: Desktop. Watching Place Order + pickup.",
-      "duration": 5600,
+      "voice": "Real storefront. Watching pickup + Place Order.",
+      "duration": 5400,
       "ui": "cua",
       "steps": [
         { "a": "Navigate /us-en/checkout", "s": "ok" },
@@ -109,8 +246,8 @@
       "id": "evidence",
       "phase": "06 · Evidence",
       "title": "Proof pack captured.",
-      "voice": "Video, step log, DOM inspect, network sizes — ready for a human, not buried in chat.",
-      "duration": 4500,
+      "voice": "Video, step log, DOM inspect — ready for a human.",
+      "duration": 4200,
       "ui": "evidence",
       "items": [
         { "k": "Recording", "v": "cua-demo-1414.webm · 42s" },
@@ -124,8 +261,8 @@
       "id": "bug",
       "phase": "07 · Bug (human-gated)",
       "title": "Defect ready — awaiting review.",
-      "voice": "Agent never auto-files. Human confirms: real bug → Jira. Or test_problem / environment.",
-      "duration": 4800,
+      "voice": "Agent never auto-files. Human confirms real bug → Jira.",
+      "duration": 4500,
       "ui": "bug",
       "bug": {
         "status": "awaiting_review",
@@ -139,8 +276,8 @@
       "id": "pagespeed",
       "phase": "08 · PageSpeed",
       "title": "Live-site performance check.",
-      "voice": "Same platform — Lighthouse-style audit on the touched checkout URL. Functional + performance in one loop.",
-      "duration": 5000,
+      "voice": "Functional + performance in one loop.",
+      "duration": 4800,
       "ui": "pagespeed",
       "url": "/us-en/checkout",
       "metrics": [
@@ -149,13 +286,13 @@
         { "l": "CLS", "s": 92, "raw": "0.04" },
         { "l": "TBT", "s": 71, "raw": "280ms" }
       ],
-      "note": "LCP offer: re-run after pickup assets lazy-load fix"
+      "note": "LCP watch after pickup assets lazy-load fix"
     },
     {
       "id": "done",
       "phase": "09 · Closed loop",
       "title": "Autopilot complete.",
-      "voice": "Story → suite → multi-MR CR → gate → CUA → evidence → bug gate → PageSpeed. Publish to Xray when you say go.",
+      "voice": "Story → suite → CR → gate → CUA → evidence → bug → PageSpeed.",
       "duration": 0,
       "ui": "done",
       "summary": [
