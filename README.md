@@ -1,22 +1,20 @@
-# Angara GenAI Agent — public demo site
+# Angara GenAI Agent — scroll story demo
 
-Standalone static sales demo (HTML/CSS/JS + `data/demo.json`).
-
-**Not** the product app. Host on its own domain (GitHub Pages / Netlify / Cloudflare).
+Sticky **same-frame** product story. Scroll updates the stage with transitions.
 
 Live: https://frkshkh.github.io/angara-qa-demo/
 
-## Preview
+## Local
 
 ```bash
-cd share-demo
-python3 -m http.server 8765
+cd share-demo && python3 -m http.server 8765
 ```
+
+## Assets
+
+- `assets/logo.svg` — wordmark in header  
+- `assets/favicon.svg` / `assets/mark.svg` — tab icon  
 
 ## Edit story
 
-Change `data/demo.json` — hero, vs-competitors, agents, sample generate run, CUA/MCP/Jira panels.
-
-## Deploy
-
-Push this folder to the `angara-qa-demo` GitHub repo `main` branch (Pages from `/`).
+`data/demo.json` → `scenes[]` order = scroll chapters.
