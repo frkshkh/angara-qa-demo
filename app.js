@@ -1,7 +1,8 @@
-/** One page: GO first · CTA → journey · Apple-style scroll scrub. */
+/** One page: GO first · CTA → journey · scroll-scrubbed tour. */
 
-const VH_PER_UNIT = 2.15; // long runway per chapter (iPhone-site feel)
-const LERP = 0.14; // scroll progress easing (lower = silkier)
+const VH_PER_UNIT = 1.85;
+/** Cap catch-up so fast wheel never skips a frame (units / second). */
+const MAX_UNITS_PER_SEC = 0.95;
 let data = null;
 let scenes = [];
 let activeScene = -1;
@@ -9,26 +10,21 @@ let step = -1;
 let timer = null;
 let paused = false;
 let checklistTimers = [];
-let raf = 0;
-let mode = 'home'; // home | journey
+let mode = 'home';
 let lastMeta = -1;
-let scrollTarget = 0; // 0..units raw from wheel
-let scrollSmooth = 0; // lerped display progress
-let scrubLoop = 0;
+let scrollTarget = 0;
+let scrollSmooth = 0;
+let scrubRaf = 0;
+let lastScrubTs = 0;
+let idleFrames = 0;
+let sceneNodes = [];
 
 function clamp(v, a, b) {
   return Math.max(a, Math.min(b, v));
 }
-function smoothstep(t) {
+function easeInOut(t) {
   t = clamp(t, 0, 1);
   return t * t * (3 - 2 * t);
-}
-/** Hold → blend → settle inside one unit (Apple chapter pacing). */
-function unitBlend(u) {
-  u = clamp(u, 0, 1);
-  if (u <= 0.32) return 0;
-  if (u >= 0.82) return 1;
-  return smoothstep((u - 0.32) / 0.5);
 }
 
 function el(tag, attrs = {}, kids = []) {
@@ -261,13 +257,13 @@ function buildScene(d) {
 }
 
 function totalUnits() {
-  // Unit 0: GO → scene 0. Then one unit per remaining scene.
+  // 0 = GO→scene0, then +1 per remaining scene → last index n-1
   return Math.max(1, scenes.length);
 }
 
 function layoutTrack() {
   const track = document.getElementById('scroll-track');
-  const units = totalUnits() + 0.55; // settle room on last frame
+  const units = totalUnits() + 0.4;
   track.style.height = `${Math.round(units * VH_PER_UNIT * window.innerHeight)}px`;
 }
 
@@ -284,48 +280,50 @@ function updateMeta(i) {
   });
 }
 
-/**
- * Apple-style paint: opacity + scale + slight Y, clip reveal.
- * No blur (blur = scroll jank).
- * dir -1 = exiting up/zoom-out, +1 = entering from below.
- */
+/** Opacity + Y only. No blur / clip-path (those cause jank). */
 function paintScene(node, vis, dir) {
+  if (!node) return;
   const v = clamp(vis, 0, 1);
   const inv = 1 - v;
-  let y = 0;
-  let scale = 1;
-  if (dir < 0) {
-    y = -28 * inv;
-    scale = 1 + 0.06 * inv; // exit: grow + fade (product zoom away)
-  } else if (dir > 0) {
-    y = 48 * inv;
-    scale = 0.92 + 0.08 * v; // enter: rise + settle
-  }
-  const clipTop = dir > 0 ? inv * 18 : 0;
-  const clipBot = dir < 0 ? inv * 10 : dir > 0 ? inv * 6 : 0;
-
-  node.style.opacity = String(v);
-  node.style.transform = `translate3d(0, ${y}px, 0) scale(${scale})`;
-  node.style.clipPath = v >= 0.995 ? 'none' : `inset(${clipTop}% 0 ${clipBot}% 0)`;
+  const y = dir < 0 ? -24 * inv : dir > 0 ? 36 * inv : 0;
+  node.style.opacity = v.toFixed(4);
+  node.style.transform = `translate3d(0,${y.toFixed(2)}px,0)`;
   node.style.visibility = v < 0.01 ? 'hidden' : 'visible';
-  node.style.pointerEvents = v > 0.6 ? 'auto' : 'none';
-  node.style.zIndex = String(Math.round(v * 12) + (dir > 0 ? 2 : 0));
+  node.style.pointerEvents = v > 0.65 ? 'auto' : 'none';
+  node.style.zIndex = String(dir > 0 ? 5 : Math.round(v * 4));
   node.setAttribute('aria-hidden', v > 0.5 ? 'false' : 'true');
 }
 
-function scrubScenes(fromIdx, toIdx, blend01) {
-  const nodes = [...document.querySelectorAll('.scene')];
-  const e = clamp(blend01, 0, 1);
-  nodes.forEach((node, idx) => {
-    if (fromIdx === toIdx) {
-      paintScene(node, idx === fromIdx ? 1 : 0, 0);
-      return;
+/** Only ever touch the active pair — never flash a third frame. */
+function showPair(a, b, t) {
+  const e = easeInOut(clamp(t, 0, 1));
+  const n = sceneNodes.length;
+  for (let i = 0; i < n; i++) {
+    if (i !== a && i !== b) {
+      const node = sceneNodes[i];
+      if (node.style.opacity !== '0' && node.style.opacity !== '') {
+        node.style.opacity = '0';
+        node.style.visibility = 'hidden';
+        node.style.pointerEvents = 'none';
+        node.style.zIndex = '0';
+      }
     }
-    if (idx === fromIdx) paintScene(node, 1 - e, -1);
-    else if (idx === toIdx) paintScene(node, e, 1);
-    else paintScene(node, 0, idx < fromIdx ? -1 : 1);
-  });
-  updateMeta(e > 0.5 ? toIdx : fromIdx);
+  }
+  if (a === b || t <= 0) {
+    paintScene(sceneNodes[a], 1, 0);
+    if (b !== a) paintScene(sceneNodes[b], 0, 1);
+    updateMeta(a);
+    return;
+  }
+  if (t >= 1) {
+    paintScene(sceneNodes[a], 0, -1);
+    paintScene(sceneNodes[b], 1, 0);
+    updateMeta(b);
+    return;
+  }
+  paintScene(sceneNodes[a], 1 - e, -1);
+  paintScene(sceneNodes[b], e, 1);
+  updateMeta(e > 0.5 ? b : a);
 }
 
 function setLayers(goVis, tourVis) {
@@ -334,21 +332,20 @@ function setLayers(goVis, tourVis) {
   const cue = document.getElementById('scroll-cue');
   const g = clamp(goVis, 0, 1);
   const t = clamp(tourVis, 0, 1);
-  const gInv = 1 - g;
 
-  go.style.opacity = String(g);
-  go.style.transform = `translate3d(0, ${-56 * gInv}px, 0) scale(${1 - 0.08 * gInv})`;
-  go.style.pointerEvents = g > 0.55 ? 'auto' : 'none';
-  go.style.visibility = g < 0.02 ? 'hidden' : 'visible';
+  go.style.opacity = g.toFixed(4);
+  go.style.transform = `translate3d(0,${((-40 * (1 - g))).toFixed(2)}px,0)`;
+  go.style.pointerEvents = g > 0.6 ? 'auto' : 'none';
+  go.style.visibility = g < 0.01 ? 'hidden' : 'visible';
   go.style.zIndex = g >= t ? '3' : '1';
 
-  tour.style.opacity = String(t);
-  tour.style.transform = `translate3d(0, ${(1 - t) * 64}px, 0) scale(${0.94 + 0.06 * t})`;
-  tour.style.pointerEvents = t > 0.55 ? 'auto' : 'none';
-  tour.style.visibility = t < 0.02 ? 'hidden' : 'visible';
+  tour.style.opacity = t.toFixed(4);
+  tour.style.transform = `translate3d(0,${((48 * (1 - t))).toFixed(2)}px,0)`;
+  tour.style.pointerEvents = t > 0.6 ? 'auto' : 'none';
+  tour.style.visibility = t < 0.01 ? 'hidden' : 'visible';
   tour.style.zIndex = t > g ? '3' : '2';
 
-  if (cue) cue.classList.toggle('hide', g < 0.85);
+  if (cue) cue.classList.toggle('hide', g < 0.88);
   const onTour = t > 0.55;
   document.body.dataset.frame = onTour ? 'tour' : 'go';
   document.body.classList.toggle('on-tour', onTour);
@@ -358,7 +355,8 @@ function readScrollTarget() {
   const track = document.getElementById('scroll-track');
   const max = Math.max(1, track.offsetHeight - window.innerHeight);
   const y = clamp(window.scrollY, 0, max);
-  document.getElementById('progress-bar').style.width = `${(y / max) * 100}%`;
+  const bar = document.getElementById('progress-bar');
+  if (bar) bar.style.width = `${(y / max) * 100}%`;
   return (y / max) * totalUnits();
 }
 
@@ -370,46 +368,81 @@ function paintProgress(progress) {
     return;
   }
 
-  // Unit 0: GO → scene 0
+  // Unit 0: GO → scene 0 (linear — little-by-little)
   if (progress < 1) {
-    const blend = unitBlend(progress);
-    setLayers(1 - blend, blend);
-    scrubScenes(0, 0, 1);
-    const first = document.querySelector('.scene');
-    if (first) paintScene(first, blend, 1);
-    if (blend > 0.25) updateMeta(0);
+    const t = clamp(progress, 0, 1);
+    setLayers(1 - t, t);
+    showPair(0, 0, 0);
+    paintScene(sceneNodes[0], t, 1);
+    if (t > 0.35) updateMeta(0);
     return;
   }
 
-  // Tour locked in
   setLayers(0, 1);
   if (n === 1) {
-    scrubScenes(0, 0, 1);
+    showPair(0, 0, 0);
     return;
   }
 
-  const pos = progress - 1; // 0 .. n-1
-  const capped = clamp(pos, 0, n - 1 - 1e-4);
-  const i = Math.min(n - 2, Math.floor(capped));
-  const local = capped - i;
-  scrubScenes(i, i + 1, unitBlend(local));
+  // progress 1 → n maps across scenes 0 → n-1
+  // At progress=1: scene 0 full. At progress=n: scene n-1 full.
+  const pos = clamp(progress - 1, 0, n - 1 - 1e-6);
+  const i = Math.floor(pos);
+  const t = pos - i; // 0..1 within this single pair only
+  const j = Math.min(n - 1, i + 1);
+  showPair(i, j, t);
 }
 
-function scrubTick() {
-  scrubLoop = 0;
-  if (mode === 'journey') return;
-  scrollTarget = readScrollTarget();
-  scrollSmooth += (scrollTarget - scrollSmooth) * LERP;
-  if (Math.abs(scrollTarget - scrollSmooth) < 0.0004) scrollSmooth = scrollTarget;
-  paintProgress(scrollSmooth);
-  if (Math.abs(scrollTarget - scrollSmooth) > 0.0004) {
-    scrubLoop = requestAnimationFrame(scrubTick);
+function scrubTick(ts) {
+  if (mode === 'journey') {
+    scrubRaf = 0;
+    lastScrubTs = 0;
+    idleFrames = 0;
+    return;
   }
+  if (!lastScrubTs) lastScrubTs = ts;
+  const dt = Math.min(0.05, (ts - lastScrubTs) / 1000);
+  lastScrubTs = ts;
+
+  scrollTarget = readScrollTarget();
+  const delta = scrollTarget - scrollSmooth;
+  const maxStep = MAX_UNITS_PER_SEC * dt;
+  if (Math.abs(delta) <= maxStep) scrollSmooth = scrollTarget;
+  else scrollSmooth += Math.sign(delta) * maxStep;
+
+  paintProgress(scrollSmooth);
+
+  if (Math.abs(scrollTarget - scrollSmooth) < 1e-4) {
+    idleFrames += 1;
+    if (idleFrames > 12) {
+      scrubRaf = 0;
+      lastScrubTs = 0;
+      idleFrames = 0;
+      return;
+    }
+  } else {
+    idleFrames = 0;
+  }
+  scrubRaf = requestAnimationFrame(scrubTick);
+}
+
+function startScrubLoop() {
+  idleFrames = 0;
+  if (scrubRaf) return;
+  lastScrubTs = 0;
+  scrubRaf = requestAnimationFrame(scrubTick);
+}
+
+function stopScrubLoop() {
+  if (scrubRaf) cancelAnimationFrame(scrubRaf);
+  scrubRaf = 0;
+  lastScrubTs = 0;
+  idleFrames = 0;
 }
 
 function onScroll() {
   scrollTarget = readScrollTarget();
-  if (!scrubLoop) scrubLoop = requestAnimationFrame(scrubTick);
+  startScrubLoop();
 }
 
 function scrubFromScroll() {
@@ -422,8 +455,8 @@ function jumpToScene(i) {
   const track = document.getElementById('scroll-track');
   const max = Math.max(1, track.offsetHeight - window.innerHeight);
   const units = totalUnits();
-  // Mid-hold of scene i (after GO unit)
-  const unit = clamp(i + 0.5 + 0.15, 0, units);
+  // Settle on scene i (progress = 1 + i)
+  const unit = clamp(1 + i + 0.02, 0, units);
   window.scrollTo({ top: (unit / units) * max, behavior: 'smooth' });
 }
 
@@ -805,6 +838,7 @@ function startJourney() {
 
   setTimeout(() => {
     mode = 'journey';
+    stopScrubLoop();
     document.body.className = 'mode-journey';
     document.body.dataset.frame = 'journey';
     document.documentElement.classList.add('lock-scroll');
@@ -834,7 +868,10 @@ function exitJourney() {
   setAurora('');
   window.scrollTo({ top: 0, behavior: 'smooth' });
   lastMeta = -1;
-  setTimeout(scrubFromScroll, 80);
+  setTimeout(() => {
+    scrubFromScroll();
+    startScrubLoop();
+  }, 80);
 }
 
 function restart() {
@@ -876,6 +913,7 @@ async function main() {
   document.getElementById('story-input').value = L.placeholder;
 
   document.getElementById('stage-frame').replaceChildren(...scenes.map(buildScene));
+  sceneNodes = [...document.querySelectorAll('#stage-frame > .scene')];
   document.getElementById('scene-dots').replaceChildren(
     ...scenes.map((s, i) =>
       el('button', {
@@ -888,7 +926,7 @@ async function main() {
   );
 
   layoutTrack();
-  document.querySelectorAll('.scene').forEach((node) => {
+  sceneNodes.forEach((node) => {
     node.classList.remove('active');
     paintScene(node, 0, 1);
   });
@@ -921,6 +959,7 @@ async function main() {
   }
 
   scrubFromScroll();
+  startScrubLoop();
   document.body.classList.add('ready');
 }
 
