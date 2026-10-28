@@ -122,7 +122,7 @@ function buildScene(data) {
           el('div', { className: 'score-orb' }, [
             el('div', { className: 'big', text: String(data.overall) }),
             el('div', { className: 'sub', text: '/ 100' }),
-            pill(data.passed ? 'Pass' : 'Below', data.passed ? 'pass' : 'warn'),
+            pill(data.passed ? 'Pass · strong' : 'Below', data.passed ? 'pass' : 'warn'),
           ]),
           el('div', {}, [
             ...(data.scores || []).map((p) =>
@@ -161,17 +161,30 @@ function buildScene(data) {
         ),
       );
       break;
-    case 'platform':
+    case 'platform': {
+      const toneClass = (h) => {
+        const t = (h || '').toLowerCase();
+        if (t.includes('bad') || t.includes('3.4') || t.includes('61')) return 'mini-card bad';
+        if (t.includes('good') || t.includes('cls')) return 'mini-card good';
+        return 'mini-card';
+      };
       root.append(
         el(
           'div',
           { className: 'plat-grid' },
           (data.grid || []).map((g) =>
-            el('div', { className: 'mini-card good' }, [el('h3', { text: g.h }), el('p', { text: g.p })]),
+            el('div', { className: toneClass(g.h) }, [
+              el('h3', { text: g.h }),
+              el('p', { text: g.p }),
+              /AI verdict/i.test(g.h || '')
+                ? pill(g.h.includes('BAD') ? 'BAD' : 'GOOD', g.h.includes('BAD') ? 'fail' : 'pass')
+                : null,
+            ]),
           ),
         ),
       );
       break;
+    }
     case 'close':
       root.append(
         el('div', { className: 'cta-line' }, [

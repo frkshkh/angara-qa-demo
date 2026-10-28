@@ -2,58 +2,58 @@
   "product": {
     "name": "Angara GenAI Agent",
     "tagline": "QA that proves itself — not just produces text.",
-    "disclaimer": "Public product demo · sample data"
+    "disclaimer": "Public product demo · rich sample data"
   },
   "landing": {
     "greeting": "Hi agent,",
     "prompt": "test my Story",
     "placeholder": "DEMO-1414 · FedEx Pickup at checkout (US)",
     "cta": "GO",
-    "hint": "Autopilot runs Story → Generate → Multi-MR review → CUA → Evidence → Bug → PageSpeed"
+    "hint": "Autopilot: Generate → CR → Quality gate → CUA (Test Set · Manual · Adversarial) → Evidence → Bug → PageSpeed AI verdict"
   },
   "scenes": [
     {
       "id": "hero",
       "kicker": "Product tour",
       "title": "Ship QA that can defend itself.",
-      "body": "One agent loop: ticket + MRs → grounded suite → quality gate → browser run → Xray. Scroll the tour — or launch Autopilot for the live journey.",
+      "body": "Ticket + MRs → gated suite → multi-mode CUA → evidence → human-gated bug → PageSpeed with AI verdict.",
       "stats": [
-        { "v": "~11 min", "l": "ticket → gated suite" },
+        { "v": "94/100", "l": "quality gate" },
         { "v": "109/109", "l": "checklist proven" },
-        { "v": "3 MRs", "l": "reviewed in parallel" },
-        { "v": "78/100", "l": "quality gate" }
+        { "v": "3 CUA modes", "l": "Test Set · Manual · Adversarial" },
+        { "v": "AI BAD", "l": "PageSpeed verdict on LCP" }
       ]
     },
     {
       "id": "pain",
       "kicker": "The gap",
       "title": "Normal tools leave holes.",
-      "body": "Chatbots invent steps. TMS stays hand-written. Code review never becomes a test. Playback scripts shatter.",
+      "body": "Chatbots invent steps. TMS stays hand-written. CR never becomes a test. One CUA mode is not enough.",
       "cards": [
         { "bad": true, "h": "ChatGPT paste", "p": "Pretty cases. Weak grounding. No AC proof." },
-        { "bad": true, "h": "Classic TMS", "p": "Great library. Still typed by hand. Blind to MRs." },
-        { "bad": true, "h": "Standalone CR", "p": "Findings die in a tab. Ports re-reviewed 3×." },
-        { "bad": true, "h": "Brittle automation", "p": "Record-play breaks. Auto-bugs spam Jira." }
+        { "bad": true, "h": "Classic TMS", "p": "Hand-authored. Blind to MRs." },
+        { "bad": true, "h": "Single browser bot", "p": "No Test Set batch, no adversarial, no advisory load checks." },
+        { "bad": true, "h": "Raw Lighthouse dump", "p": "Numbers without an AI good/bad call." }
       ]
     },
     {
       "id": "loop",
       "kicker": "Our answer",
-      "title": "One run. Five power moments.",
-      "body": "Review and generate overlap — defects become checklist items before Save.",
+      "title": "Closed loop — not a chatbot.",
+      "body": "Author, review, prove, run three CUA modes, capture evidence, gate bugs, judge performance.",
       "steps": [
-        { "n": "01", "h": "Ingest", "p": "Ticket, comments, designs, every live MR" },
-        { "n": "02", "h": "Review ∥ Draft", "p": "Multi-MR CR while suite writes" },
-        { "n": "03", "h": "Prove", "p": "Coverage · dedupe · 7-param gate" },
-        { "n": "04", "h": "Run", "p": "CUA or Playwright on real site" },
-        { "n": "05", "h": "Publish", "p": "Xray / Jira — or MCP from Cursor" }
+        { "n": "01", "h": "Ingest", "p": "Story + every live MR" },
+        { "n": "02", "h": "Generate + CR", "p": "Suite + F items in parallel" },
+        { "n": "03", "h": "Quality gate", "p": "7 params · weakest caps" },
+        { "n": "04", "h": "CUA ×3", "p": "Test Set · Manual · Adversarial" },
+        { "n": "05", "h": "Ship signal", "p": "Bug gate + PageSpeed AI" }
       ]
     },
     {
       "id": "generate",
       "kicker": "Author",
-      "title": "Ticket-first. Diff-aware. Coverage proven.",
-      "body": "Ledger from the story before the code. Every checklist item proven in expected results.",
+      "title": "Ticket-first. Coverage proven.",
+      "body": "Ledger before the diff. House cases. CR findings as F items.",
       "ticket": {
         "key": "DEMO-1414",
         "summary": "FedEx Pickup at checkout — US only",
@@ -65,13 +65,13 @@
           "UK/AU unchanged"
         ]
       },
-      "pills": ["AI-first · Full coverage", "41 cases", "109/109 proven"]
+      "pills": ["Full coverage", "41 cases", "109/109 proven", "Gate 94/100"]
     },
     {
       "id": "cr",
       "kicker": "Review while generating",
       "title": "Multi-MR findings become tests.",
-      "body": "Every loaded live MR in one run. Identical diffs once. Confirmed bugs → F items.",
+      "body": "Shared diffs once. F1/F2 join the checklist.",
       "mrs": [
         {
           "label": "Primary",
@@ -94,59 +94,52 @@
     {
       "id": "gate",
       "kicker": "Prove",
-      "title": "Independent quality gate. Weakest score wins.",
-      "body": "Seven parameters. Averages cannot hide bad dedup. Pass = every param ≥ 70.",
-      "overall": 78,
+      "title": "Quality gate 94 / 100 — not average.",
+      "body": "Independent reviewer. Every parameter ≥ 8. Weakest still caps overall.",
+      "overall": 94,
       "passed": true,
       "scores": [
-        { "l": "AC coverage", "s": 90 },
-        { "l": "Functional depth", "s": 80 },
-        { "l": "Backend depth", "s": 80 },
-        { "l": "No duplicates", "s": 80 },
-        { "l": "Risk thinking", "s": 80 },
-        { "l": "Precision", "s": 70 },
-        { "l": "Executability", "s": 90 }
+        { "l": "AC coverage", "s": 95 },
+        { "l": "Functional depth", "s": 94 },
+        { "l": "Backend depth", "s": 92 },
+        { "l": "No duplicates", "s": 96 },
+        { "l": "Risk thinking", "s": 93 },
+        { "l": "Precision", "s": 94 },
+        { "l": "Executability", "s": 95 }
       ],
-      "dedupe": "52 → 41 cases · coverage guard undoes bad folds",
+      "dedupe": "52 → 41 · 8 merges · 0 coverage-guard undos",
       "house": ["Live deploy", "Escape + focus", "Scope leak", "Phone fit"]
     },
     {
       "id": "run",
-      "kicker": "Execute",
-      "title": "Real browsers. Human-gated bugs.",
-      "body": "CUA and Automation Workbench. Failures wait for a person — never auto-spam Jira.",
+      "kicker": "CUA",
+      "title": "Three ways to drive the browser.",
+      "body": "Test Set batch · Manual NL · Adversarial edge plan — plus advisory load checks.",
       "panels": [
-        {
-          "tag": "CUA",
-          "h": "PASS · $0.42",
-          "lines": ["Open US checkout", "FedEx Pickup → ZIP", "Select facility", "Place Order enabled"]
-        },
-        {
-          "tag": "Automation",
-          "h": "HIGH confidence",
-          "lines": ["Preflight Chromium", "Codegen from English", "Escape closes popup", "Video + trace"]
-        }
+        { "tag": "Test Set", "h": "TS-DEMO-1414 · 12 selected", "lines": ["Oracle advisory unticked 2", "Merges: 3 groups", "Batch FAIL on F1 path"] },
+        { "tag": "Manual", "h": "Plain-English intent", "lines": ["One NL run", "PASS · $0.38", "Video retained"] },
+        { "tag": "Adversarial", "h": "Abuse / edge plan", "lines": ["ZIP injection · double-submit", "Scope UK probe", "2 FAIL · awaiting_review"] }
       ]
     },
     {
       "id": "platform",
-      "kicker": "Platform",
-      "title": "More than a generator.",
-      "body": "MCP, Xray, knowledge RAG, cost, schedules, PageSpeed — same workspace.",
+      "kicker": "Performance",
+      "title": "PageSpeed + AI verdict.",
+      "body": "Lab metrics and a clear GOOD / BAD call — not a raw dump.",
       "grid": [
-        { "h": "MCP Skills", "p": "tc_author · cua · bug_triage in Cursor / Claude" },
-        { "h": "Jira + Xray", "p": "Publish sets & executions. Real reporter." },
-        { "h": "Knowledge RAG", "p": "Behavior packs match real store behaviour." },
-        { "h": "AI cost", "p": "Per-run spend visible to leadership." },
-        { "h": "Schedules", "p": "Picker rules generate while you sleep." },
-        { "h": "PageSpeed · SEO", "p": "Live-site quality beside functional QA." }
+        { "h": "Performance 61", "p": "Below bar on mobile checkout" },
+        { "h": "LCP 3.4s", "p": "Pickup map tiles block paint" },
+        { "h": "CLS 0.03", "p": "Layout stable — GOOD signal" },
+        { "h": "AI verdict BAD", "p": "Do not ship mobile until LCP ≤ 2.5s" },
+        { "h": "MCP · Xray", "p": "Same agent in IDE + ALM" },
+        { "h": "Cost visible", "p": "Per-run spend for leadership" }
       ]
     },
     {
       "id": "close",
       "kicker": "Next",
-      "title": "Tour done. Try the autopilot.",
-      "body": "Same product — GO runs the closed loop with evidence, bug gate, and PageSpeed.",
+      "title": "Run the autopilot.",
+      "body": "GO walks every step with predefined rich data — including all three CUA modes and PageSpeed AI.",
       "cta": "Open Autopilot →"
     }
   ],
@@ -154,154 +147,267 @@
     {
       "id": "ingest",
       "phase": "01 · Ingest",
-      "title": "Story loaded.",
-      "voice": "Pulling DEMO-1414 — AC, comments, designs, every live MR.",
-      "duration": 4000,
+      "title": "Story + sources loaded.",
+      "voice": "DEMO-1414 with AC, worklogs, Figma links, and three live MRs — Primary, Region, Theme.",
+      "duration": 4500,
       "ui": "ticket",
       "ticket": {
         "key": "DEMO-1414",
-        "summary": "FedEx Pickup location at checkout — US storefront",
+        "type": "Story · High",
+        "summary": "FedEx Pickup location at checkout — US storefront only",
         "ac": [
-          "Search FedEx Pickup by ZIP",
-          "Show name, address, distance, hours",
-          "Place Order disabled until location chosen",
-          "Billing not overwritten by pickup",
-          "UK / AU unchanged"
+          "Guest + signed-in: search FedEx Pickup by ZIP on shipping step",
+          "Selected location shows name, address, distance, hours",
+          "Place Order disabled until a pickup location is chosen",
+          "Billing address required — never overwritten by pickup",
+          "Change limited to US — UK / AU keep prior shipping UI"
+        ],
+        "meta": [
+          { "k": "Comments", "v": "14 · latest: US-only confirmed" },
+          { "k": "Worklogs", "v": "6 · store-scope cue found" },
+          { "k": "Designs", "v": "2 Figma frames (+ mobile counterpart)" },
+          { "k": "Live MRs", "v": "3 · multi-MR review queued" }
         ]
       }
     },
     {
       "id": "generate",
       "phase": "02 · Generate",
-      "title": "Test cases drafting…",
-      "voice": "Ledger first. Requirement cases without the diff. House cases ride along.",
-      "duration": 5000,
+      "title": "Suite drafting with Full coverage.",
+      "voice": "Ledger before the diff. Requirement cases ∥ change cases. House + UI rows. Dedupe under coverage guard.",
+      "duration": 5500,
       "ui": "generate",
       "progress": [
-        { "t": "Requirement ledger", "ok": true },
-        { "t": "Requirement cases ∥ change cases", "ok": true },
-        { "t": "Coverage fill · Full coverage", "ok": true },
-        { "t": "Semantic dedupe 52 → 41", "ok": true },
-        { "t": "Out-of-the-box house cases", "ok": true }
+        { "t": "Requirement ledger — 18 R + 2 Q ids", "ok": true },
+        { "t": "KB floor + dimension D items", "ok": true },
+        { "t": "Requirement cases (no diff) ∥ change cases", "ok": true },
+        { "t": "Coverage check — fill until proven", "ok": true },
+        { "t": "Semantic dedupe 52 → 41 (8 merges, 0 undos)", "ok": true },
+        { "t": "House / OOB: live-deploy, Escape, scope, phone", "ok": true },
+        { "t": "Grounding gate — 3 invented values flagged", "ok": true }
       ],
-      "result": "41 cases · 109/109 checklist proven"
+      "result": "41 cases · 109/109 checklist proven · publish-ready draft",
+      "casesPreview": [
+        { "n": 1, "p": "Critical", "s": "Guest ZIP search selects FedEx location" },
+        { "n": 4, "p": "High", "s": "API 5xx ≠ empty “no locations” (F1)", "badge": "From CR" },
+        { "n": 5, "p": "High", "s": "UK checkout has no Pickup from this change (F2)", "badge": "Scope" },
+        { "n": 6, "p": "Medium", "s": "Live deploy soft-nav keeps checkout usable", "badge": "OOB" }
+      ]
     },
     {
       "id": "cr",
-      "phase": "03 · Code review",
-      "title": "Multi-MR review · while generating",
-      "voice": "Primary, Region, Theme — shared diffs once. Bugs become F items.",
-      "duration": 4800,
+      "phase": "03 · Multi-MR code review",
+      "title": "Review ran while cases drafted.",
+      "voice": "Three MRs. Shared diffs reviewed once on Primary. Confirmed bugs → F1, F2 on the checklist.",
+      "duration": 5200,
       "ui": "cr",
       "mrs": [
         {
           "label": "Primary !20332",
+          "target": "storefront.v4.prod",
+          "verdict": "Needs decision",
           "bugs": [
-            { "sev": "HIGH", "f": "F1", "t": "API error shown as empty locations" },
-            { "sev": "MEDIUM", "f": "F2", "t": "Pickup without US store guard" }
+            { "sev": "HIGH", "f": "F1", "rule": "ERR-STATUS", "t": "Pickup search 5xx mapped to empty list + 200" },
+            { "sev": "MEDIUM", "f": "F2", "rule": "SCOPE", "t": "Pickup mounts without US store guard" }
           ]
         },
         {
           "label": "Region !21339",
-          "bugs": [{ "sev": "MEDIUM", "f": "F2", "t": "US-scoped change on region fork" }]
+          "target": "storefront-region.v4.prod",
+          "verdict": "Needs decision",
+          "bugs": [
+            { "sev": "MEDIUM", "f": "F2", "rule": "SCOPE", "t": "Same change on region fork (copied from Primary)" }
+          ]
         },
-        { "label": "Theme !21340", "bugs": [] }
-      ]
+        {
+          "label": "Theme !21340",
+          "target": "storefront-theme.v4.prod",
+          "verdict": "Clean",
+          "bugs": []
+        }
+      ],
+      "note": "Locale parity OK · no conflict markers · store-scope finding never auto-cleared on ports"
     },
     {
       "id": "gate",
       "phase": "04 · Quality gate",
-      "title": "Independent score: 78 / 100",
-      "voice": "Seven parameters. Weakest caps overall. Suite passes the bar.",
-      "duration": 4500,
+      "title": "Independent score: 94 / 100",
+      "voice": "Not an average suite. Every parameter ≥ 92. Weakest still caps overall — and it passes hard.",
+      "duration": 5200,
       "ui": "gate",
-      "overall": 78,
+      "overall": 94,
+      "passed": true,
+      "passMin": 70,
       "scores": [
-        { "l": "AC coverage", "s": 90 },
-        { "l": "Functional depth", "s": 80 },
-        { "l": "Backend depth", "s": 80 },
-        { "l": "No duplicates", "s": 80 },
-        { "l": "Risk thinking", "s": 80 },
-        { "l": "Precision", "s": 70 },
-        { "l": "Executability", "s": 90 }
+        { "l": "AC coverage", "s": 95, "note": "All 18 R ids + F1/F2 proven" },
+        { "l": "Functional depth", "s": 94, "note": "State after action · mid-flow fail" },
+        { "l": "Backend depth", "s": 92, "note": "5xx + empty contract paths" },
+        { "l": "No duplicates", "s": 96, "note": "8 merges · pairwise verified" },
+        { "l": "Risk thinking", "s": 93, "note": "Scope · order · repeat · journey" },
+        { "l": "Precision", "s": 94, "note": "0 off-scope after dropOffScope" },
+        { "l": "Executability", "s": 95, "note": "Start paths + one action/step" }
+      ],
+      "findings": [],
+      "extras": [
+        { "k": "Missing", "v": "0" },
+        { "k": "Duplicate groups", "v": "0 left" },
+        { "k": "Off-scope", "v": "0" },
+        { "k": "House cases", "v": "4 required · all present" }
       ]
     },
     {
-      "id": "cua",
-      "phase": "05 · CUA autopilot",
-      "title": "Browser agent executing…",
-      "voice": "Real storefront. Watching pickup + Place Order.",
-      "duration": 5400,
-      "ui": "cua",
-      "steps": [
-        { "a": "Navigate /us-en/checkout", "s": "ok" },
-        { "a": "Select FedEx Pickup", "s": "ok" },
-        { "a": "Enter ZIP 10001 · pick facility", "s": "ok" },
-        { "a": "Assert Place Order with billing", "s": "fail" }
+      "id": "cua-advisory",
+      "phase": "05 · CUA advisory",
+      "title": "Load checks before any browser opens.",
+      "voice": "Case oracle, repeat overlap, and merge suggestions — advisory only. Tester can re-tick.",
+      "duration": 5000,
+      "ui": "cua-advisory",
+      "advisories": [
+        { "kind": "oracle", "case": "#11 Payload bytes under 150KB", "action": "Unticked", "why": "No page shows transfer size without inspect_elements — kept runnable after tool attach" },
+        { "kind": "oracle", "case": "#18 All regression cases pass", "action": "Unticked", "why": "Suite-level claim — no single page oracle" },
+        { "kind": "repeat", "case": "#9 ZIP search locations", "action": "Unticked", "why": "Fully covered by #1 (same setup + asserts)" },
+        { "kind": "merge", "case": "#10 + #13", "action": "Group", "why": "Same setup · read-only checks · 1 run instead of 2" }
       ],
-      "verdict": "FAIL",
-      "cost": "$0.48"
+      "summary": "41 loaded → 38 runnable · 1 merge group · advisory, never silent deletes"
+    },
+    {
+      "id": "cua-testset",
+      "phase": "06 · CUA · Test Set",
+      "title": "Batch from TS-DEMO-1414",
+      "voice": "Selected cases from the generated set run on QA US desktop. Failures stop at awaiting_review.",
+      "duration": 5800,
+      "ui": "cua-testset",
+      "set": {
+        "key": "TS-DEMO-1414",
+        "env": "QA · us-en · Desktop",
+        "selected": 12,
+        "total": 38,
+        "cost": "$4.10 batch"
+      },
+      "runs": [
+        { "case": "#1 Guest ZIP → select location", "v": "PASS", "cost": "$0.31" },
+        { "case": "#2 Place Order disabled w/o location", "v": "PASS", "cost": "$0.28" },
+        { "case": "#3 Billing survives pickup", "v": "PASS", "cost": "$0.33" },
+        { "case": "#4 API 5xx ≠ empty list (F1)", "v": "FAIL", "cost": "$0.48" },
+        { "case": "#5 UK has no Pickup (F2)", "v": "PASS", "cost": "$0.29" },
+        { "case": "#7 Escape closes popup", "v": "PASS", "cost": "$0.22" }
+      ],
+      "batch": "1 FAIL · 5 PASS shown · evidence attached on FAIL"
+    },
+    {
+      "id": "cua-manual",
+      "phase": "07 · CUA · Manual",
+      "title": "Plain-English single run.",
+      "voice": "Manual tab — one intent, no Test Set. Agent plans, runs, returns verdict + video.",
+      "duration": 5200,
+      "ui": "cua-manual",
+      "intent": "On US checkout as guest, open FedEx Pickup, search 10001, pick the first facility, complete billing, confirm Place Order enables and the location summary shows name + distance.",
+      "plan": [
+        "Open /us-en/checkout with shippable cart",
+        "Select FedEx Pickup · enter 10001",
+        "Choose first facility · assert summary",
+        "Fill billing · assert Place Order enabled"
+      ],
+      "verdict": "PASS",
+      "cost": "$0.38",
+      "artifacts": ["video 36s", "step log 9", "no bug gate"]
+    },
+    {
+      "id": "cua-adversarial",
+      "phase": "08 · CUA · Adversarial",
+      "title": "Edge + abuse plan on checkout.",
+      "voice": "Adversarial tab plans attacks and edges the happy path never hits — still human-gated on fail.",
+      "duration": 5600,
+      "ui": "cua-adversarial",
+      "plan": [
+        { "a": "ZIP with script / oversized string", "v": "PASS", "note": "Rejected · no XSS toast as locations" },
+        { "a": "Double-click Place Order after select", "v": "PASS", "note": "Single order intent · no duplicate" },
+        { "a": "Switch US→UK mid-pickup sheet", "v": "FAIL", "note": "Pickup chrome leaked one paint" },
+        { "a": "5xx then retry search", "v": "FAIL", "note": "Empty list — same F1 class" }
+      ],
+      "verdict": "2 FAIL · awaiting_review",
+      "cost": "$1.12"
     },
     {
       "id": "evidence",
-      "phase": "06 · Evidence",
-      "title": "Proof pack captured.",
-      "voice": "Video, step log, DOM inspect — ready for a human.",
-      "duration": 4200,
+      "phase": "09 · Evidence",
+      "title": "Proof pack for every FAIL.",
+      "voice": "Video, steps, DOM inspect, transfer sizes — enough for a human to file or dismiss.",
+      "duration": 4800,
       "ui": "evidence",
       "items": [
-        { "k": "Recording", "v": "cua-demo-1414.webm · 42s" },
-        { "k": "Step log", "v": "12 actions · last assert failed" },
-        { "k": "Screenshot", "v": "place-order-disabled.png" },
-        { "k": "inspect_elements", "v": "Pickup control + error toast" },
-        { "k": "transfer_sizes", "v": "29/34 image requests timed" }
+        { "k": "Recording", "v": "cua-1414-f1.webm · 42s · Desktop" },
+        { "k": "Step log", "v": "14 actions · assert failed on error copy" },
+        { "k": "Screenshot", "v": "empty-locations-on-5xx.png" },
+        { "k": "inspect_elements", "v": "toast[role=status] text = “No locations nearby”" },
+        { "k": "Network", "v": "GET /api/pickup/search → 503 · UI still 200 empty" },
+        { "k": "transfer_sizes", "v": "29/34 image requests timed on wire" },
+        { "k": "Lesson hook", "v": "Pending review — not auto-distilled" }
       ]
     },
     {
       "id": "bug",
-      "phase": "07 · Bug (human-gated)",
-      "title": "Defect ready — awaiting review.",
-      "voice": "Agent never auto-files. Human confirms real bug → Jira.",
-      "duration": 4500,
+      "phase": "10 · Bug (human-gated)",
+      "title": "Defect card — awaiting review.",
+      "voice": "Never auto-Jira. Human picks File bug, test problem, or skip. Ties to F1 from MR review.",
+      "duration": 4800,
       "ui": "bug",
       "bug": {
         "status": "awaiting_review",
         "sev": "High",
-        "summary": "Pickup search 5xx surfaces as “no locations” — Place Order stays blocked",
-        "covers": "F1 · ERR-STATUS from MR review",
-        "actions": ["File bug", "Mark test problem", "Skip"]
+        "summary": "Pickup search 5xx rendered as “No locations nearby” — Place Order stays blocked",
+        "covers": "F1 · ERR-STATUS · Test Set #4 · Adversarial retry",
+        "repro": [
+          "QA US checkout · FedEx Pickup",
+          "Force pickup search API 503",
+          "Observe empty list copy · no retry"
+        ],
+        "actions": ["File bug", "Mark test problem", "Environment", "Skip"]
       }
     },
     {
       "id": "pagespeed",
-      "phase": "08 · PageSpeed",
-      "title": "Live-site performance check.",
-      "voice": "Functional + performance in one loop.",
-      "duration": 4800,
+      "phase": "11 · PageSpeed + AI",
+      "title": "Lab metrics · AI verdict: BAD",
+      "voice": "Checkout mobile after Pickup assets. CLS is fine — LCP is not. AI says do not ship until fixed.",
+      "duration": 5600,
       "ui": "pagespeed",
-      "url": "/us-en/checkout",
+      "url": "https://qa.example/us-en/checkout",
+      "device": "Mobile · PSI lab",
       "metrics": [
-        { "l": "Performance", "s": 74 },
-        { "l": "LCP", "s": 68, "raw": "2.8s" },
-        { "l": "CLS", "s": 92, "raw": "0.04" },
-        { "l": "TBT", "s": 71, "raw": "280ms" }
+        { "l": "Performance", "s": 61, "raw": "61", "tone": "bad" },
+        { "l": "LCP", "s": 48, "raw": "3.4s", "tone": "bad" },
+        { "l": "CLS", "s": 96, "raw": "0.03", "tone": "good" },
+        { "l": "INP", "s": 78, "raw": "180ms", "tone": "ok" }
       ],
-      "note": "LCP watch after pickup assets lazy-load fix"
+      "ai": {
+        "verdict": "BAD",
+        "headline": "Mobile checkout not ship-ready for this change",
+        "bullets": [
+          "LCP 3.4s — FedEx map / location tiles compete with LCP element",
+          "Performance 61 < 80 bar used for checkout templates",
+          "CLS 0.03 is GOOD — layout not the blocker",
+          "Recommend: lazy-load map after location open · re-run PSI · target LCP ≤ 2.5s"
+        ]
+      },
+      "compare": "Desktop Performance 88 · AI GOOD — mobile-only gate"
     },
     {
       "id": "done",
-      "phase": "09 · Closed loop",
+      "phase": "12 · Closed loop",
       "title": "Autopilot complete.",
-      "voice": "Story → suite → CR → gate → CUA → evidence → bug → PageSpeed.",
+      "voice": "Story → gated suite → multi-MR CR → CUA×3 → evidence → bug gate → PageSpeed AI BAD. Ready for Xray when you approve.",
       "duration": 0,
       "ui": "done",
       "summary": [
-        { "l": "Cases", "v": "41 gated" },
-        { "l": "MRs reviewed", "v": "3" },
-        { "l": "CUA", "v": "FAIL + evidence" },
+        { "l": "Quality gate", "v": "94/100 · pass" },
+        { "l": "Checklist", "v": "109/109 proven" },
+        { "l": "CUA Test Set", "v": "1 FAIL (F1)" },
+        { "l": "CUA Manual", "v": "PASS" },
+        { "l": "CUA Adversarial", "v": "2 FAIL" },
         { "l": "Bug", "v": "awaiting_review" },
-        { "l": "PageSpeed", "v": "74 · LCP watch" },
-        { "l": "Next", "v": "File bug · sync Xray" }
+        { "l": "PageSpeed AI", "v": "BAD · LCP" },
+        { "l": "Next", "v": "File bug · fix LCP · re-GO" }
       ]
     }
   ]

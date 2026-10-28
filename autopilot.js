@@ -47,13 +47,25 @@ function renderStage(j) {
       const t = j.ticket;
       wrap.append(
         el('div', { className: 'ticket-box' }, [
-          el('div', { className: 'ticket-key', text: t.key }),
+          el('div', { className: 'pill-row' }, [pill(t.key, 'cr'), t.type ? pill(t.type) : null]),
           el('h3', { text: t.summary }),
           el(
             'ul',
             {},
             t.ac.map((line) => el('li', { text: line })),
           ),
+          t.meta
+            ? el(
+                'div',
+                { className: 'meta-grid' },
+                t.meta.map((m) =>
+                  el('div', { className: 'meta-cell' }, [
+                    el('span', { className: 'l', text: m.k }),
+                    el('span', { className: 'v', text: m.v }),
+                  ]),
+                ),
+              )
+            : null,
         ]),
       );
       break;
@@ -70,6 +82,22 @@ function renderStage(j) {
       });
       wrap.append(list);
       if (j.result) wrap.append(el('div', { className: 'result-banner', text: j.result, id: 'gen-result', hidden: true }));
+      if (j.casesPreview?.length) {
+        wrap.append(
+          el(
+            'div',
+            { className: 'case-preview', id: 'gen-preview', hidden: true },
+            j.casesPreview.map((c) =>
+              el('div', { className: 'case-row' }, [
+                el('span', { className: 'n', text: `#${c.n}` }),
+                pill(c.p),
+                c.badge ? pill(c.badge, 'cr') : null,
+                el('span', { text: c.s }),
+              ]),
+            ),
+          ),
+        );
+      }
       break;
     }
     case 'cr':
@@ -81,21 +109,25 @@ function renderStage(j) {
             el('div', { className: 'mr-card' }, [
               el('header', {}, [
                 el('span', { text: mr.label }),
-                mr.bugs?.length ? pill('Needs decision', 'warn') : pill('Clean', 'pass'),
+                mr.target ? pill(mr.target) : null,
+                mr.bugs?.length ? pill(mr.verdict || 'Needs decision', 'warn') : pill(mr.verdict || 'Clean', 'pass'),
               ]),
               ...(mr.bugs || []).length
                 ? mr.bugs.map((b) =>
                     el('div', { className: 'bug-line' }, [
                       pill(b.sev, b.sev === 'HIGH' ? 'high' : 'warn'),
                       ' ',
+                      b.rule ? pill(b.rule) : null,
+                      ' ',
                       pill(`→ ${b.f}`, 'cr'),
                       el('div', { text: b.t, style: 'margin-top:0.25rem' }),
                     ]),
                   )
-                : [el('div', { className: 'bug-line', text: 'Shared diffs skipped' })],
+                : [el('div', { className: 'bug-line', text: 'Shared diffs skipped · locale OK' })],
             ]),
           ),
         ),
+        j.note ? el('div', { className: 'result-banner', text: j.note }) : null,
       );
       break;
     case 'gate':
@@ -104,42 +136,114 @@ function renderStage(j) {
           el('div', { className: 'orb' }, [
             el('div', { className: 'big', text: String(j.overall) }),
             el('div', { className: 'sub', text: '/ 100' }),
-            pill('Pass', 'pass'),
+            pill(j.passed ? 'Pass · strong' : 'Below', j.passed ? 'pass' : 'warn'),
           ]),
-          el(
-            'div',
-            {},
-            (j.scores || []).map((p) =>
+          el('div', {}, [
+            ...(j.scores || []).map((p) =>
               el('div', { className: 'param' }, [
                 el('span', { text: p.l }),
                 el('span', { className: 'bar' }, [el('i', { style: `width:${p.s}%` })]),
                 el('span', { text: String(p.s) }),
               ]),
             ),
-          ),
+            j.extras
+              ? el(
+                  'div',
+                  { className: 'meta-grid tight' },
+                  j.extras.map((x) =>
+                    el('div', { className: 'meta-cell' }, [
+                      el('span', { className: 'l', text: x.k }),
+                      el('span', { className: 'v', text: x.v }),
+                    ]),
+                  ),
+                )
+              : null,
+          ]),
         ]),
       );
       break;
-    case 'cua': {
-      const list = el('ul', { className: 'cua-steps', id: 'cua-list' });
-      (j.steps || []).forEach((s, i) => {
-        list.append(
-          el('li', { 'data-i': String(i), className: s.s === 'fail' ? 'fail-row' : '' }, [
-            el('span', { text: s.a }),
-            pill(s.s === 'fail' ? 'FAIL' : 'OK', s.s === 'fail' ? 'fail' : 'pass'),
-          ]),
-        );
-      });
+    case 'cua-advisory':
+      wrap.append(
+        el(
+          'ul',
+          { className: 'advisory-list', id: 'cua-list' },
+          (j.advisories || []).map((a) =>
+            el('li', {}, [
+              el('div', { className: 'pill-row' }, [
+                pill(a.kind, a.kind === 'merge' ? 'cr' : 'warn'),
+                pill(a.action, a.action === 'Group' ? 'pass' : 'warn'),
+              ]),
+              el('strong', { text: a.case }),
+              el('p', { text: a.why }),
+            ]),
+          ),
+        ),
+        j.summary ? el('div', { className: 'result-banner', text: j.summary }) : null,
+      );
+      break;
+    case 'cua-testset': {
+      const set = j.set || {};
       wrap.append(
         el('div', { className: 'pill-row' }, [
-          pill(`Verdict ${j.verdict}`, 'fail'),
-          pill(j.cost || ''),
-          pill('Desktop'),
+          pill(set.key || 'Test Set', 'cr'),
+          pill(set.env || ''),
+          pill(`${set.selected}/${set.total} cases`),
+          pill(set.cost || ''),
         ]),
-        list,
+        el(
+          'ul',
+          { className: 'cua-steps', id: 'cua-list' },
+          (j.runs || []).map((r) =>
+            el('li', { className: r.v === 'FAIL' ? 'fail-row' : '' }, [
+              el('span', { text: r.case }),
+              el('span', { className: 'row-end' }, [pill(r.v, r.v === 'FAIL' ? 'fail' : 'pass'), pill(r.cost || '')]),
+            ]),
+          ),
+        ),
+        j.batch ? el('div', { className: 'result-banner', text: j.batch }) : null,
       );
       break;
     }
+    case 'cua-manual':
+      wrap.append(
+        el('div', { className: 'intent-box' }, [
+          el('div', { className: 'kicker', text: 'Manual intent' }),
+          el('p', { text: j.intent }),
+        ]),
+        el('div', { className: 'pill-row' }, [
+          pill(`Verdict ${j.verdict}`, j.verdict === 'PASS' ? 'pass' : 'fail'),
+          pill(j.cost || ''),
+          ...(j.artifacts || []).map((a) => pill(a)),
+        ]),
+        el(
+          'ol',
+          { className: 'plan-list', id: 'cua-list' },
+          (j.plan || []).map((line) => el('li', { text: line })),
+        ),
+      );
+      break;
+    case 'cua-adversarial':
+      wrap.append(
+        el('div', { className: 'pill-row' }, [
+          pill('Adversarial', 'high'),
+          pill(j.verdict || '', 'fail'),
+          pill(j.cost || ''),
+        ]),
+        el(
+          'ul',
+          { className: 'cua-steps', id: 'cua-list' },
+          (j.plan || []).map((r) =>
+            el('li', { className: r.v === 'FAIL' ? 'fail-row' : '' }, [
+              el('div', {}, [
+                el('div', { text: r.a }),
+                el('div', { className: 'muted', text: r.note }),
+              ]),
+              pill(r.v, r.v === 'FAIL' ? 'fail' : 'pass'),
+            ]),
+          ),
+        ),
+      );
+      break;
     case 'evidence':
       wrap.append(
         el(
@@ -156,6 +260,13 @@ function renderStage(j) {
           el('div', {}, [pill(b.status, 'warn'), ' ', pill(b.sev, 'high')]),
           el('h3', { text: b.summary }),
           el('p', { text: b.covers }),
+          b.repro
+            ? el(
+                'ol',
+                { className: 'plan-list' },
+                b.repro.map((line) => el('li', { text: line })),
+              )
+            : null,
           el(
             'div',
             { className: 'bug-actions' },
@@ -165,22 +276,41 @@ function renderStage(j) {
       );
       break;
     }
-    case 'pagespeed':
+    case 'pagespeed': {
+      const ai = j.ai;
+      const verdictKind = ai?.verdict === 'GOOD' ? 'pass' : ai?.verdict === 'BAD' ? 'fail' : 'warn';
       wrap.append(
-        el('div', { className: 'ticket-key', text: j.url, style: 'margin-bottom:0.65rem;display:block' }),
+        el('div', { className: 'pill-row' }, [
+          pill(j.device || 'PSI', 'cr'),
+          el('span', { className: 'ticket-key', text: j.url }),
+        ]),
         el(
           'div',
           { className: 'metric-grid' },
           (j.metrics || []).map((m) =>
-            el('div', { className: 'metric' }, [
+            el('div', { className: `metric tone-${m.tone || 'ok'}` }, [
               el('strong', { text: m.raw || String(m.s) }),
               el('span', { text: m.l }),
             ]),
           ),
         ),
-        j.note ? el('div', { className: 'result-banner', text: j.note }) : null,
+        ai
+          ? el('div', { className: `ai-verdict ${verdictKind}` }, [
+              el('div', { className: 'pill-row' }, [
+                pill(`AI verdict · ${ai.verdict}`, verdictKind),
+              ]),
+              el('h3', { text: ai.headline }),
+              el(
+                'ul',
+                { className: 'ai-bullets' },
+                (ai.bullets || []).map((b) => el('li', { text: b })),
+              ),
+            ])
+          : null,
+        j.compare ? el('div', { className: 'result-banner', text: j.compare }) : null,
       );
       break;
+    }
     case 'done':
       wrap.append(
         el(
@@ -206,20 +336,22 @@ function renderStage(j) {
 
 function animateGenerate() {
   [...document.querySelectorAll('#gen-list li')].forEach((node, i) => {
-    checklistTimers.push(setTimeout(() => node.classList.add('on'), 320 + i * 480));
+    checklistTimers.push(setTimeout(() => node.classList.add('on'), 280 + i * 420));
   });
   const n = document.querySelectorAll('#gen-list li').length;
   checklistTimers.push(
     setTimeout(() => {
       const r = document.getElementById('gen-result');
       if (r) r.hidden = false;
-    }, 320 + n * 480 + 180),
+      const p = document.getElementById('gen-preview');
+      if (p) p.hidden = false;
+    }, 280 + n * 420 + 160),
   );
 }
 
 function animateCua() {
   [...document.querySelectorAll('#cua-list li')].forEach((node, i) => {
-    checklistTimers.push(setTimeout(() => node.classList.add('on'), 260 + i * 560));
+    checklistTimers.push(setTimeout(() => node.classList.add('on'), 220 + i * 480));
   });
 }
 
@@ -246,11 +378,12 @@ function showStep(i) {
 
   renderStage(j);
   if (j.ui === 'generate') animateGenerate();
-  if (j.ui === 'cua') {
-    setAurora('fail');
+  if (j.ui === 'cua-testset' || j.ui === 'cua-manual' || j.ui === 'cua-adversarial' || j.ui === 'cua-advisory') {
     animateCua();
-  } else if (j.ui === 'done') setAurora('done');
-  else if (j.ui === 'bug') setAurora('fail');
+  }
+  if (j.ui === 'cua-adversarial' || j.ui === 'bug' || (j.ui === 'pagespeed' && j.ai?.verdict === 'BAD')) setAurora('fail');
+  else if (j.ui === 'done') setAurora('done');
+  else if (j.ui === 'pagespeed' && j.ai?.verdict === 'GOOD') setAurora('done');
   else setAurora('running');
 
   if (j.duration > 0) {
