@@ -30,6 +30,9 @@ let apTickRaf = 0;
 let apStepStarted = 0;
 let apStepDur = 0;
 let apElapsedBeforePause = 0;
+/** Content auto-scroll through tall frames */
+let contentScrollRaf = 0;
+let contentScrollState = null;
 
 function clamp(v, a, b) {
   return Math.max(a, Math.min(b, v));
@@ -579,44 +582,42 @@ function onKeyNav(e) {
     if (e.target?.closest?.('.top-actions, .btn')) {
       e.target.blur?.();
     }
-    const stepPx = Math.max(72, Math.round(window.innerHeight * 0.2));
-    const pagePx = Math.max(140, Math.round(window.innerHeight * 0.5));
+    // Smaller steps + smooth — avoid jumpy scroll
+    const stepPx = Math.max(48, Math.round(window.innerHeight * 0.12));
+    const pagePx = Math.max(96, Math.round(window.innerHeight * 0.32));
     switch (e.key) {
       case 'ArrowDown':
       case 'Down':
         e.preventDefault();
-        scrollJourney(stepPx, false);
+        scrollJourney(stepPx, true);
         break;
       case 'ArrowUp':
       case 'Up':
         e.preventDefault();
-        scrollJourney(-stepPx, false);
+        scrollJourney(-stepPx, true);
         break;
       case ' ':
       case 'Spacebar':
         e.preventDefault();
-        scrollJourney(e.shiftKey ? -stepPx : stepPx, false);
+        scrollJourney(e.shiftKey ? -stepPx : stepPx, true);
         break;
       case 'PageDown':
         e.preventDefault();
-        scrollJourney(pagePx, false);
+        scrollJourney(pagePx, true);
         break;
       case 'PageUp':
         e.preventDefault();
-        scrollJourney(-pagePx, false);
+        scrollJourney(-pagePx, true);
         break;
       case 'Home':
         e.preventDefault();
-        {
-          const el = journeyScrollPort();
-          if (el) el.scrollTop = 0;
-        }
+        journeyScrollPort()?.scrollTo({ top: 0, behavior: 'smooth' });
         break;
       case 'End':
         e.preventDefault();
         {
           const el = journeyScrollPort();
-          if (el) el.scrollTop = el.scrollHeight;
+          if (el) el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
         }
         break;
       case 'ArrowRight':
@@ -998,17 +999,91 @@ function renderStage(j) {
   document.getElementById('j-stage').replaceChildren(wrap);
 }
 
-/** Keep newly revealed content in view inside the journey card. */
+/** Nudge card to a revealed node — skipped while the smooth crawl owns scroll. */
 function revealInStage(node) {
   const port = document.getElementById('journey');
-  if (!node || !port) return;
+  if (!node || !port || paused || contentScrollState) return;
   const pRect = port.getBoundingClientRect();
   const nRect = node.getBoundingClientRect();
-  const pad = 18;
-  if (nRect.bottom > pRect.bottom - pad) {
-    port.scrollTop += nRect.bottom - pRect.bottom + pad;
-  } else if (nRect.top < pRect.top + pad) {
-    port.scrollTop -= pRect.top - nRect.top + pad;
+  const pad = 20;
+  let delta = 0;
+  if (nRect.bottom > pRect.bottom - pad) delta = nRect.bottom - pRect.bottom + pad;
+  else if (nRect.top < pRect.top + pad) delta = -(pRect.top - nRect.top + pad);
+  if (delta) port.scrollBy({ top: delta, behavior: 'smooth' });
+}
+
+function stopContentScroll() {
+  if (contentScrollRaf) cancelAnimationFrame(contentScrollRaf);
+  contentScrollRaf = 0;
+  contentScrollState = null;
+}
+
+/**
+ * Smooth crawl through overflow content for the step duration.
+ * Freezes while paused; resumes from same progress.
+ */
+function startContentAutoScroll(duration) {
+  stopContentScroll();
+  const port = document.getElementById('journey');
+  if (!port) return;
+  // Direct timer (not checklistTimers) so clearTimers on pause doesn't kill crawl mid-setup;
+  // pause freezes via `paused` flag instead.
+  const startId = setTimeout(() => {
+    const max = port.scrollHeight - port.clientHeight;
+    if (max < 10) return;
+    const dur = Math.max(2000, Math.min((duration || 4500) * 0.85, 9000));
+    contentScrollState = {
+      port,
+      max,
+      dur,
+      started: performance.now(),
+      elapsedBeforePause: 0,
+    };
+    const tick = (now) => {
+      const st = contentScrollState;
+      if (!st || st.port !== port) return;
+      if (paused) {
+        contentScrollRaf = requestAnimationFrame(tick);
+        return;
+      }
+      if (!st.started) st.started = now;
+      const elapsed = st.elapsedBeforePause + (now - st.started);
+      const t = clamp(elapsed / st.dur, 0, 1);
+      const eased = t * t * (3 - 2 * t);
+      st.port.scrollTop = st.max * eased;
+      if (t < 1) contentScrollRaf = requestAnimationFrame(tick);
+      else contentScrollRaf = 0;
+    };
+    contentScrollRaf = requestAnimationFrame(tick);
+  }, 200);
+  checklistTimers.push(startId);
+}
+
+function pauseContentScrollClock() {
+  if (!contentScrollState || !contentScrollState.started) return;
+  contentScrollState.elapsedBeforePause += performance.now() - contentScrollState.started;
+  contentScrollState.started = 0;
+}
+
+function resumeContentScrollClock() {
+  if (!contentScrollState) return;
+  contentScrollState.started = performance.now();
+  if (!contentScrollRaf) {
+    const tick = (now) => {
+      const st = contentScrollState;
+      if (!st) return;
+      if (paused) {
+        contentScrollRaf = requestAnimationFrame(tick);
+        return;
+      }
+      const elapsed = st.elapsedBeforePause + (now - st.started);
+      const t = clamp(elapsed / st.dur, 0, 1);
+      const eased = t * t * (3 - 2 * t);
+      st.port.scrollTop = st.max * eased;
+      if (t < 1) contentScrollRaf = requestAnimationFrame(tick);
+      else contentScrollRaf = 0;
+    };
+    contentScrollRaf = requestAnimationFrame(tick);
   }
 }
 
@@ -1019,7 +1094,7 @@ function animateGenerate() {
       setTimeout(() => {
         node.classList.add('on');
         revealInStage(node);
-      }, 280 + i * 420),
+      }, 320 + i * 520),
     );
   });
   const n = items.length;
@@ -1031,9 +1106,9 @@ function animateGenerate() {
       if (p) p.hidden = false;
       revealInStage(r || p);
       if (p) {
-        checklistTimers.push(setTimeout(() => revealInStage(p.lastElementChild || p), 280));
+        checklistTimers.push(setTimeout(() => revealInStage(p.lastElementChild || p), 400));
       }
-    }, 280 + n * 420 + 160),
+    }, 320 + n * 520 + 200),
   );
 }
 
@@ -1043,7 +1118,7 @@ function animateCua() {
       setTimeout(() => {
         node.classList.add('on');
         revealInStage(node);
-      }, 220 + i * 480),
+      }, 280 + i * 560),
     );
   });
 }
@@ -1054,29 +1129,22 @@ function animateStageWalk() {
   if (!stage) return;
   const nodes = [
     ...stage.querySelectorAll(
-      '.ticket-box, .ticket-box li, .meta-cell, .checklist li, .case-row, .mr-card, .bug-line, .param, .meta-grid.tight .meta-cell, .advisory-list li, .cua-steps li, .plan-list li, .intent-box, .evidence-list li, .bug-card, .bug-card li, .bug-actions, .metric, .ai-verdict, .ai-bullets li, .result-banner, .summary-grid > div, .done-cta',
+      '.ticket-box li, .meta-cell, .mr-card, .bug-line, .param, .meta-grid .meta-cell, .advisory-list li, .evidence-list li, .bug-card h3, .bug-card .plan-list li, .bug-actions, .metric, .ai-verdict, .ai-bullets li, .result-banner, .summary-grid > div, .done-cta, .intent-box, .pill-row',
     ),
-  ].filter((n, i, arr) => {
-    // Prefer leaves: skip a parent if a later child is also listed
-    return !arr.some((other, j) => j > i && n.contains(other));
-  });
+  ].filter((n, i, arr) => !arr.some((other, j) => j !== i && other.contains(n) && other !== n));
   if (!nodes.length) {
-    checklistTimers.push(setTimeout(() => revealInStage(stage.lastElementChild || stage), 200));
+    checklistTimers.push(setTimeout(() => revealInStage(stage.lastElementChild || stage), 300));
     return;
   }
-  // Stagger through content; keep last items visible before step advances
-  const gap = Math.min(520, Math.max(220, Math.floor(2800 / Math.max(nodes.length, 1))));
+  const gap = Math.min(640, Math.max(320, Math.floor(3600 / Math.max(nodes.length, 1))));
   nodes.forEach((node, i) => {
     checklistTimers.push(
       setTimeout(() => {
         node.classList.add('ap-seen');
         revealInStage(node);
-      }, 180 + i * gap),
+      }, 240 + i * gap),
     );
   });
-  checklistTimers.push(
-    setTimeout(() => revealInStage(nodes[nodes.length - 1]), 180 + nodes.length * gap + 120),
-  );
 }
 
 function stopApTick() {
@@ -1126,13 +1194,15 @@ function startApTick(duration) {
   else if (fill) fill.style.width = '100%';
 }
 
-function showStep(i) {
+function showStep(i, opts = {}) {
+  const stayPaused = !!opts.keepPaused && paused;
   clearTimers();
   stopApTick();
+  stopContentScroll();
   const journey = data.journey;
   if (i < 0 || i >= journey.length) return;
   step = i;
-  setPaused(false);
+  if (!stayPaused) setPaused(false);
 
   const j = journey[i];
   document.getElementById('j-phase').textContent = j.phase;
@@ -1140,7 +1210,7 @@ function showStep(i) {
   document.getElementById('j-voice').textContent = j.voice;
   document.getElementById('j-progress').style.width = `${Math.round(((i + 1) / journey.length) * 100)}%`;
   document.getElementById('rail').style.transform = `scaleY(${(i + 1) / journey.length})`;
-  paintApHeader(i, journey.length, j.phase, true);
+  paintApHeader(i, journey.length, j.phase, !stayPaused && !paused);
 
   const panel = document.getElementById('journey');
   panel.classList.remove('swap');
@@ -1149,12 +1219,35 @@ function showStep(i) {
 
   renderStage(j);
   panel.scrollTop = 0;
-  if (j.ui === 'generate') animateGenerate();
-  else if (['cua-testset', 'cua-manual', 'cua-adversarial', 'cua-advisory'].includes(j.ui)) animateCua();
-  else animateStageWalk();
   if (j.ui === 'cua-adversarial' || j.ui === 'bug' || (j.ui === 'pagespeed' && j.ai?.verdict === 'BAD')) setAurora('fail');
   else if (j.ui === 'done' || (j.ui === 'pagespeed' && j.ai?.verdict === 'GOOD')) setAurora('done');
   else setAurora('running');
+
+  if (stayPaused) {
+    // Stay paused after Left/Right — no auto-advance / no crawl
+    const fill = document.getElementById('ap-fill-step');
+    if (fill) fill.style.width = '0%';
+    apStepDur = j.duration || 0;
+    apElapsedBeforePause = 0;
+    // Still paint list state fully so paused review sees complete screen
+    if (j.ui === 'generate') {
+      document.querySelectorAll('#gen-list li').forEach((n) => n.classList.add('on'));
+      const r = document.getElementById('gen-result');
+      const p = document.getElementById('gen-preview');
+      if (r) r.hidden = false;
+      if (p) p.hidden = false;
+    } else if (['cua-testset', 'cua-manual', 'cua-adversarial', 'cua-advisory'].includes(j.ui)) {
+      document.querySelectorAll('#cua-list li').forEach((n) => n.classList.add('on'));
+    }
+    focusJourneyCard();
+    return;
+  }
+
+  if (j.ui === 'generate') animateGenerate();
+  else if (['cua-testset', 'cua-manual', 'cua-adversarial', 'cua-advisory'].includes(j.ui)) animateCua();
+  else animateStageWalk();
+  // Every screen: smooth crawl through overflow for the step window
+  startContentAutoScroll(j.duration || 4000);
 
   startApTick(j.duration);
   if (j.duration > 0) {
@@ -1198,6 +1291,7 @@ function startJourney() {
 function exitJourney() {
   clearTimers();
   stopApTick();
+  stopContentScroll();
   step = -1;
   mode = 'home';
   setPaused(false);
@@ -1247,27 +1341,22 @@ function setPaused(next) {
   }
   const state = document.getElementById('ap-state');
   if (state) state.textContent = paused ? 'Paused' : 'Auto-running';
-  // Freeze / resume step timer bar
+  // Freeze / resume step timer bar + content crawl
   if (paused && !was) {
     apElapsedBeforePause += performance.now() - apStepStarted;
-    // Move focus off Pause so arrows/space scroll the card, not re-click the button
+    pauseContentScrollClock();
     focusJourneyCard();
   } else if (!paused && was) {
     apStepStarted = performance.now();
     if (apStepDur > 0 && apElapsedBeforePause < apStepDur) runApTick();
+    resumeContentScrollClock();
   }
 }
 
-function scrollJourney(dy, smooth) {
+function scrollJourney(dy, smooth = true) {
   const el = journeyScrollPort();
   if (!el) return;
-  const before = el.scrollTop;
-  if (smooth) el.scrollBy({ top: dy, behavior: 'smooth' });
-  else el.scrollTop = before + dy;
-  // If card didn't move (layout quirk), force a reflow write
-  if (!smooth && el.scrollTop === before && Math.abs(dy) > 0 && el.scrollHeight > el.clientHeight + 2) {
-    el.scrollTop = before + dy;
-  }
+  el.scrollBy({ top: dy, behavior: smooth ? 'smooth' : 'auto' });
 }
 
 /** Wheel over overlay or card → scroll journey (works playing + paused). */
@@ -1298,12 +1387,12 @@ function togglePause() {
 
 function skip() {
   if (step < 0 || step >= data.journey.length - 1) return;
-  showStep(step + 1);
+  showStep(step + 1, { keepPaused: paused });
 }
 
 function prevStep() {
   if (step <= 0) return;
-  showStep(step - 1);
+  showStep(step - 1, { keepPaused: paused });
 }
 
 /* ---------- Boot ---------- */

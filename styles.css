@@ -515,6 +515,8 @@ body.mode-journey .journey.panel {
   overscroll-behavior: contain;
   touch-action: pan-y;
   scrollbar-gutter: stable;
+  /* keep auto — smooth is set in JS for keys; CSS smooth breaks rAF crawl */
+  scroll-behavior: auto;
 }
 body.mode-journey .journey .stage {
   overflow: visible !important;
