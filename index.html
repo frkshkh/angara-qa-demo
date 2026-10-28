@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Angara QA — Public demo (sample data)</title>
-  <meta name="description" content="Standalone demo of AI test-case generation with quality gate, dedupe, out-of-the-box cases, and code review while generating. Sample data only." />
+  <title>Angara GenAI Agent — Public demo</title>
+  <meta name="description" content="Standalone demo of Angara GenAI Agent: TC generate with quality gate, MR code review, CUA, Automation Workbench, MCP skills, Jira/Xray. Sample data only." />
   <meta name="robots" content="noindex,nofollow" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -18,13 +18,13 @@
 
   <header class="topbar">
     <div class="wrap topbar-inner">
-      <div class="brand">Angara QA <span>demo</span></div>
+      <div class="brand">Angara GenAI Agent <span>demo</span></div>
       <nav class="nav" aria-label="Sections">
-        <a href="#flow">Flow</a>
+        <a href="#agents">Agents</a>
+        <a href="#generate">Generate deep-dive</a>
         <a href="#cr">Code review</a>
-        <a href="#quality">Quality gate</a>
-        <a href="#dedupe">Dedupe</a>
-        <a href="#house">Out of the box</a>
+        <a href="#quality">Quality</a>
+        <a href="#run-agents">CUA · Auto · MCP</a>
         <a href="#cases">Cases</a>
       </nav>
     </div>
@@ -32,20 +32,26 @@
 
   <main>
     <section class="hero wrap">
-      <p class="kicker">For QA groups · LinkedIn · WhatsApp</p>
-      <h1>Ticket + MR become a quality-gated suite</h1>
+      <p class="kicker">Angara GenAI Agent · for QA groups</p>
+      <h1>Author. Review. Run. Publish.</h1>
       <p class="lead" id="hero-lead">Loading demo…</p>
       <div class="stats" id="hero-stats" aria-live="polite"></div>
     </section>
 
-    <section class="block wrap" id="ticket">
-      <h2>Sample ticket</h2>
+    <section class="block wrap" id="agents">
+      <h2>What’s in the platform</h2>
+      <p class="sub">Eight GenAI surfaces — one workspace. Click a card to jump to its sample.</p>
+      <div class="agent-grid" id="agent-grid"></div>
+    </section>
+
+    <section class="block wrap" id="generate">
+      <h2>Deep-dive · TEST CASE Generate</h2>
       <p class="sub">Frozen DEMO ticket — same shape as a real generate run. No live Jira.</p>
       <div class="panel" id="ticket-panel"></div>
     </section>
 
     <section class="block wrap" id="flow">
-      <h2>One run · CR in parallel</h2>
+      <h2>One generate run · CR in parallel</h2>
       <p class="sub">Code review starts on every live MR while the suite is still drafting. Confirmed bugs join the checklist as F items before quality gate.</p>
       <div class="panel">
         <ol class="timeline" id="timeline"></ol>
@@ -80,6 +86,12 @@
       <h2>Generated suite (sample)</h2>
       <p class="sub">Subset of the frozen run — CR-sourced and house cases marked.</p>
       <div class="panel" id="cases-panel"></div>
+    </section>
+
+    <section class="block wrap" id="run-agents">
+      <h2>Run · Automate · Integrate</h2>
+      <p class="sub">Same platform after the suite exists — browser agents, codegen, MCP, Jira/Xray.</p>
+      <div class="grid-2" id="agent-samples"></div>
     </section>
 
     <section class="block wrap" id="points">

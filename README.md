@@ -1,9 +1,11 @@
-# Angara QA — public share demo (standalone)
+# Angara GenAI Agent — public share demo (standalone)
 
 **Separate site.** Static HTML/CSS/JS + seeded JSON.  
 **Not** part of the Next.js app. **Do not** deploy under Angara product hosts (`*.angara.com`, `angaraqa.v4.*`, internal VPN URLs).
 
-Use for LinkedIn / WhatsApp QA groups: quality gate, dedupe, out-of-the-box cases, code review while generating.
+Use for LinkedIn / WhatsApp QA groups.
+
+**Surfaces covered:** TEST CASE Generate (quality gate, dedupe, house/OOB, CR∥generate), MR Code Review, CUA Browser Agent, Automation Workbench, QA Agent, MCP Skills & CLI, Jira/Xray, PageSpeed/SEO/Schema.
 
 ## What’s inside
 

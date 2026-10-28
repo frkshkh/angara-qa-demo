@@ -2,6 +2,17 @@
 
 const PASS_MIN = 70;
 
+const AGENT_ANCHORS = {
+  generate: '#generate',
+  cr: '#cr',
+  cua: '#run-agents',
+  automation: '#run-agents',
+  'qa-agent': '#agents',
+  mcp: '#run-agents',
+  jira: '#run-agents',
+  audits: '#agents',
+};
+
 function el(tag, attrs = {}, children = []) {
   const node = document.createElement(tag);
   for (const [k, v] of Object.entries(attrs)) {
@@ -24,18 +35,30 @@ function pill(text, kind = '') {
 
 function renderHero(data) {
   document.getElementById('hero-lead').textContent = data.product.tagline;
-  const s = data.run;
-  const stats = [
-    [String(s.casesAfterDedupe), 'cases after dedupe'],
-    [s.checklistProven.split(' ')[0], 'checklist proven'],
-    [`${s.merges}`, 'semantic merges'],
-    [`${data.qualityGate.overall}`, 'quality / 100'],
-    [s.duration, 'sample runtime'],
-  ];
+  const stats = data.platformStats || [];
   const root = document.getElementById('hero-stats');
   root.replaceChildren(
-    ...stats.map(([v, label]) =>
-      el('div', { className: 'stat' }, [el('strong', { text: v }), el('span', { text: label })]),
+    ...stats.map((s) =>
+      el('div', { className: 'stat' }, [el('strong', { text: s.value }), el('span', { text: s.label })]),
+    ),
+  );
+}
+
+function renderAgents(data) {
+  const root = document.getElementById('agent-grid');
+  root.replaceChildren(
+    ...(data.agents || []).map((a) =>
+      el('a', { className: 'agent-card', href: AGENT_ANCHORS[a.id] || '#agents' }, [
+        el('div', { className: 'kicker', text: a.id }),
+        el('h3', { text: a.name }),
+        el('p', { className: 'blurb', text: a.blurb }),
+        el(
+          'ul',
+          {},
+          (a.bullets || []).map((b) => el('li', { text: b })),
+        ),
+        el('div', { className: 'sample', text: a.sample }),
+      ]),
     ),
   );
 }
@@ -43,8 +66,16 @@ function renderHero(data) {
 function renderTicket(data) {
   const t = data.ticket;
   const panel = document.getElementById('ticket-panel');
+  const run = data.run;
   panel.replaceChildren(
-    el('div', { className: 'kicker', text: `${t.type} · ${t.priority}` }),
+    el('div', { className: 'mr-head' }, [
+      pill(run.mode, 'cr'),
+      ...run.options.map((o) => pill(o)),
+      pill(`${run.casesAfterDedupe} cases`),
+      pill(`${run.checklistProven} proven`, 'pass'),
+      pill(run.duration),
+    ]),
+    el('div', { className: 'kicker', style: 'margin-top:0.85rem', text: `${t.type} · ${t.priority}` }),
     el('div', { className: 'ticket-key', text: t.key }),
     el('h3', { text: t.summary, style: 'margin:0.35rem 0 0.75rem;font-size:1.15rem' }),
     el('div', { className: 'kicker', text: 'Acceptance criteria' }),
@@ -238,6 +269,80 @@ function renderCases(data) {
   );
 }
 
+function renderAgentSamples(data) {
+  const s = data.agentSamples || {};
+  const root = document.getElementById('agent-samples');
+  const cards = [];
+
+  if (s.cua) {
+    cards.push(
+      el('div', { className: 'panel sample-panel', id: 'sample-cua' }, [
+        pill('CUA Browser Agent', 'cr'),
+        el('h3', { text: s.cua.title }),
+        el('p', { style: 'font-size:0.85rem;margin:0.35rem 0', text: s.cua.intent }),
+        el('div', { className: 'mr-head' }, [
+          pill(s.cua.verdict, 'pass'),
+          pill(s.cua.cost),
+          pill(s.cua.device),
+        ]),
+        el(
+          'ol',
+          { className: 'mono-list' },
+          s.cua.steps.map((step) => el('li', { text: step })),
+        ),
+        el('p', { style: 'margin:0.65rem 0 0;font-size:0.8rem;color:var(--muted)', text: s.cua.note }),
+      ]),
+    );
+  }
+
+  if (s.automation) {
+    cards.push(
+      el('div', { className: 'panel sample-panel', id: 'sample-automation' }, [
+        pill('Automation Workbench', 'oob'),
+        el('h3', { text: s.automation.title }),
+        el('p', { style: 'font-size:0.85rem;margin:0.35rem 0', text: s.automation.instruction }),
+        el('div', { className: 'mr-head' }, [
+          pill(`Confidence ${s.automation.confidence}`, 'pass'),
+          ...s.automation.artifacts.map((a) => pill(a)),
+          ...s.automation.classes.map((c) => pill(c)),
+        ]),
+        el('p', { style: 'margin:0.65rem 0 0;font-size:0.8rem;color:var(--muted)', text: s.automation.note }),
+      ]),
+    );
+  }
+
+  if (s.mcp) {
+    cards.push(
+      el('div', { className: 'panel sample-panel', id: 'sample-mcp' }, [
+        pill('MCP Skills & CLI'),
+        el('h3', { text: s.mcp.title }),
+        el(
+          'ol',
+          { className: 'mono-list' },
+          s.mcp.flow.map((step) => el('li', { text: step })),
+        ),
+        el('p', { style: 'margin:0.65rem 0 0;font-size:0.8rem;color:var(--muted)', text: s.mcp.note }),
+      ]),
+    );
+  }
+
+  if (s.jira) {
+    cards.push(
+      el('div', { className: 'panel sample-panel', id: 'sample-jira' }, [
+        pill('Jira + Xray', 'warn'),
+        el('h3', { text: s.jira.title }),
+        el(
+          'ul',
+          { className: 'mono-list' },
+          s.jira.items.map((item) => el('li', { text: item })),
+        ),
+      ]),
+    );
+  }
+
+  root.replaceChildren(...cards);
+}
+
 function renderPoints(data) {
   document.getElementById('talking-points').replaceChildren(
     ...data.talkingPoints.map((t) => el('li', { text: t })),
@@ -251,6 +356,7 @@ async function main() {
   const data = await res.json();
   document.title = `${data.product.name} — Public demo (sample data)`;
   renderHero(data);
+  renderAgents(data);
   renderTicket(data);
   renderTimeline(data);
   renderCr(data);
@@ -258,6 +364,7 @@ async function main() {
   renderDedupe(data);
   renderHouse(data);
   renderCases(data);
+  renderAgentSamples(data);
   renderPoints(data);
 }
 

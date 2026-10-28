@@ -1,9 +1,114 @@
 {
   "product": {
-    "name": "Angara QA",
-    "tagline": "Ticket + MR → grounded test suite. Quality-gated. Code-reviewed while it drafts.",
+    "name": "Angara GenAI Agent",
+    "shortName": "Angara QA",
+    "tagline": "One GenAI agent platform for QA — author, review, run, triage, and publish.",
     "disclaimer": "Public demo with sample data. Not connected to any live Angara environment."
   },
+  "platformStats": [
+    { "value": "7", "label": "quality params" },
+    { "value": "4+", "label": "active MCP skills" },
+    { "value": "6", "label": "execution runners" },
+    { "value": "1", "label": "Jira↔Xray loop" }
+  ],
+  "agents": [
+    {
+      "id": "generate",
+      "name": "TEST CASE Generate",
+      "blurb": "Jira + MR → grounded suite. Ledger, coverage proof, dedupe, 7-param quality gate. Code review runs in parallel.",
+      "bullets": [
+        "Requirement ledger before reading the diff",
+        "CR findings become F items the suite must prove",
+        "House / out-of-the-box cases on every storefront suite",
+        "Weakest quality parameter caps the overall score"
+      ],
+      "sample": "DEMO-1414 · 41 cases · 109/109 proven · gate 78/100"
+    },
+    {
+      "id": "cr",
+      "name": "MR Code Review",
+      "blurb": "Principal-engineer review on every live MR while cases generate — Main, AUK, Collection.",
+      "bullets": [
+        "Whole-file logic + call-site context, not trimmed hunks only",
+        "Store-scope & locale parity checked in code",
+        "Shared ports reviewed once; findings copied with MR tags",
+        "Accept/Deny gates Save; generation still continues"
+      ],
+      "sample": "HIGH ERR-STATUS + MEDIUM SCOPE → F1, F2 on checklist"
+    },
+    {
+      "id": "cua",
+      "name": "CUA Browser Agent",
+      "blurb": "Natural-language browser tests on a real storefront. Human-gated bugs — never auto-filed.",
+      "bullets": [
+        "Run from URL, Jira case, or batch",
+        "inspect_elements, transfer sizes, device rules",
+        "Case merges: same setup + read-only checks share one run",
+        "Lessons distilled from tester reviews (approved only)"
+      ],
+      "sample": "Pass · $0.42 · video + step log · awaiting_review on fail"
+    },
+    {
+      "id": "automation",
+      "name": "Automation Workbench",
+      "blurb": "Plain English → Playwright in Chromium. Preflight, self-heal, artifacts.",
+      "bullets": [
+        "NDJSON live stream: preflight → codegen → run",
+        "Failure classes + Pass-2 regeneration",
+        "Auth profiles, device lanes, axe-core a11y",
+        "Suite Builder + Execution Center (mixed runners)"
+      ],
+      "sample": "HIGH confidence · video + trace on fail"
+    },
+    {
+      "id": "qa-agent",
+      "name": "QA Agent",
+      "blurb": "Coverage & planning workbench — find, generate, enrich, automate.",
+      "bullets": [
+        "Find reusable cases for a change",
+        "Enrich thin cases with steps and edges",
+        "Automation feasibility + Playwright specs",
+        "Preview Lab before commit"
+      ],
+      "sample": "Library + AI mix · plan_bundle review hints"
+    },
+    {
+      "id": "mcp",
+      "name": "MCP Skills & CLI",
+      "blurb": "Same agent in Cursor / Claude Desktop / terminal — versioned skills.",
+      "bullets": [
+        "tc_author · cua_test_runner · bug_triage · regression_monitor · code_review",
+        "search_project_knowledge (behavior packs + RAG)",
+        "playwright / newman / jmeter / selenium / api_request",
+        "xray_create_test · jira_* · slack_send_summary"
+      ],
+      "sample": "get_skill(tc_author) → cited Manual TCs → optional Xray"
+    },
+    {
+      "id": "jira",
+      "name": "Jira + Xray",
+      "blurb": "Publish cases, sync executions, schedule imports — reporter is a real person when possible.",
+      "bullets": [
+        "Test / Test Set / Test Execution bundles",
+        "Execution status sync back to Xray",
+        "Scheduled Jira picker rules → generate & save",
+        "Bug file with ADF preview"
+      ],
+      "sample": "TS-DEMO + TE synced · reporter ≠ bot account"
+    },
+    {
+      "id": "audits",
+      "name": "PageSpeed · SEO · Schema",
+      "blurb": "Live-site quality beside functional QA — history, compare, schedules.",
+      "bullets": [
+        "Lighthouse-style PageSpeed with batch + abort",
+        "SEO / social meta & OG checks",
+        "JSON-LD / schema validator",
+        "Background tasks survive navigation"
+      ],
+      "sample": "LCP / CLS tracked · CrUX catalog optional"
+    }
+  ],
   "ticket": {
     "key": "DEMO-1414",
     "type": "Story",
@@ -242,10 +347,53 @@
       ]
     }
   ],
+  "agentSamples": {
+    "cua": {
+      "title": "Sample CUA run",
+      "intent": "On US checkout, select FedEx Pickup, search ZIP 10001, choose first location, confirm Place Order enables after billing.",
+      "verdict": "PASS",
+      "cost": "$0.42",
+      "device": "Desktop",
+      "steps": [
+        "Navigate /us-en/checkout",
+        "Select FedEx Pickup",
+        "Type 10001 → pick first facility",
+        "Assert Place Order enabled with billing complete"
+      ],
+      "note": "Fail → awaiting_review. Human files bug or marks test_problem. No auto-Jira."
+    },
+    "automation": {
+      "title": "Sample Automation Workbench run",
+      "instruction": "Open US checkout as guest, assert FedEx Pickup appears, open location popup, press Escape, focus returns to trigger.",
+      "confidence": "HIGH",
+      "artifacts": ["video", "trace"],
+      "classes": ["functional", "accessibility"],
+      "note": "Preflight (Chromium + URL) → codegen → execute. SELECTOR_BROKEN can self-heal once."
+    },
+    "mcp": {
+      "title": "Sample MCP skill chain",
+      "flow": [
+        "list_skills → tc_author active",
+        "get_skill(tc_author, feature=checkout-pickup)",
+        "search_project_knowledge(behavior-checkout…)",
+        "Optional: xray_create_test / cua_run"
+      ],
+      "note": "Same skills in Cursor, Claude Desktop, or integrated-qa CLI."
+    },
+    "jira": {
+      "title": "Sample publish",
+      "items": [
+        "41 cases → Test Set TS-DEMO-1414",
+        "Xray Test Execution TE-DEMO · statuses synced",
+        "Reporter = signed-in QA email (not API bot when resolvable)"
+      ]
+    }
+  },
   "talkingPoints": [
-    "Independent quality gate: seven parameters; weakest caps the score — not an average that hides duplicates.",
-    "Semantic dedupe merges repeats; coverage guard blocks merges that would drop proof.",
-    "House / out-of-the-box cases ride every storefront suite (live deploy, keyboard popup, scope leak, phone fit).",
-    "Code review runs on every live MR in parallel with generation; confirmed bugs become checklist items the suite must prove."
+    "Angara GenAI Agent is one platform: author → review → run → triage → publish — not a chatbot bolted on.",
+    "Generate is quality-gated (7 params; weakest caps). Dedupe merges; coverage guard blocks bad merges.",
+    "Code review runs while cases draft; confirmed bugs become checklist F items.",
+    "CUA + Automation execute on real browsers; bugs stay human-gated.",
+    "MCP skills bring the same workflows into Cursor / Claude / CLI with project knowledge RAG."
   ]
 }
