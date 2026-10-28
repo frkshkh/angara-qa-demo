@@ -23,6 +23,8 @@ let scrubRaf = 0;
 let lastScrubTs = 0;
 let idleFrames = 0;
 let sceneNodes = [];
+/** While set, scrub loop won't pull progress back to lagging scrollY (Home/End/dots). */
+let pinProgressUntil = 0;
 
 function clamp(v, a, b) {
   return Math.max(a, Math.min(b, v));
@@ -342,7 +344,7 @@ function showPair(a, b, t) {
 function updateChapterRail(opts) {
   const rail = document.getElementById('chapter-rail');
   if (!rail) return;
-  const { from, to, local, blend, kind } = opts;
+  const { from, to, local, blend } = opts;
   const fromEl = document.getElementById('rail-from');
   const toEl = document.getElementById('rail-to');
   const fill = document.getElementById('rail-fill');
@@ -471,12 +473,19 @@ function scrubTick(ts) {
   lastScrubTs = ts;
 
   scrollTarget = readScrollTarget();
-  const delta = scrollTarget - scrollSmooth;
-  const maxStep = MAX_UNITS_PER_SEC * dt;
-  if (Math.abs(delta) <= maxStep) scrollSmooth = scrollTarget;
-  else scrollSmooth += Math.sign(delta) * maxStep;
-
-  paintProgress(scrollSmooth);
+  if (ts < pinProgressUntil) {
+    // Keep intentional snap until window.scrollY catches up
+    paintProgress(scrollSmooth);
+  } else {
+    const delta = scrollTarget - scrollSmooth;
+    // Small wheel: rate-limit. Big jumps: snap so UI never lags chapters behind.
+    let maxStep = MAX_UNITS_PER_SEC * dt;
+    if (Math.abs(delta) > 1.25) maxStep = Math.abs(delta);
+    else if (Math.abs(delta) > 0.55) maxStep = Math.max(maxStep, 2.8 * dt);
+    if (Math.abs(delta) <= maxStep) scrollSmooth = scrollTarget;
+    else scrollSmooth += Math.sign(delta) * maxStep;
+    paintProgress(scrollSmooth);
+  }
 
   if (Math.abs(scrollTarget - scrollSmooth) < 1e-4) {
     idleFrames += 1;
@@ -522,12 +531,22 @@ function scrollMax() {
   return Math.max(1, track.offsetHeight - window.innerHeight);
 }
 
+function snapProgress(unit, scrollTop, smooth) {
+  const max = scrollMax();
+  window.scrollTo({ top: scrollTop ?? 0, behavior: smooth ? 'smooth' : 'auto' });
+  scrollTarget = unit;
+  scrollSmooth = unit;
+  pinProgressUntil = performance.now() + (smooth ? 900 : 120);
+  paintProgress(scrollSmooth);
+  startScrubLoop();
+}
+
 function jumpToScene(i) {
   const max = scrollMax();
   const units = totalUnits();
   // Land in hold zone of scene i (progress = 1 + i + small)
   const unit = clamp(1 + i + HOLD_UNTIL * 0.35, 0, units);
-  window.scrollTo({ top: (unit / units) * max, behavior: 'smooth' });
+  snapProgress(unit, (unit / units) * max, true);
 }
 
 function nudgeScroll(deltaUnits, smooth) {
@@ -566,13 +585,11 @@ function onKeyNav(e) {
       break;
     case 'Home':
       e.preventDefault();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      startScrubLoop();
+      snapProgress(0, 0, false);
       break;
     case 'End':
       e.preventDefault();
-      window.scrollTo({ top: scrollMax(), behavior: 'smooth' });
-      startScrubLoop();
+      snapProgress(totalUnits(), scrollMax(), false);
       break;
     case 'ArrowRight':
     case 'Right':
@@ -599,13 +616,10 @@ function onKeyNav(e) {
 }
 
 function goToAutopilot() {
-  window.scrollTo({ top: 0, behavior: 'smooth' });
   document.body.dataset.frame = 'go';
   document.body.classList.remove('on-tour');
-  setTimeout(() => {
-    scrubFromScroll();
-    document.getElementById('story-input')?.focus();
-  }, 420);
+  snapProgress(0, 0, true);
+  setTimeout(() => document.getElementById('story-input')?.focus(), 420);
 }
 
 /* ---------- Journey renderers ---------- */
@@ -967,6 +981,12 @@ function showStep(i) {
   }
 }
 
+function setBodyMode(next) {
+  // Never wipe className — that dropped `ready` and blanked the page (opacity:0).
+  document.body.classList.remove('mode-home', 'mode-journey', 'launching', 'on-tour');
+  document.body.classList.add(next, 'ready');
+}
+
 function startJourney() {
   if (mode === 'journey') return;
   burstFx();
@@ -978,14 +998,15 @@ function startJourney() {
     mode = 'journey';
     stopScrubLoop();
     hideChapterRail();
-    document.body.className = 'mode-journey';
+    setBodyMode('mode-journey');
     document.body.dataset.frame = 'journey';
     document.documentElement.classList.add('lock-scroll');
     document.getElementById('pin-wrap').hidden = true;
-    document.getElementById('frame-journey').hidden = false;
+    const fj = document.getElementById('frame-journey');
+    fj.hidden = false;
     document.getElementById('top-status').hidden = false;
     document.getElementById('top-actions').hidden = false;
-    document.getElementById('frame-journey').classList.add('enter');
+    fj.classList.add('enter');
     setAurora('running');
     showStep(0);
   }, 420);
@@ -996,21 +1017,18 @@ function exitJourney() {
   step = -1;
   mode = 'home';
   document.documentElement.classList.remove('lock-scroll');
-  document.body.className = 'mode-home';
+  setBodyMode('mode-home');
   document.body.dataset.frame = 'go';
-  document.getElementById('frame-journey').hidden = true;
-  document.getElementById('frame-journey').classList.remove('enter');
+  const fj = document.getElementById('frame-journey');
+  fj.hidden = true;
+  fj.classList.remove('enter');
   document.getElementById('pin-wrap').hidden = false;
   document.getElementById('top-status').hidden = true;
   document.getElementById('top-actions').hidden = true;
   document.getElementById('go-btn').classList.remove('launching');
   setAurora('');
-  window.scrollTo({ top: 0, behavior: 'smooth' });
   lastMeta = -1;
-  setTimeout(() => {
-    scrubFromScroll();
-    startScrubLoop();
-  }, 80);
+  snapProgress(0, 0, false);
 }
 
 function restart() {
