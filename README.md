@@ -1,6 +1,8 @@
-# Angara GenAI Agent — scroll story demo
+# Angara GenAI Agent — GO autopilot demo
 
-Sticky **same-frame** product story. Scroll updates the stage with transitions.
+Landing CTA → **GO** starts end-to-end autopilot in one frame:
+
+**Story → Generate TCs → Multi-MR CR → Quality gate → CUA → Evidence → Bug (human-gated) → PageSpeed → Done**
 
 Live: https://frkshkh.github.io/angara-qa-demo/
 
@@ -8,13 +10,9 @@ Live: https://frkshkh.github.io/angara-qa-demo/
 
 ```bash
 cd share-demo && python3 -m http.server 8765
+# open http://127.0.0.1:8765 → click GO
 ```
 
-## Assets
+## Edit
 
-- `assets/logo.svg` — wordmark in header  
-- `assets/favicon.svg` / `assets/mark.svg` — tab icon  
-
-## Edit story
-
-`data/demo.json` → `scenes[]` order = scroll chapters.
+`data/demo.json` — `landing` + `journey[]` (phase timing via `duration` ms).

@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Angara GenAI Agent</title>
-  <meta name="description" content="Scroll-driven product story — Angara GenAI Agent for enterprise QA." />
+  <meta name="description" content="GO autopilot: Story → test cases → multi-MR review → CUA → evidence → bug → PageSpeed." />
   <meta name="robots" content="noindex,nofollow" />
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
   <link rel="apple-touch-icon" href="assets/mark.svg" />
@@ -17,34 +17,55 @@
   <div class="aurora" aria-hidden="true"></div>
 
   <header class="topbar">
-    <a class="brand" href="#top" aria-label="Angara GenAI Agent home">
+    <a class="brand" href="./" aria-label="Angara GenAI Agent">
       <img src="assets/logo.svg" width="160" height="40" alt="Angara GenAI Agent" />
     </a>
-    <div class="progress-wrap" aria-hidden="true">
-      <div class="progress-bar" id="progress-bar"></div>
+    <div class="top-status" id="top-status" hidden>
+      <span class="live-dot" aria-hidden="true"></span>
+      <span id="top-phase">Autopilot</span>
     </div>
-    <div class="scene-dots" id="scene-dots" role="tablist" aria-label="Story chapters"></div>
+    <div class="top-actions" id="top-actions" hidden>
+      <button type="button" class="btn-ghost" id="btn-pause">Pause</button>
+      <button type="button" class="btn-ghost" id="btn-skip">Skip</button>
+      <button type="button" class="btn-ghost" id="btn-restart">Restart</button>
+    </div>
   </header>
 
-  <!-- Sticky stage: same frame; content morphs on scroll -->
-  <div class="stage" id="top">
-    <div class="stage-inner">
-      <div class="stage-meta">
-        <span class="scene-index" id="scene-index">01</span>
-        <span class="scene-kicker" id="scene-kicker"></span>
-      </div>
-      <div class="stage-frame" id="stage-frame">
-        <!-- scenes injected -->
-      </div>
-      <p class="scroll-hint" id="scroll-hint">Scroll to explore</p>
-    </div>
-  </div>
+  <main class="viewport">
+    <!-- Landing: CTA -->
+    <section class="panel landing" id="landing" aria-label="Start autopilot">
+      <img class="mark-lg" src="assets/mark.svg" width="56" height="56" alt="" />
+      <p class="kicker">Angara GenAI Agent · autopilot demo</p>
+      <h1>
+        <span class="greet" id="landing-greet">Hi agent,</span><br />
+        <span class="prompt-line" id="landing-prompt">test my Story</span>
+      </h1>
+      <label class="story-field">
+        <span class="sr">Story</span>
+        <input id="story-input" type="text" autocomplete="off" />
+      </label>
+      <button type="button" class="go-btn" id="go-btn">
+        <span id="go-label">GO</span>
+        <span class="go-arrow" aria-hidden="true">→</span>
+      </button>
+      <p class="hint" id="landing-hint"></p>
+    </section>
 
-  <!-- Tall scroll track — drives scene index -->
-  <div class="scroll-track" id="scroll-track" aria-hidden="true"></div>
+    <!-- Journey frame (same panel morphs) -->
+    <section class="panel journey" id="journey" hidden aria-live="polite">
+      <div class="rail" id="rail" aria-hidden="true"></div>
+      <div class="journey-head">
+        <span class="phase" id="j-phase"></span>
+        <div class="journey-progress"><i id="j-progress"></i></div>
+      </div>
+      <h2 id="j-title"></h2>
+      <p class="voice" id="j-voice"></p>
+      <div class="stage" id="j-stage"></div>
+    </section>
+  </main>
 
   <footer class="foot">
-    <img src="assets/mark.svg" width="20" height="20" alt="" />
+    <img src="assets/mark.svg" width="18" height="18" alt="" />
     <span id="foot-note"></span>
   </footer>
 

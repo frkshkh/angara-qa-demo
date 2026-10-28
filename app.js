@@ -1,15 +1,13 @@
 /**
- * Scroll-driven product story.
- * Sticky stage stays fixed; scroll position swaps scenes with transitions.
+ * CTA → GO → autopilot journey.
+ * Same frame morphs: Story → TC → CR → Gate → CUA → Evidence → Bug → PageSpeed → Done.
  */
 
-const PASS_MIN = 70;
-/** Viewport-heights of scroll per scene (feel of the story pace). */
-const VH_PER_SCENE = 1.05;
-
-let scenes = [];
-let active = -1;
-let raf = 0;
+let data = null;
+let step = -1;
+let timer = null;
+let paused = false;
+let checklistTimers = [];
 
 function el(tag, attrs = {}, kids = []) {
   const n = document.createElement(tag);
@@ -17,6 +15,7 @@ function el(tag, attrs = {}, kids = []) {
     if (k === 'className') n.className = v;
     else if (k === 'text') n.textContent = v;
     else if (k === 'html') n.innerHTML = v;
+    else if (k.startsWith('on') && typeof v === 'function') n.addEventListener(k.slice(2).toLowerCase(), v);
     else if (v != null) n.setAttribute(k, String(v));
   }
   for (const c of [].concat(kids)) {
@@ -30,90 +29,63 @@ function pill(text, kind = '') {
   return el('span', { className: `pill ${kind}`.trim(), text });
 }
 
-function buildScene(data, index, total) {
-  const root = el('article', {
-    className: 'scene',
-    id: `scene-${data.id}`,
-    'data-id': data.id,
-    'aria-hidden': 'true',
-  });
+function clearTimers() {
+  if (timer) clearTimeout(timer);
+  timer = null;
+  checklistTimers.forEach(clearTimeout);
+  checklistTimers = [];
+}
 
-  root.append(el('h2', { text: data.title }));
-  if (data.body) root.append(el('p', { className: 'body', text: data.body }));
+function setAurora(mode) {
+  const a = document.querySelector('.aurora');
+  a.className = 'aurora';
+  if (mode) a.classList.add(mode);
+}
 
-  switch (data.id) {
-    case 'hero':
-      root.append(
-        el(
-          'div',
-          { className: 'stats' },
-          (data.stats || []).map((s) =>
-            el('div', { className: 'stat' }, [el('strong', { text: s.v }), el('span', { text: s.l })]),
-          ),
-        ),
-      );
-      break;
+function renderStage(j) {
+  const stage = document.getElementById('j-stage');
+  const wrap = el('div', { className: 'stage-inner' });
 
-    case 'pain':
-      root.append(
-        el(
-          'div',
-          { className: 'card-grid' },
-          (data.cards || []).map((c) =>
-            el('div', { className: `mini-card ${c.bad ? 'bad' : 'good'}` }, [
-              el('h3', { text: c.h }),
-              el('p', { text: c.p }),
-            ]),
-          ),
-        ),
-      );
-      break;
-
-    case 'loop':
-      root.append(
-        el(
-          'div',
-          { className: 'steps-row' },
-          (data.steps || []).map((s) =>
-            el('div', { className: 'step' }, [
-              el('span', { className: 'n', text: s.n }),
-              el('strong', { text: s.h }),
-              el('p', { text: s.p }),
-            ]),
-          ),
-        ),
-      );
-      break;
-
-    case 'generate': {
-      const t = data.ticket || {};
-      root.append(
-        el('div', { className: 'pill-row' }, (data.pills || []).map((p) => pill(p, p.includes('proven') ? 'pass' : 'cr'))),
+  switch (j.ui) {
+    case 'ticket': {
+      const t = j.ticket;
+      wrap.append(
         el('div', { className: 'ticket-box' }, [
-          el('div', { className: 'ticket-key', text: t.key || '' }),
-          el('h3', { text: t.summary || '' }),
+          el('div', { className: 'ticket-key', text: t.key }),
+          el('h3', { text: t.summary }),
           el(
             'ul',
             {},
-            (t.ac || []).map((line) => el('li', { text: line })),
+            t.ac.map((line) => el('li', { text: line })),
           ),
         ]),
       );
       break;
     }
 
+    case 'generate': {
+      const list = el('ul', { className: 'checklist', id: 'gen-list' });
+      (j.progress || []).forEach((row, i) => {
+        list.append(
+          el('li', { 'data-i': String(i) }, [
+            el('span', { className: 'tick', text: '✓' }),
+            el('span', { text: row.t }),
+          ]),
+        );
+      });
+      wrap.append(list);
+      if (j.result) wrap.append(el('div', { className: 'result-banner', text: j.result, id: 'gen-result', hidden: true }));
+      break;
+    }
+
     case 'cr':
-      root.append(
+      wrap.append(
         el(
           'div',
-          { className: 'mr-row' },
-          (data.mrs || []).map((mr) =>
+          { className: 'mr-grid' },
+          (j.mrs || []).map((mr) =>
             el('div', { className: 'mr-card' }, [
-              el('header', {}, [
-                el('strong', { text: mr.label }),
-                pill(mr.iid, 'cr'),
-                pill(mr.verdict, mr.verdict === 'Clean' ? 'pass' : 'warn'),
-              ]),
+              el('header', {}, [el('span', { text: mr.label }), mr.bugs?.length ? pill('Needs decision', 'warn') : pill('Clean', 'pass')]),
               ...(mr.bugs || []).length
                 ? mr.bugs.map((b) =>
                     el('div', { className: 'bug-line' }, [
@@ -123,192 +95,272 @@ function buildScene(data, index, total) {
                       el('div', { text: b.t, style: 'margin-top:0.25rem' }),
                     ]),
                   )
-                : [el('div', { className: 'bug-line', text: 'Shared diffs skipped · locale checks ran' })],
+                : [el('div', { className: 'bug-line', text: 'Shared diffs skipped' })],
             ]),
           ),
         ),
       );
       break;
 
-    case 'gate': {
-      const left = el('div', { className: 'score-orb' }, [
-        el('div', { className: 'big', text: String(data.overall) }),
-        el('div', { className: 'sub', text: '/ 100' }),
-        pill(data.passed ? 'Pass' : 'Below', data.passed ? 'pass' : 'warn'),
-      ]);
-      const right = el('div', {}, [
-        ...(data.scores || []).map((p) =>
-          el('div', { className: 'param' }, [
-            el('span', { text: p.l }),
-            el('span', { className: 'bar' }, [el('i', { style: `width:${p.s}%` })]),
-            el('span', { text: String(p.s) }),
+    case 'gate':
+      wrap.append(
+        el('div', { className: 'gate' }, [
+          el('div', { className: 'orb' }, [
+            el('div', { className: 'big', text: String(j.overall) }),
+            el('div', { className: 'sub', text: '/ 100' }),
+            pill('Pass', 'pass'),
           ]),
-        ),
-        el('div', { className: 'note', text: data.dedupe || '' }),
-        el(
-          'div',
-          { className: 'house-pills' },
-          (data.house || []).map((h) => pill(h, 'pass')),
-        ),
-      ]);
-      root.append(el('div', { className: 'gate-layout' }, [left, right]));
+          el(
+            'div',
+            {},
+            (j.scores || []).map((p) =>
+              el('div', { className: 'param' }, [
+                el('span', { text: p.l }),
+                el('span', { className: 'bar' }, [el('i', { style: `width:${p.s}%` })]),
+                el('span', { text: String(p.s) }),
+              ]),
+            ),
+          ),
+        ]),
+      );
+      break;
+
+    case 'cua': {
+      const list = el('ul', { className: 'cua-steps', id: 'cua-list' });
+      (j.steps || []).forEach((s, i) => {
+        list.append(
+          el('li', { 'data-i': String(i), className: s.s === 'fail' ? 'fail-row' : '' }, [
+            el('span', { text: s.a }),
+            pill(s.s === 'fail' ? 'FAIL' : 'OK', s.s === 'fail' ? 'fail' : 'pass'),
+          ]),
+        );
+      });
+      wrap.append(
+        el('div', { className: 'pill-row', style: 'display:flex;gap:0.4rem;margin-bottom:0.75rem;flex-wrap:wrap' }, [
+          pill(`Verdict ${j.verdict}`, 'fail'),
+          pill(j.cost || ''),
+          pill('Desktop'),
+        ]),
+        list,
+      );
       break;
     }
 
-    case 'run':
-      root.append(
+    case 'evidence':
+      wrap.append(
+        el(
+          'ul',
+          { className: 'evidence-list' },
+          (j.items || []).map((it) =>
+            el('li', {}, [el('strong', { text: it.k }), el('span', { text: it.v })]),
+          ),
+        ),
+      );
+      break;
+
+    case 'bug': {
+      const b = j.bug;
+      wrap.append(
+        el('div', { className: 'bug-card' }, [
+          el('div', {}, [pill(b.status, 'warn'), ' ', pill(b.sev, 'high')]),
+          el('h3', { text: b.summary }),
+          el('p', { text: b.covers }),
+          el(
+            'div',
+            { className: 'bug-actions' },
+            (b.actions || []).map((a, i) => el('span', { className: i === 0 ? 'primary' : '', text: a })),
+          ),
+        ]),
+      );
+      break;
+    }
+
+    case 'pagespeed':
+      wrap.append(
+        el('div', { className: 'ticket-key', text: j.url, style: 'margin-bottom:0.65rem' }),
         el(
           'div',
-          { className: 'run-panels' },
-          (data.panels || []).map((p) =>
-            el('div', { className: 'run-panel' }, [
-              pill(p.tag, 'cr'),
-              el('h3', { text: p.h, style: 'margin:0.4rem 0 0;font-size:1.05rem' }),
-              el(
-                'ol',
-                {},
-                (p.lines || []).map((line) => el('li', { text: line })),
-              ),
+          { className: 'metric-grid' },
+          (j.metrics || []).map((m) =>
+            el('div', { className: 'metric' }, [
+              el('strong', { text: m.raw || String(m.s) }),
+              el('span', { text: m.l }),
             ]),
           ),
         ),
+        j.note ? el('div', { className: 'result-banner', text: j.note, style: 'margin-top:0.85rem' }) : null,
       );
       break;
 
-    case 'platform':
-      root.append(
+    case 'done':
+      wrap.append(
         el(
           'div',
-          { className: 'plat-grid' },
-          (data.grid || []).map((g) =>
-            el('div', { className: 'mini-card good' }, [el('h3', { text: g.h }), el('p', { text: g.p })]),
+          { className: 'summary-grid' },
+          (j.summary || []).map((s) =>
+            el('div', {}, [el('div', { className: 'l', text: s.l }), el('div', { className: 'v', text: s.v })]),
           ),
         ),
+        el('div', { className: 'done-cta' }, [
+          el('button', { type: 'button', text: 'Run autopilot again', onclick: () => restart() }),
+          el('button', {
+            type: 'button',
+            className: 'ghost',
+            text: 'Back to prompt',
+            onclick: () => showLanding(),
+          }),
+        ]),
       );
-      break;
-
-    case 'why':
-      root.append(
-        el(
-          'ul',
-          { className: 'points' },
-          (data.points || []).map((p) => el('li', { text: p })),
-        ),
-      );
-      break;
-
-    case 'close':
-      root.append(el('div', { className: 'cta-line', text: data.cta || 'Scroll to replay' }));
       break;
 
     default:
-      break;
+      wrap.append(el('p', { text: '…' }));
   }
 
-  void total;
-  void index;
-  return root;
+  stage.replaceChildren(wrap);
 }
 
-function auroraTone(id) {
-  const aurora = document.querySelector('.aurora');
-  if (!aurora) return;
-  aurora.className = 'aurora';
-  if (id === 'pain') aurora.classList.add('tone-pain');
-  else if (id === 'loop' || id === 'generate') aurora.classList.add('tone-loop');
-  else if (id === 'gate' || id === 'cr') aurora.classList.add('tone-gate');
-  else if (id === 'run') aurora.classList.add('tone-run');
-}
-
-function setActive(i) {
-  if (i === active || i < 0 || i >= scenes.length) return;
-  const prev = active;
-  active = i;
-
-  const nodes = document.querySelectorAll('.scene');
-  nodes.forEach((node, idx) => {
-    const on = idx === i;
-    node.classList.toggle('active', on);
-    node.classList.toggle('exit-up', !on && idx === prev && prev > i);
-    node.setAttribute('aria-hidden', on ? 'false' : 'true');
+function animateGenerate(j) {
+  const items = [...document.querySelectorAll('#gen-list li')];
+  items.forEach((node, i) => {
+    const id = setTimeout(() => node.classList.add('on'), 350 + i * 520);
+    checklistTimers.push(id);
   });
-
-  const s = scenes[i];
-  document.getElementById('scene-index').textContent = String(i + 1).padStart(2, '0');
-  document.getElementById('scene-kicker').textContent = s.kicker || '';
-  document.getElementById('scroll-hint').classList.toggle('hide', i > 0);
-
-  document.querySelectorAll('.scene-dots button').forEach((btn, idx) => {
-    btn.setAttribute('aria-current', idx === i ? 'true' : 'false');
-  });
-
-  auroraTone(s.id);
+  const show = setTimeout(() => {
+    const r = document.getElementById('gen-result');
+    if (r) r.hidden = false;
+  }, 350 + items.length * 520 + 200);
+  checklistTimers.push(show);
 }
 
-function sceneFromScroll() {
-  const track = document.getElementById('scroll-track');
-  const max = Math.max(1, track.offsetHeight - window.innerHeight);
-  const y = Math.min(max, Math.max(0, window.scrollY));
-  const t = y / max;
-  const idx = Math.min(scenes.length - 1, Math.floor(t * scenes.length));
-  document.getElementById('progress-bar').style.width = `${Math.round(t * 100)}%`;
-  setActive(idx);
-}
-
-function onScroll() {
-  if (raf) return;
-  raf = requestAnimationFrame(() => {
-    raf = 0;
-    sceneFromScroll();
+function animateCua(j) {
+  const items = [...document.querySelectorAll('#cua-list li')];
+  items.forEach((node, i) => {
+    const id = setTimeout(() => node.classList.add('on'), 280 + i * 600);
+    checklistTimers.push(id);
   });
 }
 
-function jumpTo(i) {
-  const track = document.getElementById('scroll-track');
-  const max = Math.max(1, track.offsetHeight - window.innerHeight);
-  const target = ((i + 0.15) / scenes.length) * max;
-  window.scrollTo({ top: target, behavior: 'smooth' });
+function showStep(i) {
+  clearTimers();
+  const journey = data.journey;
+  if (i < 0 || i >= journey.length) return;
+  step = i;
+  const j = journey[i];
+  paused = false;
+  document.getElementById('btn-pause').textContent = 'Pause';
+
+  document.getElementById('j-phase').textContent = j.phase;
+  document.getElementById('j-title').textContent = j.title;
+  document.getElementById('j-voice').textContent = j.voice;
+  document.getElementById('top-phase').textContent = j.phase;
+  document.getElementById('j-progress').style.width = `${Math.round(((i + 1) / journey.length) * 100)}%`;
+  document.getElementById('rail').style.transform = `scaleY(${(i + 1) / journey.length})`;
+
+  const panel = document.getElementById('journey');
+  panel.classList.remove('swap');
+  void panel.offsetWidth;
+  panel.classList.add('swap');
+
+  renderStage(j);
+
+  if (j.ui === 'generate') animateGenerate(j);
+  if (j.ui === 'cua') {
+    setAurora('fail');
+    animateCua(j);
+  } else if (j.ui === 'done') setAurora('done');
+  else if (j.ui === 'bug') setAurora('fail');
+  else setAurora('running');
+
+  // Auto-advance (done stays)
+  if (j.duration > 0) {
+    timer = setTimeout(() => {
+      if (!paused) showStep(i + 1);
+    }, j.duration);
+  }
 }
 
-function layoutTrack() {
-  const track = document.getElementById('scroll-track');
-  const h = Math.round(scenes.length * VH_PER_SCENE * window.innerHeight);
-  track.style.height = `${h}px`;
+function startJourney() {
+  const landing = document.getElementById('landing');
+  const journey = document.getElementById('journey');
+  const btn = document.getElementById('go-btn');
+  btn.classList.add('launching');
+
+  setTimeout(() => {
+    landing.hidden = true;
+    journey.hidden = false;
+    document.getElementById('top-status').hidden = false;
+    document.getElementById('top-actions').hidden = false;
+    setAurora('running');
+    showStep(0);
+  }, 450);
+}
+
+function showLanding() {
+  clearTimers();
+  step = -1;
+  document.getElementById('journey').hidden = true;
+  document.getElementById('landing').hidden = false;
+  document.getElementById('top-status').hidden = true;
+  document.getElementById('top-actions').hidden = true;
+  document.getElementById('go-btn').classList.remove('launching');
+  setAurora('');
+}
+
+function restart() {
+  clearTimers();
+  setAurora('running');
+  showStep(0);
+}
+
+function togglePause() {
+  if (step < 0) return;
+  paused = !paused;
+  document.getElementById('btn-pause').textContent = paused ? 'Resume' : 'Pause';
+  if (paused) {
+    clearTimers();
+  } else {
+    const j = data.journey[step];
+    if (j.duration > 0 && step < data.journey.length - 1) {
+      timer = setTimeout(() => showStep(step + 1), Math.min(2200, j.duration));
+    }
+  }
+}
+
+function skip() {
+  if (step < 0) return;
+  if (step >= data.journey.length - 1) return;
+  showStep(step + 1);
 }
 
 async function main() {
   const res = await fetch(`data/demo.json?v=${Date.now()}`, { cache: 'no-store' });
   if (!res.ok) throw new Error(`demo.json ${res.status}`);
-  const data = await res.json();
-  scenes = data.scenes || [];
-  document.title = data.product?.name || 'Angara GenAI Agent';
-  document.getElementById('foot-note').textContent = data.product?.disclaimer || '';
+  data = await res.json();
 
-  const frame = document.getElementById('stage-frame');
-  const dots = document.getElementById('scene-dots');
-  frame.replaceChildren(...scenes.map((s, i) => buildScene(s, i, scenes.length)));
-  dots.replaceChildren(
-    ...scenes.map((s, i) =>
-      el('button', {
-        type: 'button',
-        title: s.kicker || s.title,
-        'aria-label': s.kicker || s.title,
-        onclick: () => jumpTo(i),
-      }),
-    ),
-  );
+  document.title = `${data.product.name} · Autopilot`;
+  document.getElementById('foot-note').textContent = data.product.disclaimer;
 
-  layoutTrack();
-  setActive(0);
-  window.addEventListener('scroll', onScroll, { passive: true });
-  window.addEventListener('resize', () => {
-    layoutTrack();
-    sceneFromScroll();
+  const L = data.landing;
+  document.getElementById('landing-greet').textContent = L.greeting;
+  document.getElementById('landing-prompt').textContent = L.prompt;
+  document.getElementById('landing-hint').textContent = L.hint;
+  document.getElementById('go-label').textContent = L.cta;
+  const input = document.getElementById('story-input');
+  input.value = L.placeholder;
+  input.placeholder = L.placeholder;
+
+  document.getElementById('go-btn').addEventListener('click', startJourney);
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') startJourney();
   });
-  sceneFromScroll();
+  document.getElementById('btn-pause').addEventListener('click', togglePause);
+  document.getElementById('btn-skip').addEventListener('click', skip);
+  document.getElementById('btn-restart').addEventListener('click', () => {
+    showLanding();
+  });
 }
 
 main().catch((err) => {
-  document.getElementById('scene-kicker').textContent = 'Error';
-  document.getElementById('stage-frame').textContent = String(err.message || err);
+  document.getElementById('landing-hint').textContent = String(err.message || err);
 });
