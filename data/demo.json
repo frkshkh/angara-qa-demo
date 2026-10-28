@@ -1,0 +1,251 @@
+{
+  "product": {
+    "name": "Angara QA",
+    "tagline": "Ticket + MR → grounded test suite. Quality-gated. Code-reviewed while it drafts.",
+    "disclaimer": "Public demo with sample data. Not connected to any live Angara environment."
+  },
+  "ticket": {
+    "key": "DEMO-1414",
+    "type": "Story",
+    "summary": "FedEx Pickup location at checkout — US storefront",
+    "priority": "High",
+    "acceptanceCriteria": [
+      "Guest and signed-in shoppers can search FedEx Pickup by ZIP on checkout shipping step",
+      "Selecting a location shows name, address, distance, and hours",
+      "Place Order stays disabled until a location is chosen when Pickup is selected",
+      "Billing address is still required and is not overwritten by the pickup location",
+      "Change limited to US storefront only — UK/AU unchanged"
+    ],
+    "qaNote": "Only checkout shipping + Place Order. No cart, PDP, or tracking cases."
+  },
+  "run": {
+    "mode": "AI-first · Full coverage",
+    "options": ["Thinking", "Explore Deeper", "Power rule"],
+    "duration": "~11 min",
+    "casesBeforeDedupe": 52,
+    "casesAfterDedupe": 41,
+    "merges": 8,
+    "checklistProven": "109 / 109",
+    "cost": "~$3.80 (sample)"
+  },
+  "timeline": [
+    { "t": "0:00", "label": "Load ticket + MRs", "detail": "Description, AC, comments, worklogs, design links" },
+    { "t": "0:20", "label": "Code review starts (parallel)", "detail": "Every live MR — Main, AUK, Collection — while generate prepares", "highlight": "cr" },
+    { "t": "0:45", "label": "Requirement ledger", "detail": "R ids from ticket alone — before reading the diff" },
+    { "t": "2:10", "label": "Draft cases", "detail": "Requirement cases (no diff) ∥ change cases (diff gaps)" },
+    { "t": "4:30", "label": "CR findings → checklist", "detail": "Confirmed bugs join as F ids the suite must prove", "highlight": "cr" },
+    { "t": "5:00", "label": "Coverage check + fill", "detail": "Every ledger item proven against expected results" },
+    { "t": "7:20", "label": "Semantic dedupe (merge)", "detail": "Repeats folded; coverage guard undoes bad merges" },
+    { "t": "8:40", "label": "Quality gate (7 params)", "detail": "Independent reviewer; weakest param caps overall" },
+    { "t": "10:30", "label": "House cases + grounding", "detail": "Out-of-the-box cases kept; invented values flagged" }
+  ],
+  "codeReview": {
+    "runningWithGenerate": true,
+    "verdict": "Needs a decision",
+    "storeScope": "US only (from AC + worklog)",
+    "byMr": [
+      {
+        "label": "Main",
+        "iid": 20332,
+        "target": "angara.v4.prod",
+        "verdict": "Needs a decision",
+        "bugs": [
+          {
+            "severity": "HIGH",
+            "rule": "ERR-STATUS",
+            "title": "Pickup search failure returns 200 with empty list",
+            "location": "apps/frontend/storefront/.../FedexPickup.tsx",
+            "problem": "Network/API error path maps to empty locations; shopper sees “no locations” instead of retryable error.",
+            "becameF": "F1"
+          },
+          {
+            "severity": "MEDIUM",
+            "rule": "SCOPE",
+            "title": "Pickup UI reachable without US store guard",
+            "location": "CheckoutShipping.tsx",
+            "problem": "Component mounts whenever method=pickup; ticket limits change to US.",
+            "becameF": "F2"
+          }
+        ]
+      },
+      {
+        "label": "AUK",
+        "iid": 21339,
+        "target": "angarauk.v4.prod",
+        "verdict": "Needs a decision",
+        "bugs": [
+          {
+            "severity": "MEDIUM",
+            "rule": "SCOPE",
+            "title": "Same pickup change present on UK/AU fork",
+            "location": "(shared with Main)",
+            "problem": "Port carries US-scoped feature into AUK. Copied from Main review — store-scope never auto-cleared.",
+            "becameF": "F2"
+          }
+        ],
+        "note": "Identical file diffs reviewed once on Main; findings copied with MR tags."
+      }
+    ],
+    "generationLink": "Confirmed bugs become F items on the checklist. A case must prove each defect does not ship. Log-only findings (SEC-LOG) never become cases."
+  },
+  "qualityGate": {
+    "overall": 78,
+    "passed": true,
+    "passMin": 70,
+    "note": "Pass = every parameter ≥ 70/100. Weakest parameter caps the overall score — a strong AC score cannot hide a weak dedup.",
+    "scores": [
+      { "id": "ac_coverage", "label": "AC coverage", "score": 90 },
+      { "id": "functional_depth", "label": "Functional depth", "score": 80 },
+      { "id": "backend_depth", "label": "Backend depth", "score": 80 },
+      { "id": "dedup", "label": "No duplicates", "score": 80 },
+      { "id": "risk_thinking", "label": "Risk thinking", "score": 80 },
+      { "id": "precision", "label": "Precision (on-scope)", "score": 70 },
+      { "id": "executability", "label": "Executability", "score": 90 }
+    ],
+    "findings": [
+      {
+        "param": "Precision (on-scope)",
+        "issue": "One Explore journey restated a ledger item almost verbatim.",
+        "fix": "Dropped from checklist; suite kept."
+      }
+    ],
+    "missing": [],
+    "duplicateGroups": [],
+    "offScope": []
+  },
+  "dedupe": {
+    "before": 52,
+    "after": 41,
+    "merges": [
+      {
+        "kept": "#7 ZIP search returns nearby FedEx locations",
+        "folded": ["#19 Search pickup by postal code shows results", "#31 Nearby facilities list after ZIP enter"],
+        "why": "Same setup, same outcome — reworded twins. Steps/tags/sources folded into keeper."
+      },
+      {
+        "kept": "#12 Place Order disabled until pickup chosen",
+        "folded": ["#28 Cannot submit with Pickup and no location"],
+        "why": "Same assert. Kept richer steps."
+      }
+    ],
+    "guard": "After each merge, coverage re-check. Merge that leaves a checklist item unproven is undone — dedupe never costs coverage."
+  },
+  "houseCases": [
+    {
+      "tag": "OOB · Live deploy",
+      "summary": "Shopper already on checkout when build goes live keeps working without a hard refresh",
+      "why": "Every storefront suite. Version-skew / chunk-load failure a clean browser never sees.",
+      "expected": "Soft navigation between pages works; no blank screen or lost shipping input"
+    },
+    {
+      "tag": "OOB · Keyboard",
+      "summary": "Escape closes location popup and focus returns to trigger",
+      "why": "Auto-added when ticket/diff opens a popup or drawer.",
+      "expected": "Popup closes; focus back on “Find a location” control"
+    },
+    {
+      "tag": "OOB · Scope leak",
+      "summary": "Pickup UI does not appear on UK storefront",
+      "why": "Ticket limited change to US — nearest out-of-scope value must keep old behaviour.",
+      "expected": "UK checkout shipping has no FedEx Pickup option"
+    },
+    {
+      "tag": "OOB · Phone fit",
+      "summary": "Location popup usable at 375px portrait and landscape",
+      "why": "Fixed UI row when change adds visible popup.",
+      "expected": "Popup scrolls inside to close control; no clipped actions"
+    }
+  ],
+  "cases": [
+    {
+      "n": 1,
+      "priority": "Critical",
+      "type": "Functional",
+      "summary": "Guest on US checkout searches FedEx Pickup by ZIP and selects a location",
+      "covers": ["R1", "R2"],
+      "tags": ["checkout / shipping / fedex-pickup"],
+      "steps": [
+        { "action": "Open /us-en/checkout as guest with a shippable cart", "expected": "Shipping step shows delivery methods including FedEx Pickup" },
+        { "action": "Select FedEx Pickup and enter ZIP 10001", "expected": "Nearby locations list with name, address, distance, hours" },
+        { "action": "Select first location", "expected": "Selection summary shows chosen facility; Place Order becomes enabled once billing is complete" }
+      ]
+    },
+    {
+      "n": 2,
+      "priority": "Critical",
+      "type": "Negative",
+      "summary": "Place Order stays disabled when Pickup selected with no location",
+      "covers": ["R3"],
+      "tags": ["checkout / shipping / place-order"],
+      "steps": [
+        { "action": "Select FedEx Pickup without choosing a location", "expected": "Place Order is disabled" },
+        { "action": "Attempt to activate Place Order", "expected": "Order is not placed; shopper is prompted to choose a location" }
+      ]
+    },
+    {
+      "n": 3,
+      "priority": "High",
+      "type": "Functional",
+      "summary": "Billing address remains after choosing a FedEx location",
+      "covers": ["R4"],
+      "tags": ["checkout / billing / fedex-pickup"],
+      "steps": [
+        { "action": "Enter a full billing address, then select a FedEx Pickup location", "expected": "Billing fields keep what was typed; pickup does not overwrite billing" }
+      ]
+    },
+    {
+      "n": 4,
+      "priority": "High",
+      "type": "Negative",
+      "summary": "Pickup search API error shows retryable message — not an empty “no locations” list",
+      "covers": ["F1"],
+      "tags": ["checkout / shipping / error-path", "from-code-review"],
+      "badge": "From CR · F1",
+      "steps": [
+        { "action": "Trigger FedEx search while the locations API returns 5xx", "expected": "Error/retry message is shown; list is not presented as “no locations nearby”" }
+      ]
+    },
+    {
+      "n": 5,
+      "priority": "High",
+      "type": "Regression",
+      "summary": "UK checkout does not offer FedEx Pickup for this change",
+      "covers": ["R5", "F2"],
+      "tags": ["checkout / shipping / scope", "from-code-review"],
+      "badge": "From CR · F2 · Scope",
+      "steps": [
+        { "action": "Open /uk-en/checkout shipping step with the same cart shape", "expected": "FedEx Pickup control from this change is absent; prior UK shipping behaviour unchanged" }
+      ]
+    },
+    {
+      "n": 6,
+      "priority": "Medium",
+      "type": "Regression",
+      "summary": "Shopper already on checkout when deploy goes live keeps working without hard refresh",
+      "covers": ["HOUSE"],
+      "tags": ["house / live-deploy-session"],
+      "badge": "Out of the box",
+      "steps": [
+        { "action": "Keep checkout tab open through deploy; soft-navigate away and back", "expected": "No chunk-load error or blank screen; shipping input not lost" }
+      ]
+    },
+    {
+      "n": 7,
+      "priority": "Medium",
+      "type": "Accessibility",
+      "summary": "Escape closes location popup; focus returns to trigger",
+      "covers": ["D-a11y"],
+      "tags": ["house / keyboard"],
+      "badge": "Out of the box",
+      "steps": [
+        { "action": "Open Find a location popup, press Escape", "expected": "Popup closes; focus returns to the control that opened it" }
+      ]
+    }
+  ],
+  "talkingPoints": [
+    "Independent quality gate: seven parameters; weakest caps the score — not an average that hides duplicates.",
+    "Semantic dedupe merges repeats; coverage guard blocks merges that would drop proof.",
+    "House / out-of-the-box cases ride every storefront suite (live deploy, keyboard popup, scope leak, phone fit).",
+    "Code review runs on every live MR in parallel with generation; confirmed bugs become checklist items the suite must prove."
+  ]
+}

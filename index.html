@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Angara QA — Public demo (sample data)</title>
+  <meta name="description" content="Standalone demo of AI test-case generation with quality gate, dedupe, out-of-the-box cases, and code review while generating. Sample data only." />
+  <meta name="robots" content="noindex,nofollow" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,550&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="banner">
+    <div class="wrap">Public marketing demo · sample data only · <strong>not</strong> hosted on the Angara product domain</div>
+  </div>
+
+  <header class="topbar">
+    <div class="wrap topbar-inner">
+      <div class="brand">Angara QA <span>demo</span></div>
+      <nav class="nav" aria-label="Sections">
+        <a href="#flow">Flow</a>
+        <a href="#cr">Code review</a>
+        <a href="#quality">Quality gate</a>
+        <a href="#dedupe">Dedupe</a>
+        <a href="#house">Out of the box</a>
+        <a href="#cases">Cases</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero wrap">
+      <p class="kicker">For QA groups · LinkedIn · WhatsApp</p>
+      <h1>Ticket + MR become a quality-gated suite</h1>
+      <p class="lead" id="hero-lead">Loading demo…</p>
+      <div class="stats" id="hero-stats" aria-live="polite"></div>
+    </section>
+
+    <section class="block wrap" id="ticket">
+      <h2>Sample ticket</h2>
+      <p class="sub">Frozen DEMO ticket — same shape as a real generate run. No live Jira.</p>
+      <div class="panel" id="ticket-panel"></div>
+    </section>
+
+    <section class="block wrap" id="flow">
+      <h2>One run · CR in parallel</h2>
+      <p class="sub">Code review starts on every live MR while the suite is still drafting. Confirmed bugs join the checklist as F items before quality gate.</p>
+      <div class="panel">
+        <ol class="timeline" id="timeline"></ol>
+      </div>
+    </section>
+
+    <section class="block wrap" id="cr">
+      <h2>Code review while generating</h2>
+      <p class="sub">Not a separate tool hop. Review rides the same run; findings the suite must prove.</p>
+      <div id="cr-panel"></div>
+    </section>
+
+    <section class="block wrap" id="quality">
+      <h2>Quality check — 7 parameters</h2>
+      <p class="sub">Independent reviewer (did not write the suite). Weakest parameter caps overall — averages cannot hide bad dedup.</p>
+      <div class="panel" id="quality-panel"></div>
+    </section>
+
+    <section class="block wrap" id="dedupe">
+      <h2>Semantic dedupe</h2>
+      <p class="sub">Repeats merge into the keeper. Coverage guard undoes a merge that would leave an item unproven.</p>
+      <div class="panel" id="dedupe-panel"></div>
+    </section>
+
+    <section class="block wrap" id="house">
+      <h2>Out-of-the-box cases</h2>
+      <p class="sub">House rows every storefront suite carries — live deploy, keyboard popup, scope leak, phone fit. Never “padding” to the reviewer.</p>
+      <div class="house-grid" id="house-grid"></div>
+    </section>
+
+    <section class="block wrap" id="cases">
+      <h2>Generated suite (sample)</h2>
+      <p class="sub">Subset of the frozen run — CR-sourced and house cases marked.</p>
+      <div class="panel" id="cases-panel"></div>
+    </section>
+
+    <section class="block wrap" id="points">
+      <h2>Why this is different</h2>
+      <ul class="points" id="talking-points"></ul>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap">
+      <p id="footer-disclaimer"></p>
+      <p>Host this folder on its <strong>own</strong> domain (GitHub Pages, Netlify, Cloudflare Pages, S3…). Do not put it behind <code>*.angara.com</code> product hosts.</p>
+    </div>
+  </footer>
+
+  <script src="app.js" defer></script>
+</body>
+</html>
