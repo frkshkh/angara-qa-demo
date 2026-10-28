@@ -2,111 +2,166 @@
   "product": {
     "name": "Angara GenAI Agent",
     "shortName": "Angara QA",
-    "tagline": "One GenAI agent platform for QA — author, review, run, triage, and publish.",
-    "disclaimer": "Public demo with sample data. Not connected to any live Angara environment."
+    "eyebrow": "Enterprise QA · GenAI platform",
+    "tagline": "From Jira story to proven suite, code-reviewed MRs, and browser runs — in one agent loop.",
+    "sub": "Not a chatbot that invents steps. Grounded in the ticket, the diff, and your knowledge packs — then scored before a human saves.",
+    "ctaPrimary": "See a live sample run",
+    "ctaSecondary": "Why we’re different",
+    "disclaimer": "Interactive sample with frozen data — illustrates product power for evaluation."
   },
-  "platformStats": [
-    { "value": "7", "label": "quality params" },
-    { "value": "4+", "label": "active MCP skills" },
-    { "value": "6", "label": "execution runners" },
-    { "value": "1", "label": "Jira↔Xray loop" }
+  "heroProof": [
+    { "value": "~11 min", "label": "ticket → gated suite" },
+    { "value": "109/109", "label": "checklist proven" },
+    { "value": "3 MRs", "label": "reviewed in parallel" },
+    { "value": "78/100", "label": "independent quality gate" }
+  ],
+  "painVsUs": {
+    "title": "Why normal tools fall short",
+    "subtitle": "Most teams stitch chatbots, spreadsheets, and a TMS. We close the loop.",
+    "rows": [
+      {
+        "them": "ChatGPT / Copilot paste",
+        "themDetail": "Pretty cases, weak grounding. Invents ZIPs, routes, copy. No proof against AC.",
+        "us": "Requirement ledger first",
+        "usDetail": "R ids from the ticket before the diff. Cases must prove expected results — coverage is checked, not assumed."
+      },
+      {
+        "them": "Classic TMS (TestRail / Zephyr alone)",
+        "themDetail": "Great library. Still hand-authored. No MR awareness. No AI quality bar.",
+        "us": "Generate + library + Xray",
+        "usDetail": "Author at change speed, publish Test Sets / Executions, sync statuses — reporter is a real person when resolvable."
+      },
+      {
+        "them": "Standalone AI code review",
+        "themDetail": "Findings sit in a tab. Never become tests. Ports re-reviewed three times.",
+        "us": "CR while you generate",
+        "usDetail": "Every live MR in one run. Shared diffs once. Confirmed bugs become F items the suite must prove."
+      },
+      {
+        "them": "Record-and-playback / brittle scripts",
+        "themDetail": "Break on every UI shift. No NL path. No human gate on bugs.",
+        "us": "CUA + Automation Workbench",
+        "usDetail": "Natural language on a real browser, or plain-English → Playwright with self-heal. Bugs stay human-gated."
+      },
+      {
+        "them": "Generic “AI QA” demos",
+        "themDetail": "One prompt, one list of cases. No dedupe science. No house cases. No cost/trace.",
+        "us": "Full agent platform",
+        "usDetail": "7-param gate, semantic merge with coverage guard, OOB house cases, MCP skills, PageSpeed/SEO beside functional QA."
+      }
+    ]
+  },
+  "powerLoop": [
+    { "n": "01", "title": "Ingest", "text": "Ticket, comments, worklogs, designs, every live MR" },
+    { "n": "02", "title": "Review ∥ Draft", "text": "Multi-MR code review while the suite is written" },
+    { "n": "03", "title": "Prove", "text": "Coverage check, dedupe, 7-param quality gate" },
+    { "n": "04", "title": "Run", "text": "CUA or Automation on the real storefront" },
+    { "n": "05", "title": "Publish", "text": "Xray / Jira — or MCP from Cursor" }
   ],
   "agents": [
     {
       "id": "generate",
       "name": "TEST CASE Generate",
-      "blurb": "Jira + MR → grounded suite. Ledger, coverage proof, dedupe, 7-param quality gate. Code review runs in parallel.",
+      "power": "The suite that survives review",
+      "blurb": "Jira + MR → grounded cases. Ledger, coverage proof, dedupe, quality gate. CR in parallel.",
       "bullets": [
-        "Requirement ledger before reading the diff",
-        "CR findings become F items the suite must prove",
-        "House / out-of-the-box cases on every storefront suite",
-        "Weakest quality parameter caps the overall score"
+        "Ticket-first ledger — assert requirements, not whatever the code shipped",
+        "Full coverage: every checklist item proven in expected results",
+        "House / out-of-the-box cases every storefront suite must carry",
+        "Weakest quality parameter caps the score — no hiding weak dedup"
       ],
-      "sample": "DEMO-1414 · 41 cases · 109/109 proven · gate 78/100"
+      "sample": "41 cases · 109/109 proven · gate 78/100 · ~$3.80"
     },
     {
       "id": "cr",
-      "name": "MR Code Review",
-      "blurb": "Principal-engineer review on every live MR while cases generate — multi-MR in one run.",
+      "name": "Multi-MR Code Review",
+      "power": "Findings that become tests",
+      "blurb": "Principal-engineer review on every loaded live MR in the same generate run.",
       "bullets": [
-        "Whole-file logic + call-site context, not trimmed hunks only",
-        "Store-scope & locale parity checked in code",
-        "Identical diffs across MRs reviewed once; findings tagged per MR",
-        "Accept/Deny gates Save; generation still continues"
+        "Whole logic + call sites — not 900-character hunks alone",
+        "Store scope & locale parity enforced in code",
+        "Identical diffs across MRs reviewed once, tagged per MR",
+        "Accept/Deny gates Save; F items still feed generation"
       ],
-      "sample": "3 MRs · HIGH ERR-STATUS + MEDIUM SCOPE → F1, F2 on checklist"
+      "sample": "Primary + Region + Theme · F1/F2 on checklist"
     },
     {
       "id": "cua",
       "name": "CUA Browser Agent",
-      "blurb": "Natural-language browser tests on a real storefront. Human-gated bugs — never auto-filed.",
+      "power": "Execute like a senior tester",
+      "blurb": "Natural-language browser tests on a real site. Failures wait for a human — never auto-spam Jira.",
       "bullets": [
-        "Run from URL, Jira case, or batch",
-        "inspect_elements, transfer sizes, device rules",
-        "Case merges: same setup + read-only checks share one run",
-        "Lessons distilled from tester reviews (approved only)"
+        "From URL, Jira case, or batch",
+        "Element inspect, transfer sizes, device rules",
+        "Merge same-setup read-only cases into one cheaper run",
+        "Lessons from approved tester reviews only"
       ],
-      "sample": "Pass · $0.42 · video + step log · awaiting_review on fail"
+      "sample": "PASS · $0.42 · video retained"
     },
     {
       "id": "automation",
       "name": "Automation Workbench",
-      "blurb": "Plain English → Playwright in Chromium. Preflight, self-heal, artifacts.",
+      "power": "English → Playwright",
+      "blurb": "Plain-English instruction becomes Chromium execution with preflight and self-heal.",
       "bullets": [
-        "NDJSON live stream: preflight → codegen → run",
-        "Failure classes + Pass-2 regeneration",
-        "Auth profiles, device lanes, axe-core a11y",
-        "Suite Builder + Execution Center (mixed runners)"
+        "Live stream: preflight → codegen → run",
+        "Failure classes + regeneration pass",
+        "Auth profiles, devices, axe-core",
+        "Mixed runners in Execution Center"
       ],
-      "sample": "HIGH confidence · video + trace on fail"
+      "sample": "HIGH confidence · video + trace"
     },
     {
       "id": "qa-agent",
       "name": "QA Agent",
-      "blurb": "Coverage & planning workbench — find, generate, enrich, automate.",
+      "power": "Plan coverage, don’t guess",
+      "blurb": "Find, generate, enrich, automate — with a Preview Lab before you commit.",
       "bullets": [
-        "Find reusable cases for a change",
-        "Enrich thin cases with steps and edges",
-        "Automation feasibility + Playwright specs",
-        "Preview Lab before commit"
+        "Reuse search against the change",
+        "Enrich thin cases",
+        "Automation feasibility + specs",
+        "Safe preview before write"
       ],
-      "sample": "Library + AI mix · plan_bundle review hints"
+      "sample": "Library + AI mix"
     },
     {
       "id": "mcp",
       "name": "MCP Skills & CLI",
-      "blurb": "Same agent in Cursor / Claude Desktop / terminal — versioned skills.",
+      "power": "Same agent in your IDE",
+      "blurb": "Cursor / Claude Desktop / terminal — versioned skills over project knowledge.",
       "bullets": [
-        "tc_author · cua_test_runner · bug_triage · regression_monitor · code_review",
-        "search_project_knowledge (behavior packs + RAG)",
-        "playwright / newman / jmeter / selenium / api_request",
-        "xray_create_test · jira_* · slack_send_summary"
+        "tc_author · cua · bug_triage · regression · code_review",
+        "RAG over behavior packs",
+        "Playwright, Newman, JMeter, Selenium, API",
+        "Xray create + Slack summary"
       ],
-      "sample": "get_skill(tc_author) → cited Manual TCs → optional Xray"
+      "sample": "get_skill → cited TCs → Xray"
     },
     {
       "id": "jira",
       "name": "Jira + Xray",
-      "blurb": "Publish cases, sync executions, schedule imports — reporter is a real person when possible.",
+      "power": "Close the ALM loop",
+      "blurb": "Publish cases, sync executions, schedule generate rules — without bot-owned tickets when a person exists.",
       "bullets": [
-        "Test / Test Set / Test Execution bundles",
-        "Execution status sync back to Xray",
-        "Scheduled Jira picker rules → generate & save",
+        "Test / Set / Execution bundles",
+        "Status sync back to Xray",
+        "Scheduled picker → generate & save",
         "Bug file with ADF preview"
       ],
-      "sample": "TS-DEMO + TE synced · reporter ≠ bot account"
+      "sample": "TS + TE synced"
     },
     {
       "id": "audits",
       "name": "PageSpeed · SEO · Schema",
-      "blurb": "Live-site quality beside functional QA — history, compare, schedules.",
+      "power": "Quality beyond functional",
+      "blurb": "Live-site audits beside the suite — history, compare, schedules.",
       "bullets": [
-        "Lighthouse-style PageSpeed with batch + abort",
-        "SEO / social meta & OG checks",
-        "JSON-LD / schema validator",
-        "Background tasks survive navigation"
+        "Lighthouse-style PageSpeed batches",
+        "SEO / social meta checks",
+        "JSON-LD schema validation",
+        "Background tasks that survive navigation"
       ],
-      "sample": "LCP / CLS tracked · CrUX catalog optional"
+      "sample": "LCP/CLS tracked"
     }
   ],
   "ticket": {
@@ -135,7 +190,7 @@
   },
   "timeline": [
     { "t": "0:00", "label": "Load ticket + MRs", "detail": "Description, AC, comments, worklogs, design links" },
-    { "t": "0:20", "label": "Code review starts (parallel)", "detail": "Every loaded live MR (multi-MR) while generate prepares", "highlight": "cr" },
+    { "t": "0:20", "label": "Multi-MR code review starts", "detail": "Every loaded live MR reviewed in parallel with generate", "highlight": "cr" },
     { "t": "0:45", "label": "Requirement ledger", "detail": "R ids from ticket alone — before reading the diff" },
     { "t": "2:10", "label": "Draft cases", "detail": "Requirement cases (no diff) ∥ change cases (diff gaps)" },
     { "t": "4:30", "label": "CR findings → checklist", "detail": "Confirmed bugs join as F ids the suite must prove", "highlight": "cr" },
@@ -184,7 +239,7 @@
             "rule": "SCOPE",
             "title": "Same pickup change present on region fork",
             "location": "(shared with Primary)",
-            "problem": "Port carries US-scoped feature into a fork outside ticket scope. Copied from Primary review — store-scope never auto-cleared.",
+            "problem": "Port carries US-scoped feature into a fork outside ticket scope. Copied from Primary — store-scope never auto-cleared.",
             "becameF": "F2"
           }
         ],
@@ -199,13 +254,13 @@
         "note": "Third live MR in the same ticket. Identical shared files skipped; locale + conflict checks still ran per MR."
       }
     ],
-    "generationLink": "Multi-MR: every loaded live MR is reviewed in one run. Confirmed bugs become F items (shared defects fold to one checklist line naming every MR). Log-only findings (SEC-LOG) never become cases."
+    "generationLink": "Multi-MR: every loaded live MR reviewed in one run. Shared defects fold to one F line naming every MR. Log-only findings never become cases."
   },
   "qualityGate": {
     "overall": 78,
     "passed": true,
     "passMin": 70,
-    "note": "Pass = every parameter ≥ 70/100. Weakest parameter caps the overall score — a strong AC score cannot hide a weak dedup.",
+    "note": "Pass = every parameter ≥ 70/100. Weakest parameter caps overall — a strong AC score cannot hide weak dedup.",
     "scores": [
       { "id": "ac_coverage", "label": "AC coverage", "score": 90 },
       { "id": "functional_depth", "label": "Functional depth", "score": 80 },
@@ -221,10 +276,7 @@
         "issue": "One Explore journey restated a ledger item almost verbatim.",
         "fix": "Dropped from checklist; suite kept."
       }
-    ],
-    "missing": [],
-    "duplicateGroups": [],
-    "offScope": []
+    ]
   },
   "dedupe": {
     "before": 52,
@@ -241,32 +293,32 @@
         "why": "Same assert. Kept richer steps."
       }
     ],
-    "guard": "After each merge, coverage re-check. Merge that leaves a checklist item unproven is undone — dedupe never costs coverage."
+    "guard": "After each merge, coverage re-check. A merge that leaves an item unproven is undone — dedupe never costs coverage."
   },
   "houseCases": [
     {
       "tag": "OOB · Live deploy",
       "summary": "Shopper already on checkout when build goes live keeps working without a hard refresh",
-      "why": "Every storefront suite. Version-skew / chunk-load failure a clean browser never sees.",
-      "expected": "Soft navigation between pages works; no blank screen or lost shipping input"
+      "why": "Version-skew / chunk-load failure a clean browser never sees.",
+      "expected": "Soft navigation works; no blank screen or lost shipping input"
     },
     {
       "tag": "OOB · Keyboard",
       "summary": "Escape closes location popup and focus returns to trigger",
-      "why": "Auto-added when ticket/diff opens a popup or drawer.",
-      "expected": "Popup closes; focus back on “Find a location” control"
+      "why": "Auto-added when the change opens a popup or drawer.",
+      "expected": "Popup closes; focus back on “Find a location”"
     },
     {
       "tag": "OOB · Scope leak",
       "summary": "Pickup UI does not appear on UK storefront",
-      "why": "Ticket limited change to US — nearest out-of-scope value must keep old behaviour.",
-      "expected": "UK checkout shipping has no FedEx Pickup option"
+      "why": "Ticket limited change to US — out-of-scope locales keep old behaviour.",
+      "expected": "UK checkout has no FedEx Pickup from this change"
     },
     {
       "tag": "OOB · Phone fit",
       "summary": "Location popup usable at 375px portrait and landscape",
-      "why": "Fixed UI row when change adds visible popup.",
-      "expected": "Popup scrolls inside to close control; no clipped actions"
+      "why": "Fixed UI row when a visible popup ships.",
+      "expected": "Scrolls to close control; no clipped actions"
     }
   ],
   "cases": [
@@ -357,7 +409,7 @@
   ],
   "agentSamples": {
     "cua": {
-      "title": "Sample CUA run",
+      "title": "CUA executes the suite",
       "intent": "On US checkout, select FedEx Pickup, search ZIP 10001, choose first location, confirm Place Order enables after billing.",
       "verdict": "PASS",
       "cost": "$0.42",
@@ -368,40 +420,40 @@
         "Type 10001 → pick first facility",
         "Assert Place Order enabled with billing complete"
       ],
-      "note": "Fail → awaiting_review. Human files bug or marks test_problem. No auto-Jira."
+      "note": "Fail → awaiting_review. Human files bug or marks test_problem. Never auto-Jira."
     },
     "automation": {
-      "title": "Sample Automation Workbench run",
+      "title": "Automation Workbench",
       "instruction": "Open US checkout as guest, assert FedEx Pickup appears, open location popup, press Escape, focus returns to trigger.",
       "confidence": "HIGH",
       "artifacts": ["video", "trace"],
       "classes": ["functional", "accessibility"],
-      "note": "Preflight (Chromium + URL) → codegen → execute. SELECTOR_BROKEN can self-heal once."
+      "note": "Preflight → codegen → execute. Recoverable selector failures can self-heal once."
     },
     "mcp": {
-      "title": "Sample MCP skill chain",
+      "title": "MCP in the IDE",
       "flow": [
         "list_skills → tc_author active",
         "get_skill(tc_author, feature=checkout-pickup)",
         "search_project_knowledge(behavior-checkout…)",
         "Optional: xray_create_test / cua_run"
       ],
-      "note": "Same skills in Cursor, Claude Desktop, or integrated-qa CLI."
+      "note": "Same skills in Cursor, Claude Desktop, or CLI."
     },
     "jira": {
-      "title": "Sample publish",
+      "title": "Publish to Xray",
       "items": [
         "41 cases → Test Set TS-DEMO-1414",
-        "Xray Test Execution TE-DEMO · statuses synced",
-        "Reporter = signed-in QA email (not API bot when resolvable)"
+        "Test Execution TE-DEMO · statuses synced",
+        "Reporter = signed-in QA when Jira can resolve them"
       ]
     }
   },
   "talkingPoints": [
-    "Angara GenAI Agent is one platform: author → review → run → triage → publish — not a chatbot bolted on.",
-    "Generate is quality-gated (7 params; weakest caps). Dedupe merges; coverage guard blocks bad merges.",
-    "Multi-MR code review runs while cases draft; shared diffs reviewed once; confirmed bugs become checklist F items.",
-    "CUA + Automation execute on real browsers; bugs stay human-gated.",
-    "MCP skills bring the same workflows into Cursor / Claude / CLI with project knowledge RAG."
+    "One platform — author, multi-MR review, quality gate, browser run, Xray — not five disconnected tools.",
+    "Grounded generation: ticket ledger first, coverage proven, invented values flagged.",
+    "Code review findings become tests in the same run.",
+    "Dedupe merges repeats; coverage guard refuses merges that would drop proof.",
+    "Humans stay in the loop on Save and on bug filing."
   ]
 }
