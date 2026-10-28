@@ -12,6 +12,9 @@ One page:
 
 Live: https://frkshkh.github.io/angara-qa-demo/
 
+Author: Farukh Sheikh  
+© 2026 Angara Ecommerce Pvt Ltd
+
 ## Local
 
 ```bash

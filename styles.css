@@ -743,11 +743,18 @@ body.launching .layer-go .landing {
 .points li::before { content: "◆ "; color: var(--accent2); font-size: 0.65rem; }
 
 .foot {
-  display: flex; align-items: center; gap: 0.45rem;
+  display: flex; align-items: flex-start; gap: 0.55rem;
   padding: 0.85rem clamp(1rem, 3vw, 1.75rem) 1.25rem;
   font-size: 0.75rem; color: var(--muted); border-top: 1px solid var(--line);
   background: rgba(11,18,32,0.9); position: relative; z-index: 2;
 }
+.foot-copy { display: flex; flex-direction: column; gap: 0.2rem; min-width: 0; }
+.foot-meta {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 0.35rem;
+  font-size: 0.72rem; opacity: 0.9;
+}
+.foot-meta strong { color: var(--text); font-weight: 650; }
+.foot-sep { opacity: 0.45; }
 
 [hidden] { display: none !important; }
 

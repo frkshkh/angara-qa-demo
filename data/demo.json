@@ -2,7 +2,9 @@
   "product": {
     "name": "Angara GenAI Agent",
     "tagline": "QA that proves itself — not just produces text.",
-    "disclaimer": "Public product demo · rich sample data"
+    "disclaimer": "Public product demo · rich sample data",
+    "author": "Farukh Sheikh",
+    "copyright": "© 2026 Angara Ecommerce Pvt Ltd"
   },
   "landing": {
     "greeting": "Hi agent,",
