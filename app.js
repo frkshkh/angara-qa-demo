@@ -568,51 +568,68 @@ function onKeyNav(e) {
   const tag = (e.target && e.target.tagName) || '';
   if (tag === 'INPUT' || tag === 'TEXTAREA' || e.target?.isContentEditable) return;
 
-  // Journey: arrows / PgUp/Dn / Space scroll the card (any time). P = pause.
+  // Journey keys: scroll card · Left/Right change step · P pause
   if (mode === 'journey') {
     if (e.key === 'p' || e.key === 'P') {
       e.preventDefault();
       togglePause();
       return;
     }
-    const stepPx = Math.max(64, Math.round(window.innerHeight * 0.18));
-    const pagePx = Math.max(120, Math.round(window.innerHeight * 0.45));
+    // Don't let focused Pause/Skip/Exit swallow Space / arrows
+    if (e.target?.closest?.('.top-actions, .btn')) {
+      e.target.blur?.();
+    }
+    const stepPx = Math.max(72, Math.round(window.innerHeight * 0.2));
+    const pagePx = Math.max(140, Math.round(window.innerHeight * 0.5));
     switch (e.key) {
       case 'ArrowDown':
       case 'Down':
-      case ' ':
-      case 'Spacebar':
-        if (e.key === ' ' && e.shiftKey) {
-          e.preventDefault();
-          scrollJourney(-stepPx, true);
-        } else {
-          e.preventDefault();
-          scrollJourney(stepPx, true);
-        }
+        e.preventDefault();
+        scrollJourney(stepPx, false);
         break;
       case 'ArrowUp':
       case 'Up':
         e.preventDefault();
-        scrollJourney(-stepPx, true);
+        scrollJourney(-stepPx, false);
+        break;
+      case ' ':
+      case 'Spacebar':
+        e.preventDefault();
+        scrollJourney(e.shiftKey ? -stepPx : stepPx, false);
         break;
       case 'PageDown':
         e.preventDefault();
-        scrollJourney(pagePx, true);
+        scrollJourney(pagePx, false);
         break;
       case 'PageUp':
         e.preventDefault();
-        scrollJourney(-pagePx, true);
+        scrollJourney(-pagePx, false);
         break;
       case 'Home':
         e.preventDefault();
-        journeyScrollPort()?.scrollTo({ top: 0, behavior: 'smooth' });
+        {
+          const el = journeyScrollPort();
+          if (el) el.scrollTop = 0;
+        }
         break;
       case 'End':
         e.preventDefault();
         {
           const el = journeyScrollPort();
-          if (el) el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
+          if (el) el.scrollTop = el.scrollHeight;
         }
+        break;
+      case 'ArrowRight':
+      case 'Right':
+      case ']':
+        e.preventDefault();
+        skip();
+        break;
+      case 'ArrowLeft':
+      case 'Left':
+      case '[':
+        e.preventDefault();
+        prevStep();
         break;
       default:
         break;
@@ -1012,7 +1029,6 @@ function animateGenerate() {
       if (r) r.hidden = false;
       const p = document.getElementById('gen-preview');
       if (p) p.hidden = false;
-      // After checklist finishes, scroll to result + case preview
       revealInStage(r || p);
       if (p) {
         checklistTimers.push(setTimeout(() => revealInStage(p.lastElementChild || p), 280));
@@ -1030,6 +1046,37 @@ function animateCua() {
       }, 220 + i * 480),
     );
   });
+}
+
+/** Walk stage blocks top→bottom; scroll card as each enters view (every screen). */
+function animateStageWalk() {
+  const stage = document.getElementById('j-stage');
+  if (!stage) return;
+  const nodes = [
+    ...stage.querySelectorAll(
+      '.ticket-box, .ticket-box li, .meta-cell, .checklist li, .case-row, .mr-card, .bug-line, .param, .meta-grid.tight .meta-cell, .advisory-list li, .cua-steps li, .plan-list li, .intent-box, .evidence-list li, .bug-card, .bug-card li, .bug-actions, .metric, .ai-verdict, .ai-bullets li, .result-banner, .summary-grid > div, .done-cta',
+    ),
+  ].filter((n, i, arr) => {
+    // Prefer leaves: skip a parent if a later child is also listed
+    return !arr.some((other, j) => j > i && n.contains(other));
+  });
+  if (!nodes.length) {
+    checklistTimers.push(setTimeout(() => revealInStage(stage.lastElementChild || stage), 200));
+    return;
+  }
+  // Stagger through content; keep last items visible before step advances
+  const gap = Math.min(520, Math.max(220, Math.floor(2800 / Math.max(nodes.length, 1))));
+  nodes.forEach((node, i) => {
+    checklistTimers.push(
+      setTimeout(() => {
+        node.classList.add('ap-seen');
+        revealInStage(node);
+      }, 180 + i * gap),
+    );
+  });
+  checklistTimers.push(
+    setTimeout(() => revealInStage(nodes[nodes.length - 1]), 180 + nodes.length * gap + 120),
+  );
 }
 
 function stopApTick() {
@@ -1103,7 +1150,8 @@ function showStep(i) {
   renderStage(j);
   panel.scrollTop = 0;
   if (j.ui === 'generate') animateGenerate();
-  if (['cua-testset', 'cua-manual', 'cua-adversarial', 'cua-advisory'].includes(j.ui)) animateCua();
+  else if (['cua-testset', 'cua-manual', 'cua-adversarial', 'cua-advisory'].includes(j.ui)) animateCua();
+  else animateStageWalk();
   if (j.ui === 'cua-adversarial' || j.ui === 'bug' || (j.ui === 'pagespeed' && j.ai?.verdict === 'BAD')) setAurora('fail');
   else if (j.ui === 'done' || (j.ui === 'pagespeed' && j.ai?.verdict === 'GOOD')) setAurora('done');
   else setAurora('running');
@@ -1178,6 +1226,16 @@ function journeyScrollPort() {
   return document.getElementById('journey');
 }
 
+function focusJourneyCard() {
+  const card = document.getElementById('journey');
+  if (!card) return;
+  try {
+    card.focus({ preventScroll: true });
+  } catch {
+    card.focus();
+  }
+}
+
 function setPaused(next) {
   const was = paused;
   paused = !!next;
@@ -1192,6 +1250,8 @@ function setPaused(next) {
   // Freeze / resume step timer bar
   if (paused && !was) {
     apElapsedBeforePause += performance.now() - apStepStarted;
+    // Move focus off Pause so arrows/space scroll the card, not re-click the button
+    focusJourneyCard();
   } else if (!paused && was) {
     apStepStarted = performance.now();
     if (apStepDur > 0 && apElapsedBeforePause < apStepDur) runApTick();
@@ -1201,8 +1261,13 @@ function setPaused(next) {
 function scrollJourney(dy, smooth) {
   const el = journeyScrollPort();
   if (!el) return;
+  const before = el.scrollTop;
   if (smooth) el.scrollBy({ top: dy, behavior: 'smooth' });
-  else el.scrollTop += dy;
+  else el.scrollTop = before + dy;
+  // If card didn't move (layout quirk), force a reflow write
+  if (!smooth && el.scrollTop === before && Math.abs(dy) > 0 && el.scrollHeight > el.clientHeight + 2) {
+    el.scrollTop = before + dy;
+  }
 }
 
 /** Wheel over overlay or card → scroll journey (works playing + paused). */
@@ -1234,6 +1299,11 @@ function togglePause() {
 function skip() {
   if (step < 0 || step >= data.journey.length - 1) return;
   showStep(step + 1);
+}
+
+function prevStep() {
+  if (step <= 0) return;
+  showStep(step - 1);
 }
 
 /* ---------- Boot ---------- */
@@ -1290,18 +1360,13 @@ async function main() {
   document.getElementById('story-input').addEventListener('keydown', (e) => {
     if (e.key === 'Enter') startJourney();
   });
-  document.getElementById('btn-pause').addEventListener('click', togglePause);
+  document.getElementById('btn-pause').addEventListener('click', () => {
+    togglePause();
+  });
   document.getElementById('btn-skip').addEventListener('click', skip);
   document.getElementById('btn-exit').addEventListener('click', exitJourney);
   document.getElementById('btn-to-go').addEventListener('click', goToAutopilot);
   document.getElementById('frame-journey').addEventListener('wheel', onJourneyWheel, { passive: false });
-  document.getElementById('journey').addEventListener(
-    'touchstart',
-    () => {
-      /* touch-action:pan-y on paused card — keep listener so iOS doesn't bounce page */
-    },
-    { passive: true },
-  );
   document.getElementById('brand-home').addEventListener('click', (e) => {
     if (mode === 'journey') {
       e.preventDefault();
@@ -1310,7 +1375,8 @@ async function main() {
   });
 
   window.addEventListener('scroll', onScroll, { passive: true });
-  window.addEventListener('keydown', onKeyNav);
+  // Capture so Pause-button focus can't eat Arrow/Space before we handle them
+  window.addEventListener('keydown', onKeyNav, true);
   window.addEventListener('resize', () => {
     layoutTrack();
     scrubFromScroll();
