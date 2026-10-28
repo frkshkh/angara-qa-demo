@@ -21,7 +21,9 @@
 }
 
 *, *::before, *::after { box-sizing: border-box; }
-html { scroll-behavior: auto; }
+html { scroll-behavior: smooth; }
+html.lock-scroll,
+html.lock-scroll body { overflow: hidden; height: 100%; }
 body {
   margin: 0;
   min-height: 100dvh;
@@ -29,6 +31,46 @@ body {
   color: var(--text);
   background: var(--bg0);
   line-height: 1.5;
+  opacity: 0;
+  transition: opacity 0.55s ease;
+}
+body.ready { opacity: 1; }
+
+/* Mode chrome */
+body.mode-home .journey-only { display: none !important; }
+body.mode-journey .tour-only { display: none !important; }
+body.mode-journey .progress-wrap { display: none; }
+
+.fx-ring {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  opacity: 0;
+}
+.fx-ring.on {
+  animation: fxBurst 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.fx-ring.on::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 42%;
+  width: 40px;
+  height: 40px;
+  margin: -20px;
+  border-radius: 50%;
+  border: 2px solid rgba(94, 234, 212, 0.85);
+  box-shadow: 0 0 40px rgba(56, 189, 248, 0.55);
+  animation: fxRing 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+@keyframes fxBurst {
+  0% { opacity: 1; background: radial-gradient(circle at 50% 42%, rgba(94,234,212,0.28), transparent 28%); }
+  100% { opacity: 0; background: radial-gradient(circle at 50% 42%, transparent, transparent 70%); }
+}
+@keyframes fxRing {
+  0% { transform: scale(0.4); opacity: 1; }
+  100% { transform: scale(18); opacity: 0; }
 }
 
 .aurora {
@@ -214,20 +256,60 @@ a:hover { text-decoration: underline; }
   overflow: auto;
   opacity: 0;
   visibility: hidden;
-  transform: translateY(24px);
+  transform: translateY(28px) scale(0.985);
+  filter: blur(8px);
   pointer-events: none;
   color: #f4f7fb;
-  transition: opacity 0.45s cubic-bezier(0.22,1,0.36,1), transform 0.45s cubic-bezier(0.22,1,0.36,1), visibility 0.45s;
+  transition:
+    opacity 0.55s cubic-bezier(0.22,1,0.36,1),
+    transform 0.55s cubic-bezier(0.22,1,0.36,1),
+    filter 0.55s cubic-bezier(0.22,1,0.36,1),
+    visibility 0.55s;
 }
+.scene.exit-up { transform: translateY(-18px) scale(0.99); filter: blur(4px); }
+.scene.exit-down { transform: translateY(22px) scale(0.99); filter: blur(4px); }
 .scene.active {
   opacity: 1;
   visibility: visible;
   transform: none;
+  filter: none;
   pointer-events: auto;
   z-index: 2;
   display: flex;
   flex-direction: column;
   justify-content: center;
+}
+.scene.active .stat,
+.scene.active .mini-card,
+.scene.active .step,
+.scene.active .mr-card,
+.scene.active .run-panel,
+.scene.active .param {
+  animation: riseIn 0.55s cubic-bezier(0.22,1,0.36,1) both;
+}
+.scene.active .stat:nth-child(2),
+.scene.active .mini-card:nth-child(2),
+.scene.active .step:nth-child(2),
+.scene.active .mr-card:nth-child(2),
+.scene.active .run-panel:nth-child(2),
+.scene.active .param:nth-child(2) { animation-delay: 0.06s; }
+.scene.active .stat:nth-child(3),
+.scene.active .mini-card:nth-child(3),
+.scene.active .step:nth-child(3),
+.scene.active .mr-card:nth-child(3),
+.scene.active .run-panel:nth-child(3),
+.scene.active .param:nth-child(3) { animation-delay: 0.12s; }
+.scene.active .stat:nth-child(4),
+.scene.active .mini-card:nth-child(4),
+.scene.active .step:nth-child(4),
+.scene.active .param:nth-child(4) { animation-delay: 0.18s; }
+.scene.active .step:nth-child(5),
+.scene.active .param:nth-child(5) { animation-delay: 0.24s; }
+.scene.active .param:nth-child(6) { animation-delay: 0.3s; }
+.scene.active .param:nth-child(7) { animation-delay: 0.36s; }
+@keyframes riseIn {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: none; }
 }
 .scene h2 {
   font-family: var(--display);
@@ -242,13 +324,63 @@ a:hover { text-decoration: underline; }
 
 .scroll-track { position: relative; z-index: 0; pointer-events: none; }
 
-/* ===== AUTOPILOT PAGE ===== */
-.ap-viewport {
+/* ===== UNIFIED FRAMES ===== */
+.frame-go {
   min-height: 100dvh;
   display: grid;
   place-items: center;
   padding: 5.25rem 1rem 2.5rem;
+  position: relative;
+  z-index: 2;
 }
+.frame-go .landing {
+  transform: translateY(0) scale(1);
+  opacity: 1;
+  transition: transform 0.55s cubic-bezier(0.22,1,0.36,1), opacity 0.45s ease, filter 0.45s ease;
+}
+body.on-tour .frame-go .landing {
+  transform: translateY(-28px) scale(0.96);
+  opacity: 0.35;
+  filter: blur(2px);
+  pointer-events: none;
+}
+body.launching .frame-go .landing {
+  transform: scale(1.03);
+  filter: brightness(1.12);
+}
+
+.frame-journey {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  padding: 5.25rem 1rem 2.5rem;
+  background: rgba(11, 18, 32, 0.55);
+  backdrop-filter: blur(10px);
+  opacity: 0;
+  transform: scale(0.97);
+  transition: opacity 0.45s ease, transform 0.55s cubic-bezier(0.22,1,0.36,1);
+}
+.frame-journey.enter {
+  opacity: 1;
+  transform: none;
+}
+.frame-journey[hidden] { display: none !important; }
+
+.tour-zone { position: relative; z-index: 1; }
+body.mode-home:not(.on-tour) .tour-zone .stage-shell {
+  opacity: 0.55;
+  transform: translateY(24px) scale(0.98);
+  filter: blur(2px);
+  transition: opacity 0.5s ease, transform 0.55s cubic-bezier(0.22,1,0.36,1), filter 0.5s ease;
+}
+body.on-tour .tour-zone .stage-shell {
+  opacity: 1;
+  transform: none;
+  filter: none;
+}
+
 .panel {
   width: min(760px, 100%);
   background: #162033;
@@ -266,6 +398,11 @@ a:hover { text-decoration: underline; }
   margin: 0 auto 0.85rem;
   display: block;
   filter: drop-shadow(0 8px 20px rgba(56, 189, 248, 0.35));
+  animation: markFloat 4.5s ease-in-out infinite;
+}
+@keyframes markFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
 }
 .kicker {
   margin: 0 0 0.65rem;
@@ -336,22 +473,57 @@ a:hover { text-decoration: underline; }
   color: #041018;
   background: linear-gradient(135deg, #5eead4, #38bdf8);
   box-shadow: 0 14px 36px rgba(56, 189, 248, 0.4);
+  position: relative;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
 }
-.go-btn:hover { transform: translateY(-2px); }
-.go-btn.launching { pointer-events: none; filter: brightness(1.15); }
+.go-btn::after {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border-radius: inherit;
+  border: 1px solid rgba(94, 234, 212, 0.45);
+  animation: goPulse 2.2s ease-out infinite;
+  pointer-events: none;
+}
+@keyframes goPulse {
+  0% { transform: scale(0.92); opacity: 0.7; }
+  100% { transform: scale(1.18); opacity: 0; }
+}
+.go-btn:hover { transform: translateY(-2px); box-shadow: 0 18px 42px rgba(56, 189, 248, 0.5); }
+.go-btn .go-arrow { transition: transform 0.2s ease; }
+.go-btn:hover .go-arrow { transform: translateX(4px); }
+.go-btn.launching { pointer-events: none; filter: brightness(1.15); animation: goFlash 0.4s ease; }
+@keyframes goFlash {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.06); }
+  100% { transform: scale(1); }
+}
 
-.mode-switch {
-  margin-top: 1.35rem;
-  padding-top: 1.1rem;
-  border-top: 1px solid var(--line);
+.scroll-cue {
+  margin: 1.6rem 0 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 0.55rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  transition: opacity 0.35s ease;
 }
-.mode-switch p { margin: 0; font-size: 0.8rem; color: var(--muted); }
+.scroll-cue.hide { opacity: 0; }
+.scroll-cue-line {
+  width: 1px;
+  height: 34px;
+  background: linear-gradient(180deg, var(--accent2), transparent);
+  animation: cueDrop 1.6s ease-in-out infinite;
+}
+@keyframes cueDrop {
+  0%, 100% { transform: scaleY(0.55); opacity: 0.4; transform-origin: top; }
+  50% { transform: scaleY(1); opacity: 1; transform-origin: top; }
+}
 
-.journey { min-height: 480px; width: min(820px, 100%); }
+.journey { min-height: 480px; width: min(820px, 100%); max-height: calc(100dvh - 7rem); overflow: auto; }
 .journey.swap .stage-inner {
   animation: sceneIn 0.5s cubic-bezier(0.22,1,0.36,1) both;
 }
@@ -634,4 +806,12 @@ a:hover { text-decoration: underline; }
 }
 @media (max-width: 560px) {
   .stats, .steps-row, .mr-row, .mr-grid, .metric-grid { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  body, .scene, .frame-go .landing, .frame-journey, .tour-zone .stage-shell,
+  .go-btn, .fx-ring, .landing .mark-lg, .scroll-cue-line { animation: none !important; transition: none !important; }
+  .fx-ring.on { display: none; }
+  .go-btn::after { display: none; }
 }

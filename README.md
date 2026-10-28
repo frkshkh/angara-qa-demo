@@ -1,15 +1,16 @@
 # Angara GenAI Agent — public demo
 
-Two surfaces (same GitHub Pages site):
+One page:
 
-| URL | What |
-|-----|------|
-| `/` (`index.html`) | **General demo** — sticky frame, scroll drives scenes |
-| `/autopilot.html` | **Autopilot** — “Hi agent, test my Story” + **GO** closed loop |
+| Action | What |
+|--------|------|
+| Land on `/` | **Autopilot GO** first frame |
+| Click **GO** | Closed-loop journey (own mode) |
+| Scroll down | Sticky **product tour** / presentation |
 
-Live:
-- https://frkshkh.github.io/angara-qa-demo/
-- https://frkshkh.github.io/angara-qa-demo/autopilot.html
+`/autopilot.html` redirects to `/#go`.
+
+Live: https://frkshkh.github.io/angara-qa-demo/
 
 ## Local
 
