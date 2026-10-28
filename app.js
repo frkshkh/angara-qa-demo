@@ -133,7 +133,7 @@ function renderCr(data) {
         pill(mr.verdict, 'warn'),
       ]),
       mr.note ? el('p', { style: 'margin:0 0 0.5rem;font-size:0.82rem;color:var(--muted)', text: mr.note }) : null,
-      ...bugs,
+      ...(bugs.length ? bugs : [el('p', { style: 'margin:0.35rem 0 0;font-size:0.82rem;color:var(--muted)', text: 'No AI findings on this MR after shared-file skip.' })]),
     ]);
   });
 

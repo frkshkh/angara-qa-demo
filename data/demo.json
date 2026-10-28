@@ -27,14 +27,14 @@
     {
       "id": "cr",
       "name": "MR Code Review",
-      "blurb": "Principal-engineer review on every live MR while cases generate — Main, AUK, Collection.",
+      "blurb": "Principal-engineer review on every live MR while cases generate — multi-MR in one run.",
       "bullets": [
         "Whole-file logic + call-site context, not trimmed hunks only",
         "Store-scope & locale parity checked in code",
-        "Shared ports reviewed once; findings copied with MR tags",
+        "Identical diffs across MRs reviewed once; findings tagged per MR",
         "Accept/Deny gates Save; generation still continues"
       ],
-      "sample": "HIGH ERR-STATUS + MEDIUM SCOPE → F1, F2 on checklist"
+      "sample": "3 MRs · HIGH ERR-STATUS + MEDIUM SCOPE → F1, F2 on checklist"
     },
     {
       "id": "cua",
@@ -135,7 +135,7 @@
   },
   "timeline": [
     { "t": "0:00", "label": "Load ticket + MRs", "detail": "Description, AC, comments, worklogs, design links" },
-    { "t": "0:20", "label": "Code review starts (parallel)", "detail": "Every live MR — Main, AUK, Collection — while generate prepares", "highlight": "cr" },
+    { "t": "0:20", "label": "Code review starts (parallel)", "detail": "Every loaded live MR (multi-MR) while generate prepares", "highlight": "cr" },
     { "t": "0:45", "label": "Requirement ledger", "detail": "R ids from ticket alone — before reading the diff" },
     { "t": "2:10", "label": "Draft cases", "detail": "Requirement cases (no diff) ∥ change cases (diff gaps)" },
     { "t": "4:30", "label": "CR findings → checklist", "detail": "Confirmed bugs join as F ids the suite must prove", "highlight": "cr" },
@@ -150,9 +150,9 @@
     "storeScope": "US only (from AC + worklog)",
     "byMr": [
       {
-        "label": "Main",
+        "label": "Primary",
         "iid": 20332,
-        "target": "angara.v4.prod",
+        "target": "storefront.v4.prod",
         "verdict": "Needs a decision",
         "bugs": [
           {
@@ -174,24 +174,32 @@
         ]
       },
       {
-        "label": "AUK",
+        "label": "Region",
         "iid": 21339,
-        "target": "angarauk.v4.prod",
+        "target": "storefront-region.v4.prod",
         "verdict": "Needs a decision",
         "bugs": [
           {
             "severity": "MEDIUM",
             "rule": "SCOPE",
-            "title": "Same pickup change present on UK/AU fork",
-            "location": "(shared with Main)",
-            "problem": "Port carries US-scoped feature into AUK. Copied from Main review — store-scope never auto-cleared.",
+            "title": "Same pickup change present on region fork",
+            "location": "(shared with Primary)",
+            "problem": "Port carries US-scoped feature into a fork outside ticket scope. Copied from Primary review — store-scope never auto-cleared.",
             "becameF": "F2"
           }
         ],
-        "note": "Identical file diffs reviewed once on Main; findings copied with MR tags."
+        "note": "Same normalized diff as Primary — reviewed once there; findings tagged onto this MR."
+      },
+      {
+        "label": "Theme",
+        "iid": 21340,
+        "target": "storefront-theme.v4.prod",
+        "verdict": "No blocking problems",
+        "bugs": [],
+        "note": "Third live MR in the same ticket. Identical shared files skipped; locale + conflict checks still ran per MR."
       }
     ],
-    "generationLink": "Confirmed bugs become F items on the checklist. A case must prove each defect does not ship. Log-only findings (SEC-LOG) never become cases."
+    "generationLink": "Multi-MR: every loaded live MR is reviewed in one run. Confirmed bugs become F items (shared defects fold to one checklist line naming every MR). Log-only findings (SEC-LOG) never become cases."
   },
   "qualityGate": {
     "overall": 78,
@@ -392,7 +400,7 @@
   "talkingPoints": [
     "Angara GenAI Agent is one platform: author → review → run → triage → publish — not a chatbot bolted on.",
     "Generate is quality-gated (7 params; weakest caps). Dedupe merges; coverage guard blocks bad merges.",
-    "Code review runs while cases draft; confirmed bugs become checklist F items.",
+    "Multi-MR code review runs while cases draft; shared diffs reviewed once; confirmed bugs become checklist F items.",
     "CUA + Automation execute on real browsers; bugs stay human-gated.",
     "MCP skills bring the same workflows into Cursor / Claude / CLI with project knowledge RAG."
   ]
