@@ -348,7 +348,6 @@ function updateChapterRail(opts) {
   const fill = document.getElementById('rail-fill');
   const thumb = document.getElementById('rail-thumb');
   const hold = document.getElementById('rail-hold');
-  const hint = document.getElementById('rail-hint');
 
   rail.hidden = false;
   rail.dataset.phase = blend <= 0 ? 'hold' : blend >= 1 ? 'done' : 'blend';
@@ -359,18 +358,6 @@ function updateChapterRail(opts) {
   if (fill) fill.style.width = `${pct}%`;
   if (thumb) thumb.style.left = `${pct}%`;
   if (hold) hold.style.width = `${HOLD_UNTIL * 100}%`;
-
-  if (hint) {
-    if (kind === 'go') {
-      hint.textContent = blend <= 0 ? 'Scroll to enter tour' : blend < 1 ? 'Releasing Autopilot…' : 'Tour frame locked';
-    } else if (blend <= 0) {
-      hint.textContent = 'Hold — keep scrolling for next frame';
-    } else if (blend < 1) {
-      hint.textContent = 'Crossing to next frame…';
-    } else {
-      hint.textContent = 'Frame locked · scroll for next';
-    }
-  }
 }
 
 function hideChapterRail() {

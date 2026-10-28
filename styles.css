@@ -403,27 +403,11 @@ a:hover { text-decoration: underline; }
   border-color: var(--accent);
   box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.35);
 }
-.chapter-rail-hint {
-  margin: 0.4rem 0 0;
-  font-size: 0.68rem;
-  color: var(--muted);
-  text-align: center;
-}
-.chapter-rail-keys {
-  margin: 0.15rem 0 0;
-  font-size: 0.62rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: rgba(168, 184, 204, 0.65);
-  text-align: center;
-}
 body.mode-home:not(.on-tour) .chapter-rail {
-  /* Visible on GO too */
   opacity: 1;
 }
 @media (max-width: 560px) {
   .chapter-rail { width: calc(100% - 1.25rem); padding: 0.45rem 0.6rem; }
-  .chapter-rail-keys { display: none; }
 }
 
 .frame-journey {
