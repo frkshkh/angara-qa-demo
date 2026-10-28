@@ -33,6 +33,8 @@ let apElapsedBeforePause = 0;
 /** Content auto-scroll through tall frames */
 let contentScrollRaf = 0;
 let contentScrollState = null;
+/** After user wheel/keys, crawl yields until this timestamp */
+let userScrollUntil = 0;
 
 function clamp(v, a, b) {
   return Math.max(a, Math.min(b, v));
@@ -999,17 +1001,23 @@ function renderStage(j) {
   document.getElementById('j-stage').replaceChildren(wrap);
 }
 
-/** Nudge card to a revealed node — skipped while the smooth crawl owns scroll. */
+function noteUserScroll() {
+  userScrollUntil = performance.now() + 2200;
+}
+
+/** Scroll journey card so node sits in view (smooth, port-local). */
 function revealInStage(node) {
   const port = document.getElementById('journey');
-  if (!node || !port || paused || contentScrollState) return;
+  if (!node || !port || paused) return;
   const pRect = port.getBoundingClientRect();
   const nRect = node.getBoundingClientRect();
-  const pad = 20;
+  const pad = 24;
   let delta = 0;
   if (nRect.bottom > pRect.bottom - pad) delta = nRect.bottom - pRect.bottom + pad;
   else if (nRect.top < pRect.top + pad) delta = -(pRect.top - nRect.top + pad);
-  if (delta) port.scrollBy({ top: delta, behavior: 'smooth' });
+  if (!delta) return;
+  // Only move down during autopilot — never yank back against crawl/user
+  if (delta > 0) port.scrollBy({ top: delta, behavior: 'smooth' });
 }
 
 function stopContentScroll() {
@@ -1018,73 +1026,100 @@ function stopContentScroll() {
   contentScrollState = null;
 }
 
+function contentScrollMax(port) {
+  return Math.max(0, port.scrollHeight - port.clientHeight);
+}
+
+function runContentScrollTick(now) {
+  const st = contentScrollState;
+  if (!st) {
+    contentScrollRaf = 0;
+    return;
+  }
+  if (paused) {
+    contentScrollRaf = 0; // hard stop while paused — manual scroll only
+    return;
+  }
+  // User is scrolling — don't fight the wheel/keys
+  if (now < userScrollUntil) {
+    contentScrollRaf = requestAnimationFrame(runContentScrollTick);
+    return;
+  }
+  if (!st.started) st.started = now;
+  // Live max — content grows as checklist/result appear
+  const max = contentScrollMax(st.port);
+  if (max < 8) {
+    contentScrollRaf = requestAnimationFrame(runContentScrollTick);
+    return;
+  }
+  const elapsed = st.elapsedBeforePause + (now - st.started);
+  const t = clamp(elapsed / st.dur, 0, 1);
+  const eased = t * t * (3 - 2 * t);
+  const target = max * eased;
+  // Monotonic: never pull scroll backward (reveals / user may be ahead)
+  if (target > st.port.scrollTop) st.port.scrollTop = target;
+  if (t < 1) contentScrollRaf = requestAnimationFrame(runContentScrollTick);
+  else {
+    // Ensure bottom on finish
+    if (st.port.scrollTop < max - 2) st.port.scrollTop = max;
+    contentScrollRaf = 0;
+    contentScrollState = null;
+  }
+}
+
 /**
- * Smooth crawl through overflow content for the step duration.
- * Freezes while paused; resumes from same progress.
+ * Slow crawl top→bottom over the step. Recalc max each frame.
+ * Yields to user input; hard-stops on pause.
  */
 function startContentAutoScroll(duration) {
   stopContentScroll();
   const port = document.getElementById('journey');
   if (!port) return;
-  // Direct timer (not checklistTimers) so clearTimers on pause doesn't kill crawl mid-setup;
-  // pause freezes via `paused` flag instead.
   const startId = setTimeout(() => {
-    const max = port.scrollHeight - port.clientHeight;
-    if (max < 10) return;
-    const dur = Math.max(2000, Math.min((duration || 4500) * 0.85, 9000));
+    if (paused || mode !== 'journey') return;
+    const dur = Math.max(2200, Math.min((duration || 4500) * 0.88, 10000));
     contentScrollState = {
       port,
-      max,
       dur,
       started: performance.now(),
       elapsedBeforePause: 0,
     };
-    const tick = (now) => {
-      const st = contentScrollState;
-      if (!st || st.port !== port) return;
-      if (paused) {
-        contentScrollRaf = requestAnimationFrame(tick);
-        return;
-      }
-      if (!st.started) st.started = now;
-      const elapsed = st.elapsedBeforePause + (now - st.started);
-      const t = clamp(elapsed / st.dur, 0, 1);
-      const eased = t * t * (3 - 2 * t);
-      st.port.scrollTop = st.max * eased;
-      if (t < 1) contentScrollRaf = requestAnimationFrame(tick);
-      else contentScrollRaf = 0;
-    };
-    contentScrollRaf = requestAnimationFrame(tick);
-  }, 200);
+    contentScrollRaf = requestAnimationFrame(runContentScrollTick);
+  }, 240);
   checklistTimers.push(startId);
 }
 
+/** After list animations, ease to bottom once more content is painted. */
+function scheduleTailScroll(duration) {
+  const at = Math.max(1000, Math.min((duration || 4500) * 0.62, 5500));
+  checklistTimers.push(
+    setTimeout(() => {
+      if (paused) return;
+      const port = document.getElementById('journey');
+      if (!port) return;
+      const max = contentScrollMax(port);
+      if (max > 8) {
+        userScrollUntil = performance.now() + 900;
+        port.scrollTo({ top: max, behavior: 'smooth' });
+      }
+    }, at),
+  );
+}
+
 function pauseContentScrollClock() {
-  if (!contentScrollState || !contentScrollState.started) return;
-  contentScrollState.elapsedBeforePause += performance.now() - contentScrollState.started;
-  contentScrollState.started = 0;
+  if (!contentScrollState) return;
+  if (contentScrollState.started) {
+    contentScrollState.elapsedBeforePause += performance.now() - contentScrollState.started;
+    contentScrollState.started = 0;
+  }
+  if (contentScrollRaf) cancelAnimationFrame(contentScrollRaf);
+  contentScrollRaf = 0;
 }
 
 function resumeContentScrollClock() {
-  if (!contentScrollState) return;
+  if (!contentScrollState || paused) return;
   contentScrollState.started = performance.now();
-  if (!contentScrollRaf) {
-    const tick = (now) => {
-      const st = contentScrollState;
-      if (!st) return;
-      if (paused) {
-        contentScrollRaf = requestAnimationFrame(tick);
-        return;
-      }
-      const elapsed = st.elapsedBeforePause + (now - st.started);
-      const t = clamp(elapsed / st.dur, 0, 1);
-      const eased = t * t * (3 - 2 * t);
-      st.port.scrollTop = st.max * eased;
-      if (t < 1) contentScrollRaf = requestAnimationFrame(tick);
-      else contentScrollRaf = 0;
-    };
-    contentScrollRaf = requestAnimationFrame(tick);
-  }
+  if (!contentScrollRaf) contentScrollRaf = requestAnimationFrame(runContentScrollTick);
 }
 
 function animateGenerate() {
@@ -1092,6 +1127,7 @@ function animateGenerate() {
   items.forEach((node, i) => {
     checklistTimers.push(
       setTimeout(() => {
+        if (paused) return;
         node.classList.add('on');
         revealInStage(node);
       }, 320 + i * 520),
@@ -1100,13 +1136,18 @@ function animateGenerate() {
   const n = items.length;
   checklistTimers.push(
     setTimeout(() => {
+      if (paused) return;
       const r = document.getElementById('gen-result');
       if (r) r.hidden = false;
       const p = document.getElementById('gen-preview');
       if (p) p.hidden = false;
       revealInStage(r || p);
       if (p) {
-        checklistTimers.push(setTimeout(() => revealInStage(p.lastElementChild || p), 400));
+        checklistTimers.push(
+          setTimeout(() => {
+            if (!paused) revealInStage(p.lastElementChild || p);
+          }, 450),
+        );
       }
     }, 320 + n * 520 + 200),
   );
@@ -1116,6 +1157,7 @@ function animateCua() {
   [...document.querySelectorAll('#cua-list li')].forEach((node, i) => {
     checklistTimers.push(
       setTimeout(() => {
+        if (paused) return;
         node.classList.add('on');
         revealInStage(node);
       }, 280 + i * 560),
@@ -1123,7 +1165,7 @@ function animateCua() {
   });
 }
 
-/** Walk stage blocks top→bottom; scroll card as each enters view (every screen). */
+/** Walk stage blocks top→bottom; scroll card as each enters view. */
 function animateStageWalk() {
   const stage = document.getElementById('j-stage');
   if (!stage) return;
@@ -1133,13 +1175,18 @@ function animateStageWalk() {
     ),
   ].filter((n, i, arr) => !arr.some((other, j) => j !== i && other.contains(n) && other !== n));
   if (!nodes.length) {
-    checklistTimers.push(setTimeout(() => revealInStage(stage.lastElementChild || stage), 300));
+    checklistTimers.push(
+      setTimeout(() => {
+        if (!paused) revealInStage(stage.lastElementChild || stage);
+      }, 300),
+    );
     return;
   }
   const gap = Math.min(640, Math.max(320, Math.floor(3600 / Math.max(nodes.length, 1))));
   nodes.forEach((node, i) => {
     checklistTimers.push(
       setTimeout(() => {
+        if (paused) return;
         node.classList.add('ap-seen');
         revealInStage(node);
       }, 240 + i * gap),
@@ -1243,11 +1290,13 @@ function showStep(i, opts = {}) {
     return;
   }
 
+  const listUi = ['generate', 'cua-testset', 'cua-manual', 'cua-adversarial', 'cua-advisory'].includes(j.ui);
   if (j.ui === 'generate') animateGenerate();
-  else if (['cua-testset', 'cua-manual', 'cua-adversarial', 'cua-advisory'].includes(j.ui)) animateCua();
+  else if (listUi) animateCua();
   else animateStageWalk();
-  // Every screen: smooth crawl through overflow for the step window
-  startContentAutoScroll(j.duration || 4000);
+  // List UIs: follow items + tail scroll. Static tall UIs: live-max crawl.
+  if (listUi) scheduleTailScroll(j.duration || 4000);
+  else startContentAutoScroll(j.duration || 4000);
 
   startApTick(j.duration);
   if (j.duration > 0) {
@@ -1341,10 +1390,10 @@ function setPaused(next) {
   }
   const state = document.getElementById('ap-state');
   if (state) state.textContent = paused ? 'Paused' : 'Auto-running';
-  // Freeze / resume step timer bar + content crawl
   if (paused && !was) {
     apElapsedBeforePause += performance.now() - apStepStarted;
     pauseContentScrollClock();
+    clearTimers(); // stop reveal timers; keep crawl state frozen for resume
     focusJourneyCard();
   } else if (!paused && was) {
     apStepStarted = performance.now();
@@ -1356,6 +1405,7 @@ function setPaused(next) {
 function scrollJourney(dy, smooth = true) {
   const el = journeyScrollPort();
   if (!el) return;
+  noteUserScroll();
   el.scrollBy({ top: dy, behavior: smooth ? 'smooth' : 'auto' });
 }
 
@@ -1365,10 +1415,10 @@ function onJourneyWheel(e) {
   const el = journeyScrollPort();
   if (!el) return;
   if (el.scrollHeight <= el.clientHeight + 2) return;
-  // Don't steal wheel from form fields
   const tag = (e.target && e.target.tagName) || '';
   if (tag === 'INPUT' || tag === 'TEXTAREA' || e.target?.isContentEditable) return;
   e.preventDefault();
+  noteUserScroll();
   el.scrollTop += e.deltaY;
 }
 
