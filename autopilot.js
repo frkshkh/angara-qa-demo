@@ -225,7 +225,7 @@ function renderStage(j) {
     case 'cua-adversarial':
       wrap.append(
         el('div', { className: 'pill-row' }, [
-          pill('Adversarial', 'high'),
+          pill('Exploratory', 'high'),
           pill(j.verdict || '', 'fail'),
           pill(j.cost || ''),
         ]),
@@ -242,6 +242,30 @@ function renderStage(j) {
             ]),
           ),
         ),
+      );
+      break;
+    case 'bva':
+      wrap.append(
+        el('div', { className: 'pill-row' }, [
+          pill('BVA script', 'cr'),
+          pill(j.product || ''),
+          pill(j.cost || '$0'),
+          pill(j.elapsed || ''),
+        ]),
+        el(
+          'ul',
+          { className: 'cua-steps', id: 'cua-list' },
+          (j.runs || []).map((r) =>
+            el('li', { className: r.v === 'FAIL' ? 'fail-row' : '' }, [
+              el('div', {}, [
+                el('div', { text: r.case }),
+                r.note ? el('div', { className: 'muted', text: r.note }) : null,
+              ]),
+              pill(r.v, r.v === 'FAIL' ? 'fail' : 'pass'),
+            ]),
+          ),
+        ),
+        j.note ? el('div', { className: 'result-banner', text: j.note }) : null,
       );
       break;
     case 'evidence':
@@ -276,6 +300,51 @@ function renderStage(j) {
       );
       break;
     }
+    case 'learning':
+      wrap.append(
+        el(
+          'div',
+          { className: 'meta-grid' },
+          (j.stats || []).map((s) =>
+            el('div', { className: 'meta-cell' }, [
+              el('span', { className: 'l', text: s.l }),
+              el('span', { className: 'v', text: s.v }),
+            ]),
+          ),
+        ),
+        el('div', { className: 'learn-box' }, [
+          el('div', { className: 'kicker', text: 'Validated rules riding prompts' }),
+          el(
+            'ul',
+            { className: 'learn-rules' },
+            (j.rules || []).map((r) => el('li', { text: r })),
+          ),
+        ]),
+        j.note ? el('div', { className: 'result-banner', text: j.note }) : null,
+      );
+      break;
+    case 'opcost':
+      wrap.append(
+        el('div', { className: 'opcost-hero' }, [
+          el('div', { className: 'kicker', text: 'This loop · AI spend' }),
+          el('div', { className: 'opcost-total', text: j.total || '—' }),
+        ]),
+        el(
+          'ul',
+          { className: 'opcost-list' },
+          (j.parts || []).map((p) =>
+            el('li', {}, [
+              el('div', {}, [
+                el('strong', { text: p.l }),
+                p.calls ? el('div', { className: 'muted', text: p.calls }) : null,
+              ]),
+              el('span', { className: 'opcost-v', text: p.v }),
+            ]),
+          ),
+        ),
+        j.note ? el('div', { className: 'result-banner', text: j.note }) : null,
+      );
+      break;
     case 'pagespeed': {
       const ai = j.ai;
       const verdictKind = ai?.verdict === 'GOOD' ? 'pass' : ai?.verdict === 'BAD' ? 'fail' : 'warn';

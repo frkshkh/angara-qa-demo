@@ -972,6 +972,60 @@ body.launching .layer-go .landing {
 .done-cta { margin-top: 1rem; display: flex; flex-wrap: wrap; gap: 0.45rem; }
 .cta-line { margin-top: 1rem; font-family: var(--mono); font-size: 0.85rem; color: var(--accent); }
 
+.learn-box {
+  margin-top: 0.85rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 14px;
+  padding: 0.85rem 1rem;
+  background: rgba(52, 211, 153, 0.08);
+}
+.learn-rules {
+  margin: 0.45rem 0 0;
+  padding-left: 1.1rem;
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+.learn-rules li { margin-bottom: 0.35rem; }
+
+.opcost-hero {
+  border: 1px solid var(--line-strong);
+  border-radius: 14px;
+  padding: 0.85rem 1rem;
+  background: rgba(56, 189, 248, 0.08);
+  margin-bottom: 0.75rem;
+}
+.opcost-total {
+  font-family: var(--display, var(--mono));
+  font-size: 1.85rem;
+  font-weight: 650;
+  margin-top: 0.2rem;
+  color: var(--accent);
+}
+.opcost-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.4rem;
+}
+.opcost-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  align-items: flex-start;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 0.65rem 0.8rem;
+  background: var(--card2);
+}
+.opcost-list strong { font-size: 0.9rem; }
+.opcost-v {
+  font-family: var(--mono);
+  font-weight: 650;
+  white-space: nowrap;
+  color: var(--accent2, var(--accent));
+}
+
 .points li {
   padding: 0.55rem 0.75rem; border-radius: 10px; border: 1px solid var(--line);
   background: var(--card2); font-size: 0.86rem;
