@@ -1,8 +1,8 @@
 {
   "product": {
     "name": "Angara GenAI Agent",
-    "tagline": "QA that proves itself — not just produces text.",
-    "disclaimer": "Public product demo · rich sample data",
+    "tagline": "AI writes the suite. CUA runs the store. You see the proof.",
+    "disclaimer": "Fictional storefront · sample data only · not a real ticket",
     "author": "Farukh Sheikh",
     "authorUrl": "https://www.linkedin.com/in/farukh-shiekh-genaiqa",
     "copyright": "© 2026 Angara Ecommerce Pvt Ltd"
@@ -10,139 +10,140 @@
   "landing": {
     "greeting": "Hi agent,",
     "prompt": "test my Story",
-    "placeholder": "DEMO-1414 · FedEx Pickup at checkout (US)",
+    "placeholder": "SHOP-2048 · Express gift wrap on cart (Northwind)",
     "cta": "GO",
-    "hint": "Autopilot: Generate → CR → Gate → CUA×3 → BVA script → Learning → PageSpeed AI → per-op cost"
+    "hint": "Watch ~12 min: AI → 47 cases · agent catches wrong total · BVA $0 on PDP · full loop"
   },
   "scenes": [
     {
       "id": "hero",
       "kicker": "Product tour",
-      "title": "Ship QA that can defend itself.",
-      "body": "Ticket + MRs → gated suite → multi-mode CUA → BVA script → Learning Engine → PageSpeed AI → cost you can see.",
+      "title": "QA that runs the store — not a doc dump.",
+      "body": "One Story → merge requests reviewed → checklist proven → browser agent executes → defects gated → learnings stick → ship call with a price tag.",
       "stats": [
-        { "v": "94/100", "l": "quality gate" },
-        { "v": "109/109", "l": "checklist proven" },
-        { "v": "BVA $0", "l": "scripted product check" },
-        { "v": "AI BAD", "l": "PageSpeed verdict on LCP" }
+        { "v": "~12 min", "l": "story → runnable suite" },
+        { "v": "47", "l": "cases · 118/118 proven" },
+        { "v": "LIVE", "l": "CUA caught price bug" },
+        { "v": "$0", "l": "BVA · no model" }
       ]
     },
     {
       "id": "pain",
       "kicker": "The gap",
-      "title": "Normal tools leave holes.",
-      "body": "Chatbots invent steps. TMS stays hand-written. CR never becomes a test. One CUA mode is not enough. Cost stays opaque.",
+      "title": "Spreadsheets don’t click Buy.",
+      "body": "GenAI alone invents ZIPs. TMS never reads the diff. One bot can’t batch, explore, and script PDP. Nobody knows what the run cost.",
       "cards": [
-        { "bad": true, "h": "ChatGPT paste", "p": "Pretty cases. Weak grounding. No AC proof." },
-        { "bad": true, "h": "Classic TMS", "p": "Hand-authored. Blind to MRs." },
-        { "bad": true, "h": "Single browser bot", "p": "No Test Set batch, no adversarial, no BVA script." },
-        { "bad": true, "h": "Raw Lighthouse dump", "p": "Numbers without an AI good/bad call — or a price." }
+        { "bad": true, "h": "Paste from chat", "p": "Reads fine. Dies on the real cart total." },
+        { "bad": true, "h": "Manual-only TMS", "p": "No merge findings → no failure tests." },
+        { "bad": true, "h": "One CUA mode", "p": "No plain-English run, no risk plan, no $0 PDP script." },
+        { "bad": true, "h": "Lighthouse PDF", "p": "No AI ship / no-ship · no $ per op." }
       ]
     },
     {
       "id": "loop",
       "kicker": "Our answer",
-      "title": "Closed loop — not a chatbot.",
-      "body": "Author, review, prove, run CUA + BVA, learn from corrections, judge performance, show AI cost.",
+      "title": "AI + CUA on one rail.",
+      "body": "Generate and review overlap. Gate proves coverage. Three CUA surfaces plus Playwright BVA. Learning feeds the next prompt. Cost on every call.",
       "steps": [
-        { "n": "01", "h": "Ingest", "p": "Story + every live MR" },
-        { "n": "02", "h": "Generate + CR", "p": "Suite + F items in parallel" },
-        { "n": "03", "h": "Prove + run", "p": "Gate · CUA×3 · BVA $0" },
-        { "n": "04", "h": "Learn", "p": "Corrections → rules on prompts" },
-        { "n": "05", "h": "Ship signal", "p": "Bug gate · PageSpeed AI · op cost" }
+        { "n": "01", "h": "Ingest", "p": "Story + designs + live MRs" },
+        { "n": "02", "h": "AI suite", "p": "Ledger · CR · gate · dedupe" },
+        { "n": "03", "h": "CUA", "p": "Describe · batch · explore" },
+        { "n": "04", "h": "BVA", "p": "PDP script · zero tokens" },
+        { "n": "05", "h": "Close", "p": "Evidence · learn · PSI · $" }
       ]
     },
     {
       "id": "generate",
       "kicker": "Author",
-      "title": "Ticket-first. Coverage proven.",
-      "body": "Ledger before the diff. House cases. CR findings as F items. LEARNED RULES when validated.",
+      "title": "Ticket before code. Every row proven.",
+      "body": "Full coverage fills gaps. Review bugs become checklist items. Validated learnings ride the prompt — so the next run is smarter.",
       "ticket": {
-        "key": "DEMO-1414",
-        "summary": "FedEx Pickup at checkout — US only",
+        "key": "SHOP-2048",
+        "summary": "Express gift wrap toggle on cart + checkout",
         "ac": [
-          "Search FedEx Pickup by ZIP",
-          "Show name, address, distance, hours",
-          "Place Order disabled until location chosen",
-          "Billing not overwritten by pickup",
-          "UK/AU unchanged"
+          "Cart line shows “Add gift wrap” with ribbon preview",
+          "Toggling wrap updates line price and order subtotal",
+          "Wrapped lines show ribbon icon in checkout summary",
+          "Guest bag persists wrap after sign-in",
+          "Canada storefront unchanged (US + EU only)"
         ]
       },
-      "pills": ["Full coverage", "41 cases", "109/109 proven", "Gate 94/100"]
+      "pills": ["Full coverage", "47 cases", "118/118 proven", "Gate 96/100"]
     },
     {
       "id": "cr",
       "kicker": "Review while generating",
-      "title": "Multi-MR findings become tests.",
-      "body": "Shared diffs once. ERR-STATUS fires on base-derived errors too. F1/F2 join the checklist.",
+      "title": "Merge findings → tests.",
+      "body": "Three branches. Shared diffs reviewed once. Each HIGH/MEDIUM bug becomes an F item the suite must prove.",
       "mrs": [
         {
-          "label": "Primary",
-          "iid": "!20332",
+          "label": "Storefront",
+          "iid": "!1042",
           "verdict": "Needs decision",
           "bugs": [
-            { "sev": "HIGH", "rule": "ERR-STATUS", "f": "F1", "t": "API error shown as empty locations" },
-            { "sev": "MEDIUM", "rule": "SCOPE", "f": "F2", "t": "Pickup without US store guard" }
+            { "sev": "HIGH", "rule": "ERR-STATUS", "f": "F1", "t": "Wrap API 500 shows success toast with old subtotal" },
+            { "sev": "MEDIUM", "rule": "SCOPE", "f": "F2", "t": "Wrap UI mounts on CA catalog cards" }
           ]
         },
         {
-          "label": "Region",
-          "iid": "!21339",
+          "label": "EU fork",
+          "iid": "!1048",
           "verdict": "Needs decision",
-          "bugs": [{ "sev": "MEDIUM", "rule": "SCOPE", "f": "F2", "t": "US-scoped change on region fork" }]
+          "bugs": [{ "sev": "MEDIUM", "rule": "SCOPE", "f": "F2", "t": "Same wrap banner on EU fork (out of scope)" }]
         },
-        { "label": "Theme", "iid": "!21340", "verdict": "Clean", "bugs": [] }
+        { "label": "Checkout theme", "iid": "!1051", "verdict": "Clean", "bugs": [] }
       ]
     },
     {
       "id": "gate",
       "kicker": "Prove",
-      "title": "Quality gate 94 / 100 — not average.",
-      "body": "Independent reviewer. Every parameter ≥ 8. Weakest still caps overall.",
-      "overall": 94,
+      "title": "96 / 100 — weakest parameter caps.",
+      "body": "Seven scores. Independent reviewer. Not vibes.",
+      "overall": 96,
       "passed": true,
       "scores": [
-        { "l": "AC coverage", "s": 95 },
-        { "l": "Functional depth", "s": 94 },
-        { "l": "Backend depth", "s": 92 },
-        { "l": "No duplicates", "s": 96 },
-        { "l": "Risk thinking", "s": 93 },
-        { "l": "Precision", "s": 94 },
-        { "l": "Executability", "s": 95 }
+        { "l": "AC coverage", "s": 97 },
+        { "l": "Functional depth", "s": 96 },
+        { "l": "Backend depth", "s": 94 },
+        { "l": "No duplicates", "s": 97 },
+        { "l": "Risk thinking", "s": 95 },
+        { "l": "Precision", "s": 96 },
+        { "l": "Executability", "s": 97 }
       ],
-      "dedupe": "52 → 41 · 8 merges · 0 coverage-guard undos",
+      "dedupe": "61 → 47 · 9 merges · coverage guard kept every item",
       "house": ["Live deploy", "Escape + focus", "Scope leak", "Phone fit"]
     },
     {
       "id": "run",
       "kicker": "CUA + BVA",
-      "title": "Agent runs — and a $0 script path.",
-      "body": "Test Set · Manual · Exploratory — plus scripted BVA on the product page with no model.",
+      "title": "Same suite. Three ways to run it.",
+      "body": "Plain English for one flow. Batch the set. Explore races. Script the PDP without burning tokens.",
       "panels": [
-        { "tag": "Test Set", "h": "TS-DEMO-1414 · step-priced", "lines": ["Estimate by planned steps", "Oracle / merge advisory", "Batch FAIL on F1 path"] },
-        { "tag": "Exploratory", "h": "Risk plan + fake reply", "lines": ["wait_for_text polls copy", "Fake storefront reply for races", "AI check steps on Describe"] },
-        { "tag": "BVA script", "h": "M1–M8 · Playwright", "lines": ["$0 · ~45 s a case", "Labels · price · image · URL", "Caught SPM0184D letter bug"] }
+        { "tag": "Describe", "h": "Plain English → agent", "lines": ["“Toggle wrap on hiking boots, bag should show +$8.00”", "AI step check before run", "~$0.35 · 6 steps"] },
+        { "tag": "Test Set", "h": "TS-SHOP-2048", "lines": ["12 picked · step-priced estimate", "FAIL on F1 — wrong subtotal on screen", "Recording + inspect_elements"] },
+        { "tag": "Exploratory", "h": "Risk plan", "lines": ["Double Pay · refresh mid-wrap", "Fake 500 on wrap API", "Human gates the defect card"] },
+        { "tag": "BVA script", "h": "Northwind trail boot PDP", "lines": ["M1–M8 · cart matches PDP", "$0 · ~48 s", "Catches wrong option label"] }
       ]
     },
     {
       "id": "platform",
       "kicker": "Mind + money",
-      "title": "Learning Engine · Ask Angara · op cost.",
-      "body": "Corrections become rules. KB answers with sources. Every AI job shows what it cost.",
+      "title": "Gets smarter. Shows the bill.",
+      "body": "Corrections become rules. Knowledge Base answers with packs cited. Understand First before generate. Every op has a total.",
       "grid": [
-        { "h": "Learning validated", "p": "Edit / delete / QC → rule on matching prompts" },
-        { "h": "Ask Angara", "p": "How-to match + better ways to ask" },
-        { "h": "AI cost line", "p": "One total per KB ask, CR, enrich…" },
-        { "h": "PageSpeed AI BAD", "p": "LCP 3.4s — do not ship mobile" },
-        { "h": "AI worklog", "p": "Wall time posted as the AI user" },
-        { "h": "Ticket vs code", "p": "Understand First before cases" }
+        { "h": "Learning Engine", "p": "Your edit → validated rule on Generate · CR · CUA" },
+        { "h": "Ask Angara", "p": "“How does gift wrap price in cart?” → cited KB + $0.04" },
+        { "h": "Understand First", "p": "Ticket vs diff · done / partial / gap" },
+        { "h": "PageSpeed AI BAD", "p": "Wrap hero hurts mobile LCP — don’t ship" },
+        { "h": "AI worklog", "p": "Wall time logged to the tracker (optional)" },
+        { "h": "Operation cost", "p": "One line per generate · CR · CUA · KB ask" }
       ]
     },
     {
       "id": "close",
       "kicker": "Next",
-      "title": "Run the autopilot.",
-      "body": "Back to GO — closed loop with Learning, BVA, and per-operation cost.",
+      "title": "Hit GO. Watch it run.",
+      "body": "Fictional Northwind story — real product shape: AI authoring plus browser proof.",
       "cta": "Launch Autopilot →"
     }
   ],
@@ -150,308 +151,338 @@
     {
       "id": "ingest",
       "phase": "01 · Ingest",
-      "title": "Story + sources loaded.",
-      "voice": "DEMO-1414 with AC, worklogs, Figma links, and three live MRs — Primary, Region, Theme.",
-      "duration": 4200,
+      "title": "Northwind Story loaded.",
+      "voice": "SHOP-2048 · gift wrap on cart. Design frames, comments, three merge requests. Understand First already mapped ticket vs diff.",
+      "duration": 4000,
       "ui": "ticket",
       "ticket": {
-        "key": "DEMO-1414",
+        "key": "SHOP-2048",
         "type": "Story · High",
-        "summary": "FedEx Pickup location at checkout — US storefront only",
+        "summary": "Express gift wrap on cart and checkout (US + EU stores)",
         "ac": [
-          "Guest + signed-in: search FedEx Pickup by ZIP on shipping step",
-          "Selected location shows name, address, distance, hours",
-          "Place Order disabled until a pickup location is chosen",
-          "Billing address required — never overwritten by pickup",
-          "Change limited to US — UK / AU keep prior shipping UI"
+          "Cart shows Add gift wrap with live ribbon color preview",
+          "Toggle updates line price (+$8.00) and order subtotal immediately",
+          "Checkout summary shows wrap icon per eligible line",
+          "Guest bag keeps wrap after customer signs in",
+          "Canada catalog and checkout unchanged"
         ],
         "meta": [
-          { "k": "Comments", "v": "14 · latest: US-only confirmed" },
-          { "k": "Worklogs", "v": "6 · store-scope cue found" },
-          { "k": "Designs", "v": "2 Figma frames (+ mobile counterpart)" },
-          { "k": "Live MRs", "v": "3 · multi-MR review queued" }
+          { "k": "Understand First", "v": "4 done · 1 partial · wrap API not in diff yet" },
+          { "k": "Comments", "v": "9 · EU copy approved" },
+          { "k": "Designs", "v": "3 frames · mobile drawer" },
+          { "k": "Merge requests", "v": "3 · review starts with generate" }
         ]
       }
     },
     {
       "id": "generate",
-      "phase": "02 · Generate",
-      "title": "Suite drafting with Full coverage.",
-      "voice": "Ledger before the diff. LEARNED RULES ride the prompts when validated. Coverage proven, not scored.",
+      "phase": "02 · AI generate",
+      "title": "47 cases in one pass.",
+      "voice": "Ledger from the Story alone — then change cases from the diff. Coverage check refuses “probably covered.” That’s the wow: prose → proven checklist.",
       "duration": 5200,
       "ui": "generate",
       "progress": [
-        { "t": "Requirement ledger — 18 R + 2 Q ids", "ok": true },
-        { "t": "KB floor + dimension D items", "ok": true },
-        { "t": "LEARNED RULES — 3 validated (step setup, no named account)", "ok": true },
-        { "t": "Requirement cases (no diff) ∥ change cases", "ok": true },
-        { "t": "Coverage check — fill until proven", "ok": true },
-        { "t": "Semantic dedupe 52 → 41 (8 merges, 0 undos)", "ok": true },
-        { "t": "Grounding gate — 3 invented values flagged", "ok": true }
+        { "t": "Requirement ledger — 16 R + 3 Q from Story", "ok": true },
+        { "t": "KB floor + UI dimension rows (phone, a11y)", "ok": true },
+        { "t": "LEARNED RULES — bag must say guest + contents", "ok": true },
+        { "t": "Parallel draft: Story cases ∥ MR change cases", "ok": true },
+        { "t": "F1/F2 from code review → checklist items", "ok": true },
+        { "t": "Coverage check — 118/118 proven", "ok": true },
+        { "t": "Dedupe 61 → 47 · grounding flags 2 typos", "ok": true }
       ],
-      "result": "41 cases · 109/109 checklist proven · publish-ready draft",
+      "result": "47 cases ready · gate queued · ~$3.90 generate",
       "casesPreview": [
-        { "n": 1, "p": "Critical", "s": "Guest ZIP search selects FedEx location" },
-        { "n": 4, "p": "High", "s": "API 5xx ≠ empty “no locations” (F1)", "badge": "From CR" },
-        { "n": 5, "p": "High", "s": "UK checkout has no Pickup from this change (F2)", "badge": "Scope" },
-        { "n": 6, "p": "Medium", "s": "Live deploy soft-nav keeps checkout usable", "badge": "OOB" }
+        { "n": 2, "p": "Critical", "s": "Toggle wrap → subtotal shows +$8.00" },
+        { "n": 8, "p": "High", "s": "API 500 must not toast success (F1)", "badge": "From CR" },
+        { "n": 9, "p": "High", "s": "No wrap toggle on CA catalog (F2)", "badge": "Scope" },
+        { "n": 12, "p": "Medium", "s": "Soft navigation mid-checkout keeps wrap", "badge": "House" }
       ]
     },
     {
       "id": "cr",
-      "phase": "03 · Multi-MR code review",
-      "title": "Review ran while cases drafted.",
-      "voice": "Three MRs. Shared diffs once on Primary. ERR-STATUS catches XError extends AppError — not only a bare throw.",
-      "duration": 5000,
+      "phase": "03 · Code review",
+      "title": "Bugs become F1 / F2.",
+      "voice": "While cases draft, three MRs reviewed — shared files read once. Findings feed generate; cases must prove each defect can’t happen.",
+      "duration": 4800,
       "ui": "cr",
       "mrs": [
         {
-          "label": "Primary !20332",
-          "target": "storefront.v4.prod",
+          "label": "Storefront !1042",
+          "target": "main",
           "verdict": "Needs decision",
           "bugs": [
-            { "sev": "HIGH", "f": "F1", "rule": "ERR-STATUS", "t": "Pickup search 5xx mapped to empty list + 200 (base-derived class)" },
-            { "sev": "MEDIUM", "f": "F2", "rule": "SCOPE", "t": "Pickup mounts without US store guard" }
+            { "sev": "HIGH", "f": "F1", "rule": "ERR-STATUS", "t": "Wrap service error returns 200; UI toasts success with stale subtotal" },
+            { "sev": "MEDIUM", "f": "F2", "rule": "SCOPE", "t": "Wrap chip rendered on CA catalog card component" }
           ]
         },
         {
-          "label": "Region !21339",
-          "target": "storefront-region.v4.prod",
+          "label": "EU fork !1048",
+          "target": "eu",
           "verdict": "Needs decision",
-          "bugs": [
-            { "sev": "MEDIUM", "f": "F2", "rule": "SCOPE", "t": "Same change on region fork (copied from Primary)" }
-          ]
+          "bugs": [{ "sev": "MEDIUM", "f": "F2", "rule": "SCOPE", "t": "Ported banner visible on EU home (should be US+EU checkout only)" }]
         },
         {
-          "label": "Theme !21340",
-          "target": "storefront-theme.v4.prod",
+          "label": "Checkout !1051",
+          "target": "theme",
           "verdict": "Clean",
           "bugs": []
         }
       ],
-      "note": "Locale parity OK · no conflicts · store-scope never auto-cleared on ports · AI cost on this review"
+      "note": "Translations parity OK · no merge conflicts · review billed to this run"
     },
     {
       "id": "gate",
       "phase": "04 · Quality gate",
-      "title": "Independent score: 94 / 100",
-      "voice": "Not an average suite. Every parameter ≥ 92. Weakest still caps overall — and it passes hard.",
-      "duration": 4800,
+      "title": "96 / 100 — ship the suite.",
+      "voice": "Reviewer scores seven parameters. Weakest caps overall. This fictional run passes hard — like your best real ticket.",
+      "duration": 4600,
       "ui": "gate",
-      "overall": 94,
+      "overall": 96,
       "passed": true,
       "passMin": 70,
       "scores": [
-        { "l": "AC coverage", "s": 95, "note": "All 18 R ids + F1/F2 proven" },
-        { "l": "Functional depth", "s": 94, "note": "State after action · mid-flow fail" },
-        { "l": "Backend depth", "s": 92, "note": "5xx + empty contract paths" },
-        { "l": "No duplicates", "s": 96, "note": "8 merges · pairwise verified" },
-        { "l": "Risk thinking", "s": 93, "note": "Scope · order · repeat · journey" },
-        { "l": "Precision", "s": 94, "note": "0 off-scope after dropOffScope" },
-        { "l": "Executability", "s": 95, "note": "Start paths + one action/step" }
+        { "l": "AC coverage", "s": 97, "note": "Every R + F proven" },
+        { "l": "Functional depth", "s": 96, "note": "State after each click" },
+        { "l": "Backend depth", "s": 94, "note": "Error path ≠ happy UI" },
+        { "l": "No duplicates", "s": 97, "note": "9 merges verified" },
+        { "l": "Risk thinking", "s": 95, "note": "Journey + scope + reload" },
+        { "l": "Precision", "s": 96, "note": "On-scope only" },
+        { "l": "Executability", "s": 97, "note": "Relative URLs · one action/step" }
       ],
       "findings": [],
       "extras": [
+        { "k": "Checklist", "v": "118/118" },
         { "k": "Missing", "v": "0" },
-        { "k": "Duplicate groups", "v": "0 left" },
-        { "k": "Off-scope", "v": "0" },
-        { "k": "House cases", "v": "4 required · all present" }
+        { "k": "Duplicates left", "v": "0" },
+        { "k": "Draft eligible", "v": "yes" }
       ]
     },
     {
       "id": "cua-advisory",
-      "phase": "05 · CUA advisory",
-      "title": "Load checks + AI step check.",
-      "voice": "Oracle, overlap, merge — and Describe-a-test gets an AI check for extra / missing / vague steps before any browser opens.",
-      "duration": 4800,
+      "phase": "05 · CUA load checks",
+      "title": "Smart batch before browsers spin up.",
+      "voice": "Untick what no page can judge. Merge same-setup read-only flows. AI step check fixes vague Describe lists — wow is fewer wasted runs.",
+      "duration": 4600,
       "ui": "cua-advisory",
       "advisories": [
-        { "kind": "oracle", "case": "#11 Payload bytes under 150KB", "action": "Unticked", "why": "No page shows transfer size without inspect_elements" },
-        { "kind": "oracle", "case": "#18 All regression cases pass", "action": "Unticked", "why": "Suite-level claim — no single page oracle" },
-        { "kind": "repeat", "case": "#9 ZIP search locations", "action": "Unticked", "why": "Fully covered by #1 (same setup + asserts)" },
-        { "kind": "merge", "case": "#10 + #13", "action": "Group", "why": "Same setup · read-only · 1 run instead of 2" },
-        { "kind": "steps", "case": "Describe · 4-step list", "action": "Split + trim", "why": "AI check steps: two actions in one step · one invented ZIP" }
+        { "kind": "oracle", "case": "#22 All locales translated", "action": "Unticked", "why": "No single page proves every locale file" },
+        { "kind": "merge", "case": "#5 + #6 desktop/mobile wrap", "action": "Group", "why": "Same bag · same toggle · one agent run" },
+        { "kind": "repeat", "case": "#14 subtotal math", "action": "Unticked", "why": "Covered by #2" },
+        { "kind": "steps", "case": "Describe · 5 steps", "action": "Split", "why": "AI check: two clicks in one step" }
       ],
-      "summary": "41 → 38 runnable · 1 merge · step advice ~$0.03 · never silent deletes"
+      "summary": "47 → 44 runnable · 1 merge · step advice $0.03"
+    },
+    {
+      "id": "cua-manual",
+      "phase": "06 · CUA · Describe",
+      "title": "Plain English → live browser.",
+      "voice": "Tester types intent — agent opens cart, toggles wrap, reads the total. No test author syntax. That’s AI + CUA in one breath.",
+      "duration": 5200,
+      "ui": "cua-manual",
+      "intent": "On staging Northwind: add Trail Boot size 10, open cart, turn on gift wrap, confirm subtotal increases by $8.00 and ribbon preview shows.",
+      "verdict": "PASS",
+      "cost": "$0.36 · 6 steps",
+      "artifacts": ["Recording", "inspect_elements"],
+      "plan": [
+        "Open /cart with boot in bag",
+        "Click Add gift wrap on line 1",
+        "Confirm ribbon preview color updates",
+        "Read subtotal — includes +$8.00 wrap fee",
+        "Toggle off — subtotal returns",
+        "Toggle on again — still +$8.00"
+      ]
     },
     {
       "id": "cua-testset",
-      "phase": "06 · CUA · Test Set",
-      "title": "Batch priced by planned steps.",
-      "voice": "Estimate uses fitted $/step — not a flat per-run average that under-priced 7–11 step BVA-style cases.",
-      "duration": 5200,
+      "phase": "07 · CUA · Test Set",
+      "title": "Batch run — catches F1 on screen.",
+      "voice": "The scripted case for F1 fails: toast says success but subtotal stuck. Agent saw it. Human gets recording — not a spreadsheet row.",
+      "duration": 5400,
       "ui": "cua-testset",
       "set": {
-        "key": "TS-DEMO-1414",
-        "env": "QA · us-en · Desktop",
-        "selected": 12,
-        "total": 38,
-        "cost": "$4.10 · step-priced"
+        "key": "TS-SHOP-2048",
+        "env": "Staging · US · Desktop",
+        "selected": 10,
+        "total": 44,
+        "cost": "$3.85 · step-priced"
       },
       "runs": [
-        { "case": "#1 Guest ZIP → select location", "v": "PASS", "cost": "$0.31" },
-        { "case": "#2 Place Order disabled w/o location", "v": "PASS", "cost": "$0.28" },
-        { "case": "#3 Billing survives pickup", "v": "PASS", "cost": "$0.33" },
-        { "case": "#4 API 5xx ≠ empty list (F1)", "v": "FAIL", "cost": "$0.48" },
-        { "case": "#5 UK has no Pickup (F2)", "v": "PASS", "cost": "$0.29" },
-        { "case": "#7 Escape closes popup", "v": "PASS", "cost": "$0.22" }
+        { "case": "#2 Toggle wrap → +$8 subtotal", "v": "PASS", "cost": "$0.29" },
+        { "case": "#3 Guest wrap survives sign-in", "v": "PASS", "cost": "$0.34" },
+        { "case": "#8 API 500 ≠ success toast (F1)", "v": "FAIL", "cost": "$0.51" },
+        { "case": "#9 No wrap on CA catalog (F2)", "v": "PASS", "cost": "$0.27" },
+        { "case": "#12 Escape closes wrap drawer", "v": "PASS", "cost": "$0.21" },
+        { "case": "#15 Pay disabled while wrap saving", "v": "PASS", "cost": "$0.31" }
       ],
-      "batch": "1 FAIL · evidence on FAIL · estimate within ~4% of actual on 60 long runs"
+      "batch": "★ 1 FAIL — the defect review and F item predicted · evidence auto-attached"
     },
     {
       "id": "cua-exploratory",
-      "phase": "07 · CUA · Exploratory",
-      "title": "Risk plan with fake reply + wait_for_text.",
-      "voice": "Exploratory can poll for copy and fake a storefront reply for races — still human-gated on defect.",
+      "phase": "08 · CUA · Exploratory",
+      "title": "Risks no script thought of.",
+      "voice": "Fake API reply, double Pay burst, refresh with wrap half-saved — exploratory settles with proof or inconclusive, never silent pass.",
       "duration": 5200,
       "ui": "cua-adversarial",
       "plan": [
-        { "a": "wait_for_text · location summary", "v": "PASS", "note": "Polled until name + distance visible" },
-        { "a": "Fake 503 on pickup search", "v": "FAIL", "note": "Empty list toast — same F1 class" },
-        { "a": "Double Place Order burst", "v": "PASS", "note": "Single order intent · timing proof" },
-        { "a": "US→UK mid-pickup sheet", "v": "FAIL", "note": "Pickup chrome leaked one paint" }
+        { "a": "wait_for_text · “Gift wrap added”", "v": "PASS", "note": "Polled until toast + subtotal moved" },
+        { "a": "Fake 500 on /api/wrap", "v": "FAIL", "note": "Same F1 — success toast with stale total" },
+        { "a": "Double-click Pay Now", "v": "PASS", "note": "Single payment intent" },
+        { "a": "Refresh during wrap save", "v": "FAIL", "note": "Bag shows wrap off but fee still in total" }
       ],
       "verdict": "2 FAIL · awaiting_review",
-      "cost": "$1.05"
+      "cost": "$1.12"
     },
     {
       "id": "bva",
-      "phase": "08 · BVA script",
-      "title": "Product page check — $0, no model.",
-      "voice": "M1–M8 from the live PDP: one non-default per option group, reload, bag, cart, Edit Cart — Playwright only.",
+      "phase": "09 · BVA script",
+      "title": "PDP without a model — $0.",
+      "voice": "Playwright walks option groups: pick non-default metal, reload, add to bag, cart matches PDP, Edit Cart changes group. Pennies of compute, not dollars of tokens.",
       "duration": 5000,
       "ui": "bva",
-      "product": "/p/demo-fedex-pendant",
+      "product": "/p/northwind-trail-boot",
       "cost": "$0.00",
       "elapsed": "~48 s / case",
       "runs": [
-        { "case": "M1 Metal · non-default", "v": "PASS" },
-        { "case": "M2 Stone · reload + bag", "v": "PASS" },
-        { "case": "M3 Cart match + Edit Cart", "v": "PASS" },
-        { "case": "M4 Lab-grown switch + customise", "v": "PASS" },
-        { "case": "M5 Letter engraving", "v": "FAIL", "note": "SPM0184D-class letter mismatch" }
+        { "case": "M1 Size · non-default", "v": "PASS" },
+        { "case": "M2 Width · reload + bag", "v": "PASS" },
+        { "case": "M3 Cart label matches PDP", "v": "PASS" },
+        { "case": "M4 Edit Cart width swap", "v": "PASS" },
+        { "case": "M5 Color swatch label", "v": "FAIL", "note": "PDP says Midnight · cart says Navy" }
       ],
-      "note": "vs agent run $0.70–1.90 a case — script caught the letter bug with zero AI spend"
+      "note": "Agent BVA ~$0.85/case here · script caught label drift at $0"
     },
     {
       "id": "evidence",
-      "phase": "09 · Evidence",
-      "title": "Proof pack for every FAIL.",
-      "voice": "Video, steps, DOM inspect, transfer sizes — enough for a human to file or dismiss.",
-      "duration": 4200,
+      "phase": "10 · Evidence",
+      "title": "FAIL = proof pack.",
+      "voice": "Video, step log, DOM quote, network line — enough to trust or dismiss without reproducing from memory.",
+      "duration": 4000,
       "ui": "evidence",
       "items": [
-        { "k": "Recording", "v": "cua-1414-f1.webm · 42s · Desktop" },
-        { "k": "Step log", "v": "14 actions · assert failed on error copy" },
-        { "k": "Screenshot", "v": "empty-locations-on-5xx.png" },
-        { "k": "inspect_elements", "v": "toast[role=status] text = “No locations nearby”" },
-        { "k": "Network", "v": "GET /api/pickup/search → 503 · UI still 200 empty" },
-        { "k": "BVA clip", "v": "letter mismatch on engraving option" },
-        { "k": "Lesson hook", "v": "Queued for Learning scan" }
+        { "k": "Recording", "v": "cua-wrap-f1.webm · 38s" },
+        { "k": "Screenshot", "v": "toast-success-stale-subtotal.png" },
+        { "k": "inspect_elements", "v": "[data-subtotal] still $142.00 (expected $150.00)" },
+        { "k": "Network", "v": "POST /api/wrap → 500 · UI toast = success" },
+        { "k": "BVA still", "v": "cart label Navy vs PDP Midnight" },
+        { "k": "Learning queue", "v": "Tester marked verdict wrong → candidate rule" }
       ]
     },
     {
       "id": "bug",
-      "phase": "10 · Bug (human-gated)",
-      "title": "Defect card — awaiting review.",
-      "voice": "Never auto-Jira. Human picks File bug, test problem, or skip. Ties to F1 from MR review.",
+      "phase": "11 · Human gate",
+      "title": "Defect card — you decide.",
+      "voice": "Nothing auto-files. F1 from review + CUA FAIL + exploratory align — you choose File defect, test problem, or skip.",
       "duration": 4200,
       "ui": "bug",
       "bug": {
         "status": "awaiting_review",
         "sev": "High",
-        "summary": "Pickup search 5xx rendered as “No locations nearby” — Place Order stays blocked",
-        "covers": "F1 · ERR-STATUS · Test Set #4 · Exploratory fake 503",
+        "summary": "Wrap API error still shows success toast; subtotal does not include $8 wrap fee",
+        "covers": "F1 · Test Set #8 · Exploratory fake 500",
         "repro": [
-          "QA US checkout · FedEx Pickup",
-          "Force pickup search API 503 (or Exploratory fake reply)",
-          "Observe empty list copy · no retry"
+          "Staging cart with Trail Boot",
+          "Enable gift wrap",
+          "Simulate wrap API 500",
+          "Observe green toast but subtotal unchanged"
         ],
-        "actions": ["File bug", "Mark test problem", "Environment", "Skip"]
+        "actions": ["File defect", "Test problem", "Environment", "Skip"]
       }
     },
     {
       "id": "learning",
-      "phase": "11 · Learning Engine",
-      "title": "Corrections become rules.",
-      "voice": "Tester edits and CUA reviews become candidate learnings. Validate once — they ride matching prompts. Repeats are counted.",
-      "duration": 5000,
+      "phase": "12 · Learning",
+      "title": "Fix once — next prompts remember.",
+      "voice": "Edit a step, reject a CUA call — becomes a rule on Generate, review, and CUA. Repeat mistakes get measured.",
+      "duration": 4800,
       "ui": "learning",
       "stats": [
-        { "l": "Candidates", "v": "7 from this run" },
-        { "l": "Validated", "v": "3 rules active" },
-        { "l": "On prompts", "v": "Generate · CR · CUA" },
-        { "l": "Holdout", "v": "~20% for measure" }
+        { "l": "New candidates", "v": "6 this run" },
+        { "l": "Validated", "v": "3 active" },
+        { "l": "Surfaces", "v": "Generate · CR · CUA" },
+        { "l": "Repeat avoided", "v": "2 (last 30d)" }
       ],
       "rules": [
-        "Checkout/cart cases name guest vs signed-in and bag contents (no-setup)",
-        "Never invent a named account — describe what it holds",
-        "Sizing claims need a state or px value (vague-expected)"
+        "Cart/checkout cases state guest vs signed-in and what is in the bag",
+        "Never assert subtotal without naming the visible line items",
+        "Refresh-after-toggle wrap must match fee on screen"
       ],
-      "note": "Build into code ranks detectors the linter should own next"
+      "note": "Next SHOP-like Story inherits these — no re-paste from wiki"
+    },
+    {
+      "id": "ask",
+      "phase": "13 · Ask knowledge",
+      "title": "KB answer — cited.",
+      "voice": "Side path while you wait: ask how wrap pricing works. Router picks packs; answer cites behavior notes — same cost line as other AI ops.",
+      "duration": 4200,
+      "ui": "ask",
+      "question": "When gift wrap is toggled, where does the $8 fee hit the cart total?",
+      "answer": "Wrap is a cart line modifier on the SKU, not shipping. Subtotal recalculates before tax; checkout summary shows a ribbon icon per wrapped line. EU uses locale key gift.wrap.fee.",
+      "sources": ["behavior-cart", "cart-edit"],
+      "cost": "$0.04 · 2.1 s"
     },
     {
       "id": "pagespeed",
-      "phase": "12 · PageSpeed + AI",
-      "title": "Lab metrics · AI verdict: BAD",
-      "voice": "Checkout mobile after Pickup assets. CLS is fine — LCP is not. AI says do not ship until fixed.",
+      "phase": "14 · PageSpeed AI",
+      "title": "AI verdict: don’t ship mobile yet.",
+      "voice": "New wrap hero image on cart drawer hurt LCP. Numbers alone are meh — the AI ship/no-ship call is the exec wow.",
       "duration": 5000,
       "ui": "pagespeed",
-      "url": "https://qa.example/us-en/checkout",
-      "device": "Mobile · PSI lab",
+      "url": "https://staging.shopdemo.example/cart",
+      "device": "Mobile · lab",
       "metrics": [
-        { "l": "Performance", "s": 61, "raw": "61", "tone": "bad" },
-        { "l": "LCP", "s": 48, "raw": "3.4s", "tone": "bad" },
-        { "l": "CLS", "s": 96, "raw": "0.03", "tone": "good" },
-        { "l": "INP", "s": 78, "raw": "180ms", "tone": "ok" }
+        { "l": "Performance", "s": 58, "raw": "58", "tone": "bad" },
+        { "l": "LCP", "s": 45, "raw": "3.6s", "tone": "bad" },
+        { "l": "CLS", "s": 97, "raw": "0.02", "tone": "good" },
+        { "l": "INP", "s": 80, "raw": "165ms", "tone": "ok" }
       ],
       "ai": {
         "verdict": "BAD",
-        "headline": "Mobile checkout not ship-ready for this change",
+        "headline": "Mobile cart not ready — wrap hero competes with LCP",
         "bullets": [
-          "LCP 3.4s — FedEx map / location tiles compete with LCP element",
-          "Performance 61 < 80 bar used for checkout templates",
-          "CLS 0.03 is GOOD — layout not the blocker",
-          "Recommend: lazy-load map after location open · re-run PSI · target LCP ≤ 2.5s"
+          "LCP 3.6s — large ribbon hero loads before cart lines",
+          "Performance 58 < 80 checkout bar",
+          "CLS good — not a layout bug",
+          "Fix: defer wrap marketing image · target LCP ≤ 2.5s · re-run"
         ]
       },
-      "compare": "Desktop Performance 88 · AI GOOD — mobile-only gate"
+      "compare": "Desktop 86 · AI GOOD — mobile-only hold"
     },
     {
       "id": "opcost",
-      "phase": "13 · AI operation cost",
-      "title": "One total per job — not a mystery bill.",
-      "voice": "Generate, CR, KB ask, enrich, Learning analyse… each operation shows calls + USD. Cached replies count as $0.",
-      "duration": 4800,
+      "phase": "15 · Operation cost",
+      "title": "Whole loop: $7.18.",
+      "voice": "Every AI job shows USD — generate, review, CUA, KB, PSI. BVA and cache hits are $0. Budget-friendly wow next to one consultant day.",
+      "duration": 4600,
       "ui": "opcost",
-      "total": "$6.42",
+      "total": "$7.18",
       "parts": [
-        { "l": "Generate (ai-first)", "v": "$3.80", "calls": "11 calls" },
-        { "l": "Code review ×3 MRs", "v": "$1.15", "calls": "shared diffs" },
-        { "l": "CUA Test Set + Exploratory", "v": "$1.15", "calls": "step-priced" },
-        { "l": "PageSpeed AI + Learning scan", "v": "$0.32", "calls": "2 + analyse" },
-        { "l": "BVA script", "v": "$0.00", "calls": "Playwright only" },
-        { "l": "Cached KB / suggest", "v": "$0.00", "calls": "saved answers" }
+        { "l": "Generate (AI-first)", "v": "$3.90", "calls": "12 calls · thinking on" },
+        { "l": "Code review ×3 MRs", "v": "$1.12", "calls": "shared diff read" },
+        { "l": "CUA Describe + Test Set + Explore", "v": "$2.33", "calls": "step-priced runs" },
+        { "l": "Ask Angara + PageSpeed AI", "v": "$0.47", "calls": "KB + verdict" },
+        { "l": "Learning scan", "v": "$0.36", "calls": "nightly-style analyse" },
+        { "l": "BVA script + cached suggest", "v": "$0.00", "calls": "Playwright · cache hit" }
       ],
-      "note": "Same OperationCost line the app shows on Ask Angara, CR, Enrich, PageSpeed…"
+      "note": "Fictional Northwind run · shape matches production cost surfaces"
     },
     {
       "id": "done",
-      "phase": "14 · Closed loop",
-      "title": "Autopilot complete.",
-      "voice": "Story → gated suite → CR → CUA×3 → BVA $0 → Learning → PageSpeed AI BAD → cost visible. Ready for Xray when you approve.",
+      "phase": "16 · Done",
+      "title": "That’s AI + CUA.",
+      "voice": "Story in → proven suite out → agent clicked the bug → human gates ship. Hit GO again or scroll the tour.",
       "duration": 0,
       "ui": "done",
       "summary": [
-        { "l": "Quality gate", "v": "94/100 · pass" },
-        { "l": "Checklist", "v": "109/109 proven" },
-        { "l": "CUA Test Set", "v": "1 FAIL (F1)" },
-        { "l": "CUA Exploratory", "v": "2 FAIL" },
-        { "l": "BVA script", "v": "1 FAIL · $0" },
-        { "l": "Learning", "v": "3 rules riding prompts" },
-        { "l": "PageSpeed AI", "v": "BAD · LCP" },
-        { "l": "AI spend", "v": "$6.42 this loop" },
-        { "l": "Next", "v": "File bug · fix LCP · re-GO" }
+        { "l": "AI suite", "v": "47 cases · 118/118 · 96/100" },
+        { "l": "Describe CUA", "v": "PASS · plain English" },
+        { "l": "Test Set", "v": "1 FAIL · F1 on screen" },
+        { "l": "Exploratory", "v": "2 FAIL" },
+        { "l": "BVA", "v": "1 FAIL · $0" },
+        { "l": "Learning", "v": "3 rules on" },
+        { "l": "Ask Angara", "v": "cited · $0.04" },
+        { "l": "PageSpeed", "v": "BAD mobile" },
+        { "l": "Total AI", "v": "$7.18" },
+        { "l": "Next", "v": "File · fix LCP · re-GO" }
       ]
     }
   ]

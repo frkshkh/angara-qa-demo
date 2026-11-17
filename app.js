@@ -984,6 +984,23 @@ function renderStage(j) {
         j.note ? el('div', { className: 'result-banner', text: j.note }) : null,
       );
       break;
+    case 'ask':
+      wrap.append(
+        el('div', { className: 'intent-box' }, [
+          el('div', { className: 'kicker', text: 'You asked' }),
+          el('p', { text: j.question }),
+        ]),
+        el('div', { className: 'ai-verdict pass' }, [
+          el('div', { className: 'pill-row' }, [pill('Answer · cited', 'pass'), pill(j.cost || '')]),
+          el('p', { className: 'ask-answer', text: j.answer }),
+          el(
+            'div',
+            { className: 'pill-row', style: 'margin-top:0.5rem' },
+            (j.sources || []).map((s) => pill(s, 'cr')),
+          ),
+        ]),
+      );
+      break;
     case 'opcost':
       wrap.append(
         el('div', { className: 'opcost-hero' }, [
@@ -1240,7 +1257,7 @@ function animateStageWalk() {
   if (!stage) return;
   const nodes = [
     ...stage.querySelectorAll(
-      '.ticket-box li, .meta-cell, .mr-card, .bug-line, .param, .meta-grid .meta-cell, .advisory-list li, .evidence-list li, .bug-card h3, .bug-card .plan-list li, .bug-actions, .metric, .ai-verdict, .ai-bullets li, .result-banner, .summary-grid > div, .done-cta, .intent-box, .pill-row',
+      '.ticket-box li, .meta-cell, .mr-card, .bug-line, .param, .meta-grid .meta-cell, .advisory-list li, .evidence-list li, .bug-card h3, .bug-card .plan-list li, .bug-actions, .metric, .ai-verdict, .ai-bullets li, .result-banner, .summary-grid > div, .done-cta, .intent-box, .pill-row, .learn-rules li, .opcost-list li, .ask-answer, .opcost-hero',
     ),
   ].filter((n, i, arr) => !arr.some((other, j) => j !== i && other.contains(n) && other !== n));
   if (!nodes.length) {
