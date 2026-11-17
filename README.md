@@ -1,7 +1,9 @@
 # Angara GenAI Agent — QA demo
 
-Public one-pager: **test authoring + execution only** (no KB, release, or admin).
+One **`index.html`**: **GO** = 17-step autopilot · **scroll** = product tour (same `data/demo.json`).
 
-Fictional Northwind Story · https://frkshkh.github.io/angara-qa-demo/?v=27
+`autopilot.html` → `/#go` (same page). Live app is **`app.js`** only.
+
+Fictional Northwind Story · https://frkshkh.github.io/angara-qa-demo/?v=29
 
 Author: Farukh Sheikh · © 2026 Angara Ecommerce Pvt Ltd

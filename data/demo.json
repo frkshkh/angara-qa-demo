@@ -12,7 +12,7 @@
     "prompt": "test my Story",
     "placeholder": "SHOP-2048 · Express gift wrap on cart (Northwind)",
     "cta": "GO",
-    "hint": "QA autopilot: generate · dedupe · QC · gate · CUA · learning model · 17 steps"
+    "hint": "GO = 17-step autopilot · scroll = same QA story (dedupe, QC, learning on tour too)"
   },
   "scenes": [
     {
@@ -46,7 +46,7 @@
       "body": "Generate and review overlap. Gate proves coverage. Three CUA surfaces plus Playwright BVA. Learning feeds the next prompt. Cost on every call.",
       "steps": [
         { "n": "01", "h": "Ingest", "p": "Story + designs + live MRs" },
-        { "n": "02", "h": "AI suite", "p": "Ledger · CR · gate · dedupe" },
+        { "n": "02", "h": "AI suite", "p": "Ledger · dedupe · QC · gate" },
         { "n": "03", "h": "CUA", "p": "Describe · batch · explore" },
         { "n": "04", "h": "BVA", "p": "PDP script · zero tokens" },
         { "n": "05", "h": "Close", "p": "Evidence · defect gate · perf · QA $" }
@@ -69,6 +69,22 @@
         ]
       },
       "pills": ["Full coverage", "Dedupe", "Suite QC", "47 cases", "96/100 gate"]
+    },
+    {
+      "id": "dedupe",
+      "kicker": "Dedupe",
+      "title": "61 → 47 · every merge verified.",
+      "body": "Semantic dedupe groups repeats, then pairwise verify — merge mode folds into the keeper; coverage guard undoes if proof breaks.",
+      "before": 61,
+      "after": 47,
+      "highlights": ["9 merges kept", "2 pairs rejected", "0 coverage undos", "Merge mode · not blind delete"]
+    },
+    {
+      "id": "qc",
+      "kicker": "Suite QC",
+      "title": "QC before the quality gate.",
+      "body": "Step linter, Fix with AI, baseline compare vs saved set — then the seven-parameter gate scores publish readiness.",
+      "highlights": ["unclear-step lint", "QC fixes saved", "Baseline NEW/UPDATE", "CUA export gate OK"]
     },
     {
       "id": "cr",

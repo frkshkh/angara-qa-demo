@@ -163,6 +163,34 @@ function buildScene(d) {
       );
       break;
     }
+    case 'dedupe':
+      root.append(
+        el('div', { className: 'pill-row' }, [
+          pill(`${d.before ?? 61} cases`, 'warn'),
+          pill('→', ''),
+          pill(`${d.after ?? 47} cases`, 'pass'),
+          pill('Verify each pair', 'cr'),
+        ]),
+        el(
+          'ul',
+          { className: 'points' },
+          (d.highlights || []).map((h) => el('li', { text: h })),
+        ),
+      );
+      break;
+    case 'qc':
+      root.append(
+        el(
+          'div',
+          { className: 'pill-row' },
+          (d.highlights || []).map((h) => pill(h, 'pass')),
+        ),
+        el('p', {
+          style: 'margin-top:0.75rem;font-size:0.88rem;color:var(--muted)',
+          text: 'Suite QC and quality gate are separate: fix lint → then 96/100 reviewer.',
+        }),
+      );
+      break;
     case 'cr':
       root.append(
         el(
