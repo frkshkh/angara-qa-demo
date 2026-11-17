@@ -12,7 +12,7 @@
     "prompt": "test my Story",
     "placeholder": "SHOP-2048 · Express gift wrap on cart (Northwind)",
     "cta": "GO",
-    "hint": "QA autopilot: generate · gate · CUA · BVA · defect evidence — ~15 steps"
+    "hint": "QA autopilot: generate · dedupe · QC · gate · CUA · learning model · 17 steps"
   },
   "scenes": [
     {
@@ -68,7 +68,7 @@
           "Canada storefront unchanged (US + EU only)"
         ]
       },
-      "pills": ["Full coverage", "47 cases", "118/118 proven", "Gate 96/100"]
+      "pills": ["Full coverage", "Dedupe", "Suite QC", "47 cases", "96/100 gate"]
     },
     {
       "id": "cr",
@@ -133,8 +133,9 @@
       "grid": [
         { "h": "Understand First", "p": "Ticket vs MR diff · covered / gap before generate" },
         { "h": "Learning Engine", "p": "Case edits & wrong CUA verdicts → rules on test prompts" },
-        { "h": "Baseline dedupe", "p": "New vs in-set · incremental suite on same Story" },
-        { "h": "Step linter", "p": "Runnable steps for humans and agent" },
+        { "h": "Semantic dedupe", "p": "Group → pairwise verify → merge steps into keeper" },
+        { "h": "Suite QC", "p": "Linter · Fix with AI · baseline NEW/UPDATE · export gate" },
+        { "h": "Learning analyse", "p": "Model groups corrections → validated rules on prompts" },
         { "h": "PageSpeed QA", "p": "Lab run + AI pass/fail on checkout perf" },
         { "h": "QA run cost", "p": "$ on generate · review · CUA · gate — not ops tooling" }
       ]
@@ -188,9 +189,9 @@
         { "t": "Parallel draft: Story cases ∥ MR change cases", "ok": true },
         { "t": "F1/F2 from code review → checklist items", "ok": true },
         { "t": "Coverage check — 118/118 proven", "ok": true },
-        { "t": "Dedupe 61 → 47 · grounding flags 2 typos", "ok": true }
+        { "t": "Draft suite — 61 cases · dedupe + QC next", "ok": true }
       ],
-      "result": "47 cases ready · gate queued · ~$3.90 generate",
+      "result": "61 cases drafted · ~$3.90 · dedupe → QC → gate",
       "casesPreview": [
         { "n": 2, "p": "Critical", "s": "Toggle wrap → subtotal shows +$8.00" },
         { "n": 8, "p": "High", "s": "API 500 must not toast success (F1)", "badge": "From CR" },
@@ -199,8 +200,30 @@
       ]
     },
     {
+      "id": "dedupe",
+      "phase": "03 · Semantic dedupe",
+      "title": "61 → 47 · every merge verified.",
+      "voice": "Semantic dedupe groups repeats, then pairwise verify — no blind drops. Merge mode folds into the keeper; coverage guard undoes if a checklist item stops being proven.",
+      "duration": 4800,
+      "ui": "dedupe",
+      "before": 61,
+      "after": 47,
+      "merges": [
+        { "from": "#6 + #14", "into": "#2", "why": "Same wrap subtotal assert · steps joined" },
+        { "from": "#19", "into": "#8", "why": "F1 API error path — reworded duplicate" },
+        { "from": "#28 + #30", "into": "#12", "why": "Desktop + mobile house case · one setup" },
+        { "from": "#33", "into": "#5", "why": "Guest sign-in wrap merge · same preconditions" },
+        { "from": "#41 + #44", "into": "#9", "why": "CA scope negative · per-store list in one case" }
+      ],
+      "rejected": [
+        { "pair": "#4 / #11", "why": "Verifier: different bag setup — both kept" },
+        { "pair": "#7 / #15", "why": "Different API vs UI layer — both kept" }
+      ],
+      "note": "9 merges applied · 2 rejected · 0 coverage-guard undos"
+    },
+    {
       "id": "cr",
-      "phase": "03 · Code review",
+      "phase": "04 · Code review",
       "title": "Bugs become F1 / F2.",
       "voice": "While cases draft, three MRs reviewed — shared files read once. Findings feed generate; cases must prove each defect can’t happen.",
       "duration": 4800,
@@ -231,10 +254,26 @@
       "note": "Translations parity OK · no merge conflicts · review billed to this run"
     },
     {
+      "id": "qc",
+      "phase": "05 · Suite QC",
+      "title": "QC before the quality gate.",
+      "voice": "Suite QC: step linter, assumptions, Fix with AI on weak cases, baseline compare vs saved set — then the independent quality gate scores the suite.",
+      "duration": 4600,
+      "ui": "qc",
+      "rows": [
+        { "l": "Step linter", "v": "4 unclear-step · 1 no-setup", "tone": "warn" },
+        { "l": "Assumptions", "v": "2 invented values flagged", "tone": "ok" },
+        { "l": "QC fixes saved", "v": "#31 bag setup · #44 split actions", "tone": "pass" },
+        { "l": "Baseline dedupe", "v": "12 NEW · 3 UPDATE vs set SHOP-1991", "tone": "cr" },
+        { "l": "CUA readiness", "v": "Export gate OK", "tone": "pass" }
+      ],
+      "note": "QC fixes are tester-approved · gate still runs after"
+    },
+    {
       "id": "gate",
-      "phase": "04 · Quality gate",
-      "title": "96 / 100 — ship the suite.",
-      "voice": "Reviewer scores seven parameters. Weakest caps overall. This fictional run passes hard — like your best real ticket.",
+      "phase": "06 · Quality gate",
+      "title": "96 / 100 — independent QC score.",
+      "voice": "Quality gate: seven parameters, weakest caps overall. After suite QC and dedupe — this is the publish bar.",
       "duration": 4600,
       "ui": "gate",
       "overall": 96,
@@ -259,7 +298,7 @@
     },
     {
       "id": "cua-advisory",
-      "phase": "05 · CUA load checks",
+      "phase": "07 · CUA load checks",
       "title": "Smart batch before browsers spin up.",
       "voice": "Untick what no page can judge. Merge same-setup read-only flows. AI step check fixes vague Describe lists — wow is fewer wasted runs.",
       "duration": 4600,
@@ -274,7 +313,7 @@
     },
     {
       "id": "cua-manual",
-      "phase": "06 · CUA · Describe",
+      "phase": "08 · CUA · Describe",
       "title": "Plain English → live browser.",
       "voice": "Tester types intent — agent opens cart, toggles wrap, reads the total. No test author syntax. That’s AI + CUA in one breath.",
       "duration": 5200,
@@ -294,7 +333,7 @@
     },
     {
       "id": "cua-testset",
-      "phase": "07 · CUA · Test Set",
+      "phase": "09 · CUA · Test Set",
       "title": "Batch run — catches F1 on screen.",
       "voice": "The scripted case for F1 fails: toast says success but subtotal stuck. Agent saw it. Human gets recording — not a spreadsheet row.",
       "duration": 5400,
@@ -318,7 +357,7 @@
     },
     {
       "id": "cua-exploratory",
-      "phase": "08 · CUA · Exploratory",
+      "phase": "10 · CUA · Exploratory",
       "title": "Risks no script thought of.",
       "voice": "Fake API reply, double Pay burst, refresh with wrap half-saved — exploratory settles with proof or inconclusive, never silent pass.",
       "duration": 5200,
@@ -334,7 +373,7 @@
     },
     {
       "id": "bva",
-      "phase": "09 · BVA script",
+      "phase": "11 · BVA script",
       "title": "PDP without a model — $0.",
       "voice": "Playwright walks option groups: pick non-default metal, reload, add to bag, cart matches PDP, Edit Cart changes group. Pennies of compute, not dollars of tokens.",
       "duration": 5000,
@@ -353,7 +392,7 @@
     },
     {
       "id": "evidence",
-      "phase": "10 · Evidence",
+      "phase": "12 · Evidence",
       "title": "FAIL = proof pack.",
       "voice": "Video, step log, DOM quote, network line — enough to trust or dismiss without reproducing from memory.",
       "duration": 4000,
@@ -369,7 +408,7 @@
     },
     {
       "id": "bug",
-      "phase": "11 · Human gate",
+      "phase": "13 · Human gate",
       "title": "Defect card — you decide.",
       "voice": "Nothing auto-files. F1 from review + CUA FAIL + exploratory align — you choose File defect, test problem, or skip.",
       "duration": 4200,
@@ -390,27 +429,29 @@
     },
     {
       "id": "learning",
-      "phase": "12 · Learning",
-      "title": "Fix once — next prompts remember.",
-      "voice": "Edit a step, reject a CUA call — becomes a rule on Generate, review, and CUA. Repeat mistakes get measured.",
-      "duration": 4800,
+      "phase": "14 · Learning Engine",
+      "title": "Learning model → rules on prompts.",
+      "voice": "Free scan picks up QC edits and wrong CUA verdicts. Learning analyse model groups them into rules — you validate once; they ride Generate, review, and CUA prompts with repeat tracking.",
+      "duration": 5000,
       "ui": "learning",
+      "model": "learning.analyse · standard tier",
+      "analyseCost": "$0.24",
       "stats": [
-        { "l": "New candidates", "v": "6 this run" },
-        { "l": "Validated", "v": "3 active" },
-        { "l": "Surfaces", "v": "Generate · CR · CUA" },
-        { "l": "Repeat avoided", "v": "2 (last 30d)" }
+        { "l": "Scan", "v": "6 candidates (edits + CUA)" },
+        { "l": "Analyse call", "v": "1 · adaptive thinking" },
+        { "l": "Validated", "v": "3 rules active" },
+        { "l": "Repeat avoided", "v": "2 (30d holdout)" }
       ],
       "rules": [
         "Cart/checkout cases state guest vs signed-in and what is in the bag",
         "Never assert subtotal without naming the visible line items",
         "Refresh-after-toggle wrap must match fee on screen"
       ],
-      "note": "Next SHOP-like Story inherits these — no re-paste from wiki"
+      "note": "LEARNED RULES block capped · same rules next generate run"
     },
     {
       "id": "pagespeed",
-      "phase": "13 · PageSpeed QA",
+      "phase": "15 · PageSpeed QA",
       "title": "Perf test: FAIL mobile cart.",
       "voice": "QA perf lane: lab metrics plus AI verdict on whether checkout is acceptable to test/sign off on mobile.",
       "duration": 5000,
@@ -437,38 +478,41 @@
     },
     {
       "id": "opcost",
-      "phase": "14 · QA run cost",
-      "title": "This QA loop: $6.78.",
-      "voice": "Only test-related AI: generate, MR review for cases, CUA, quality gate, PageSpeed verdict, learning scan. BVA stays $0.",
+      "phase": "16 · QA run cost",
+      "title": "This QA loop: $7.05.",
+      "voice": "Generate, dedupe verify, MR review, QC + gate, CUA, learning analyse model, PageSpeed QA. BVA $0.",
       "duration": 4600,
       "ui": "opcost",
-      "total": "$6.78",
+      "total": "$7.05",
       "parts": [
-        { "l": "Generate + coverage gate", "v": "$3.90", "calls": "suite + checklist prove" },
+        { "l": "Generate + coverage", "v": "$3.90", "calls": "draft + prove" },
+        { "l": "Dedupe verify", "v": "$0.18", "calls": "pairwise merge checks" },
         { "l": "MR review (for tests)", "v": "$1.12", "calls": "F1/F2 → cases" },
+        { "l": "Quality gate + QC", "v": "$0.42", "calls": "reviewer + lint pass" },
         { "l": "CUA (3 modes)", "v": "$2.33", "calls": "step-priced runs" },
-        { "l": "PageSpeed QA verdict", "v": "$0.07", "calls": "mobile cart audit" },
-        { "l": "Learning scan", "v": "$0.36", "calls": "corrections → rules" },
-        { "l": "BVA script", "v": "$0.00", "calls": "Playwright only" }
+        { "l": "Learning analyse", "v": "$0.24", "calls": "scan + model rules" },
+        { "l": "PageSpeed QA", "v": "$0.07", "calls": "mobile cart" },
+        { "l": "BVA script", "v": "$0.00", "calls": "Playwright" }
       ],
       "note": "QA surfaces only — no KB, release, or admin tooling"
     },
     {
       "id": "done",
-      "phase": "15 · Done",
+      "phase": "17 · Done",
       "title": "QA loop complete.",
       "voice": "Cases authored and proven · agent found F1 · evidence ready · you file or skip. Re-GO or scroll the tour.",
       "duration": 0,
       "ui": "done",
       "summary": [
-        { "l": "AI suite", "v": "47 cases · 118/118 · 96/100" },
+        { "l": "Dedupe", "v": "61 → 47 · 9 merges" },
+        { "l": "Suite QC + gate", "v": "47 cases · 96/100" },
         { "l": "Describe CUA", "v": "PASS · plain English" },
         { "l": "Test Set", "v": "1 FAIL · F1 on screen" },
         { "l": "Exploratory", "v": "2 FAIL" },
         { "l": "BVA", "v": "1 FAIL · $0" },
-        { "l": "Learning", "v": "3 QA rules on" },
+        { "l": "Learning model", "v": "3 rules on prompts" },
         { "l": "PageSpeed QA", "v": "FAIL mobile" },
-        { "l": "QA AI spend", "v": "$6.78" },
+        { "l": "QA AI spend", "v": "$7.05" },
         { "l": "Next", "v": "File defect · retest · re-GO" }
       ]
     }

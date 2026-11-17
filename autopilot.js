@@ -100,6 +100,52 @@ function renderStage(j) {
       }
       break;
     }
+    case 'dedupe':
+      wrap.append(
+        el('div', { className: 'pill-row' }, [
+          pill(`Before ${j.before ?? '—'}`, 'warn'),
+          pill('→', ''),
+          pill(`After ${j.after ?? '—'}`, 'pass'),
+          pill('Merge mode', 'cr'),
+        ]),
+        el(
+          'ul',
+          { className: 'advisory-list', id: 'dedupe-list' },
+          (j.merges || []).map((m) =>
+            el('li', {}, [
+              el('div', { className: 'pill-row' }, [pill(m.from, 'warn'), pill('→', ''), pill(m.into, 'pass')]),
+              el('p', { text: m.why }),
+            ]),
+          ),
+        ),
+        (j.rejected || []).length
+          ? el('div', { className: 'rejected-dedupe' }, [
+              el('div', { className: 'kicker', text: 'Verifier kept both' }),
+              el(
+                'ul',
+                { className: 'muted-list' },
+                j.rejected.map((r) => el('li', { text: `${r.pair} — ${r.why}` })),
+              ),
+            ])
+          : null,
+        j.note ? el('div', { className: 'result-banner', text: j.note }) : null,
+      );
+      break;
+    case 'qc':
+      wrap.append(
+        el(
+          'div',
+          { className: 'meta-grid' },
+          (j.rows || []).map((r) =>
+            el('div', { className: `meta-cell tone-${r.tone || 'ok'}` }, [
+              el('span', { className: 'l', text: r.l }),
+              el('span', { className: 'v', text: r.v }),
+            ]),
+          ),
+        ),
+        j.note ? el('div', { className: 'result-banner', text: j.note }) : null,
+      );
+      break;
     case 'cr':
       wrap.append(
         el(
@@ -302,6 +348,11 @@ function renderStage(j) {
     }
     case 'learning':
       wrap.append(
+        el('div', { className: 'pill-row' }, [
+          j.model ? pill(j.model, 'cr') : null,
+          j.analyseCost ? pill(j.analyseCost) : null,
+          pill('Generate · CR · CUA', 'pass'),
+        ]),
         el(
           'div',
           { className: 'meta-grid' },

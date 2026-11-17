@@ -926,6 +926,11 @@ body.launching .layer-go .landing {
 }
 .meta-cell .l { display: block; font-size: 0.68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
 .meta-cell .v { font-size: 0.84rem; font-weight: 650; }
+.meta-cell.tone-warn { border-color: rgba(251, 191, 36, 0.45); }
+.meta-cell.tone-pass { border-color: rgba(52, 211, 153, 0.4); }
+.meta-cell.tone-cr { border-color: rgba(56, 189, 248, 0.4); }
+.rejected-dedupe { margin-top: 0.65rem; font-size: 0.82rem; }
+.muted-list { margin: 0.35rem 0 0; padding-left: 1.1rem; color: var(--muted); }
 
 .case-preview { display: grid; gap: 0.35rem; margin-top: 0.75rem; }
 .case-row {
