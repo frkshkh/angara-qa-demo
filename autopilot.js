@@ -487,7 +487,8 @@ function animateGenerate() {
 }
 
 function animateCua() {
-  [...document.querySelectorAll('#cua-list li')].forEach((node, i) => {
+  const sel = document.getElementById('dedupe-list') ? '#dedupe-list li' : '#cua-list li';
+  [...document.querySelectorAll(sel)].forEach((node, i) => {
     checklistTimers.push(setTimeout(() => node.classList.add('on'), 220 + i * 480));
   });
 }
