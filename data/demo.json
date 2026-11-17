@@ -1,7 +1,7 @@
 {
   "product": {
     "name": "Angara GenAI Agent",
-    "tagline": "AI writes the suite. CUA runs the store. You see the proof.",
+    "tagline": "QA: AI cases, agent execution, proven coverage.",
     "disclaimer": "Fictional storefront · sample data only · not a real ticket",
     "author": "Farukh Sheikh",
     "authorUrl": "https://www.linkedin.com/in/farukh-shiekh-genaiqa",
@@ -12,14 +12,14 @@
     "prompt": "test my Story",
     "placeholder": "SHOP-2048 · Express gift wrap on cart (Northwind)",
     "cta": "GO",
-    "hint": "Watch ~12 min: AI → 47 cases · agent catches wrong total · BVA $0 on PDP · full loop"
+    "hint": "QA autopilot: generate · gate · CUA · BVA · defect evidence — ~15 steps"
   },
   "scenes": [
     {
       "id": "hero",
       "kicker": "Product tour",
       "title": "QA that runs the store — not a doc dump.",
-      "body": "One Story → merge requests reviewed → checklist proven → browser agent executes → defects gated → learnings stick → ship call with a price tag.",
+      "body": "Story → test cases → quality gate → Manual QA Agent runs → BVA regression → defect pack → perf check. QA only.",
       "stats": [
         { "v": "~12 min", "l": "story → runnable suite" },
         { "v": "47", "l": "cases · 118/118 proven" },
@@ -49,7 +49,7 @@
         { "n": "02", "h": "AI suite", "p": "Ledger · CR · gate · dedupe" },
         { "n": "03", "h": "CUA", "p": "Describe · batch · explore" },
         { "n": "04", "h": "BVA", "p": "PDP script · zero tokens" },
-        { "n": "05", "h": "Close", "p": "Evidence · learn · PSI · $" }
+        { "n": "05", "h": "Close", "p": "Evidence · defect gate · perf · QA $" }
       ]
     },
     {
@@ -127,23 +127,23 @@
     },
     {
       "id": "platform",
-      "kicker": "Mind + money",
-      "title": "Gets smarter. Shows the bill.",
-      "body": "Corrections become rules. Knowledge Base answers with packs cited. Understand First before generate. Every op has a total.",
+      "kicker": "QA depth",
+      "title": "Around the run — still QA.",
+      "body": "Requirements vs code before cases. Learning from tester corrections. Perf as a test gate. Cost per QA AI step.",
       "grid": [
-        { "h": "Learning Engine", "p": "Your edit → validated rule on Generate · CR · CUA" },
-        { "h": "Ask Angara", "p": "“How does gift wrap price in cart?” → cited KB + $0.04" },
-        { "h": "Understand First", "p": "Ticket vs diff · done / partial / gap" },
-        { "h": "PageSpeed AI BAD", "p": "Wrap hero hurts mobile LCP — don’t ship" },
-        { "h": "AI worklog", "p": "Wall time logged to the tracker (optional)" },
-        { "h": "Operation cost", "p": "One line per generate · CR · CUA · KB ask" }
+        { "h": "Understand First", "p": "Ticket vs MR diff · covered / gap before generate" },
+        { "h": "Learning Engine", "p": "Case edits & wrong CUA verdicts → rules on test prompts" },
+        { "h": "Baseline dedupe", "p": "New vs in-set · incremental suite on same Story" },
+        { "h": "Step linter", "p": "Runnable steps for humans and agent" },
+        { "h": "PageSpeed QA", "p": "Lab run + AI pass/fail on checkout perf" },
+        { "h": "QA run cost", "p": "$ on generate · review · CUA · gate — not ops tooling" }
       ]
     },
     {
       "id": "close",
       "kicker": "Next",
       "title": "Hit GO. Watch it run.",
-      "body": "Fictional Northwind story — real product shape: AI authoring plus browser proof.",
+      "body": "Fictional Story — same QA rail as production: author, prove, execute, file.",
       "cta": "Launch Autopilot →"
     }
   ],
@@ -409,22 +409,10 @@
       "note": "Next SHOP-like Story inherits these — no re-paste from wiki"
     },
     {
-      "id": "ask",
-      "phase": "13 · Ask knowledge",
-      "title": "KB answer — cited.",
-      "voice": "Side path while you wait: ask how wrap pricing works. Router picks packs; answer cites behavior notes — same cost line as other AI ops.",
-      "duration": 4200,
-      "ui": "ask",
-      "question": "When gift wrap is toggled, where does the $8 fee hit the cart total?",
-      "answer": "Wrap is a cart line modifier on the SKU, not shipping. Subtotal recalculates before tax; checkout summary shows a ribbon icon per wrapped line. EU uses locale key gift.wrap.fee.",
-      "sources": ["behavior-cart", "cart-edit"],
-      "cost": "$0.04 · 2.1 s"
-    },
-    {
       "id": "pagespeed",
-      "phase": "14 · PageSpeed AI",
-      "title": "AI verdict: don’t ship mobile yet.",
-      "voice": "New wrap hero image on cart drawer hurt LCP. Numbers alone are meh — the AI ship/no-ship call is the exec wow.",
+      "phase": "13 · PageSpeed QA",
+      "title": "Perf test: FAIL mobile cart.",
+      "voice": "QA perf lane: lab metrics plus AI verdict on whether checkout is acceptable to test/sign off on mobile.",
       "duration": 5000,
       "ui": "pagespeed",
       "url": "https://staging.shopdemo.example/cart",
@@ -449,27 +437,27 @@
     },
     {
       "id": "opcost",
-      "phase": "15 · Operation cost",
-      "title": "Whole loop: $7.18.",
-      "voice": "Every AI job shows USD — generate, review, CUA, KB, PSI. BVA and cache hits are $0. Budget-friendly wow next to one consultant day.",
+      "phase": "14 · QA run cost",
+      "title": "This QA loop: $6.78.",
+      "voice": "Only test-related AI: generate, MR review for cases, CUA, quality gate, PageSpeed verdict, learning scan. BVA stays $0.",
       "duration": 4600,
       "ui": "opcost",
-      "total": "$7.18",
+      "total": "$6.78",
       "parts": [
-        { "l": "Generate (AI-first)", "v": "$3.90", "calls": "12 calls · thinking on" },
-        { "l": "Code review ×3 MRs", "v": "$1.12", "calls": "shared diff read" },
-        { "l": "CUA Describe + Test Set + Explore", "v": "$2.33", "calls": "step-priced runs" },
-        { "l": "Ask Angara + PageSpeed AI", "v": "$0.47", "calls": "KB + verdict" },
-        { "l": "Learning scan", "v": "$0.36", "calls": "nightly-style analyse" },
-        { "l": "BVA script + cached suggest", "v": "$0.00", "calls": "Playwright · cache hit" }
+        { "l": "Generate + coverage gate", "v": "$3.90", "calls": "suite + checklist prove" },
+        { "l": "MR review (for tests)", "v": "$1.12", "calls": "F1/F2 → cases" },
+        { "l": "CUA (3 modes)", "v": "$2.33", "calls": "step-priced runs" },
+        { "l": "PageSpeed QA verdict", "v": "$0.07", "calls": "mobile cart audit" },
+        { "l": "Learning scan", "v": "$0.36", "calls": "corrections → rules" },
+        { "l": "BVA script", "v": "$0.00", "calls": "Playwright only" }
       ],
-      "note": "Fictional Northwind run · shape matches production cost surfaces"
+      "note": "QA surfaces only — no KB, release, or admin tooling"
     },
     {
       "id": "done",
-      "phase": "16 · Done",
-      "title": "That’s AI + CUA.",
-      "voice": "Story in → proven suite out → agent clicked the bug → human gates ship. Hit GO again or scroll the tour.",
+      "phase": "15 · Done",
+      "title": "QA loop complete.",
+      "voice": "Cases authored and proven · agent found F1 · evidence ready · you file or skip. Re-GO or scroll the tour.",
       "duration": 0,
       "ui": "done",
       "summary": [
@@ -478,11 +466,10 @@
         { "l": "Test Set", "v": "1 FAIL · F1 on screen" },
         { "l": "Exploratory", "v": "2 FAIL" },
         { "l": "BVA", "v": "1 FAIL · $0" },
-        { "l": "Learning", "v": "3 rules on" },
-        { "l": "Ask Angara", "v": "cited · $0.04" },
-        { "l": "PageSpeed", "v": "BAD mobile" },
-        { "l": "Total AI", "v": "$7.18" },
-        { "l": "Next", "v": "File · fix LCP · re-GO" }
+        { "l": "Learning", "v": "3 QA rules on" },
+        { "l": "PageSpeed QA", "v": "FAIL mobile" },
+        { "l": "QA AI spend", "v": "$6.78" },
+        { "l": "Next", "v": "File defect · retest · re-GO" }
       ]
     }
   ]
