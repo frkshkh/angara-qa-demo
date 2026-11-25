@@ -1629,7 +1629,7 @@ async function main() {
   scenes = data.scenes || [];
   document.title = data.product.name;
   document.getElementById('foot-note').textContent = data.product.disclaimer;
-  const author = data.product.author || 'Farukh Sheikh';
+  const author = data.product.author || 'Farukh Shiekh';
   const authorUrl = data.product.authorUrl || 'https://www.linkedin.com/in/farukh-shiekh-genaiqa';
   const copyright = data.product.copyright || '© 2026 Angara Ecommerce Pvt Ltd';
   document.querySelectorAll('.js-author').forEach((n) => {
