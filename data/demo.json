@@ -1108,6 +1108,10 @@
       "ui": "done",
       "summary": [
         {
+          "l": "Claude MCP",
+          "v": "/generate SHOP-2048 \u00b7 same run"
+        },
+        {
           "l": "Dedupe",
           "v": "61 \u2192 47 \u00b7 9 merges"
         },
