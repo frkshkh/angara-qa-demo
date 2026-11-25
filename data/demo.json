@@ -49,8 +49,22 @@
         { "n": "02", "h": "AI suite", "p": "Ledger · dedupe · QC · gate" },
         { "n": "03", "h": "CUA", "p": "Describe · Test Set · Investigation" },
         { "n": "04", "h": "BVA", "p": "PDP script · zero tokens" },
-        { "n": "05", "h": "Close", "p": "Evidence · defect gate · perf · QA $" }
+        { "n": "05", "h": "Claude", "p": "/generate · /cases · /save as you" },
+        { "n": "06", "h": "Close", "p": "Evidence · defect · perf · $" }
       ]
+    },
+    {
+      "id": "mcp-claude",
+      "kicker": "Claude connector",
+      "title": "Angara QA inside Claude.",
+      "body": "Hosted MCP connector — not a separate bot. Slash commands run as your Angara user with your permissions: generate, revise, save to test sets. claude.ai custom connector (OAuth) or Claude Code with a personal token.",
+      "commands": [
+        { "cmd": "/generate <ticket>", "p": "AI-first suite · dedupe · QC · gate" },
+        { "cmd": "/status · /cases", "p": "Poll progress · read cases in chat" },
+        { "cmd": "/revise <feedback>", "p": "Patch round — coverage guard on removals" },
+        { "cmd": "/save [set]", "p": "Baseline dedupe · skip duplicates in set" }
+      ],
+      "note": "Separate from the stdio MCP dev image — streamable HTTP on MCP_PUBLIC_URL"
     },
     {
       "id": "generate",
@@ -154,6 +168,7 @@
         { "h": "Learning analyse", "p": "Model groups corrections → validated rules on prompts" },
         { "h": "Investigation charter", "p": "Draft risks · approve · per-risk evidence · no auto-file" },
         { "h": "PageSpeed QA", "p": "Lab run + AI pass/fail on checkout perf" },
+        { "h": "Claude MCP", "p": "/generate · /cases · /save — your RBAC, not shared keys" },
         { "h": "QA run cost", "p": "$ on generate · review · CUA · gate" }
       ]
     },

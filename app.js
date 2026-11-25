@@ -132,6 +132,21 @@ function buildScene(d) {
         ),
       );
       break;
+    case 'mcp-claude':
+      root.append(
+        el(
+          'ul',
+          { className: 'mcp-cmds' },
+          (d.commands || []).map((c) =>
+            el('li', {}, [
+              el('code', { className: 'cmd', text: c.cmd }),
+              el('span', { text: c.p }),
+            ]),
+          ),
+        ),
+        d.note ? el('div', { className: 'result-banner', text: d.note }) : null,
+      );
+      break;
     case 'loop':
       root.append(
         el(

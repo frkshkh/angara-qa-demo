@@ -967,6 +967,16 @@ body.launching .layer-go .landing {
   .run-panels { grid-template-columns: repeat(4, 1fr); }
 }
 .ask-answer { margin: 0.5rem 0 0; color: var(--text); font-size: 0.92rem; line-height: 1.45; }
+.mcp-cmds { list-style: none; margin: 0.75rem 0 0; padding: 0; display: grid; gap: 0.45rem; }
+.mcp-cmds li {
+  display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: baseline;
+  border: 1px solid var(--line); border-radius: 12px; padding: 0.65rem 0.8rem; background: var(--card2);
+  font-size: 0.86rem;
+}
+.mcp-cmds .cmd {
+  font-family: var(--mono); font-size: 0.82rem; color: var(--accent);
+  background: rgba(56, 189, 248, 0.12); padding: 0.15rem 0.45rem; border-radius: 6px;
+}
 @media (max-width: 800px) {
   .run-panels, .meta-grid { grid-template-columns: 1fr; }
 }
