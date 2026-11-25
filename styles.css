@@ -986,6 +986,14 @@ body.launching .layer-go .landing {
   background: var(--card2); font-size: 0.84rem;
 }
 .mcp-thread li.on { opacity: 1; }
+.mcp-thread.tour-static li { opacity: 1; }
+.scene .mcp-sample {
+  margin: 0.75rem 0 0; font-size: 0.78rem; color: var(--muted);
+}
+.mcp-cmds-head {
+  margin: 1rem 0 0.35rem; font-size: 0.72rem; text-transform: uppercase;
+  letter-spacing: 0.06em; color: var(--muted); font-weight: 600;
+}
 .mcp-thread .mcp-who {
   display: block; font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.06em;
   color: var(--muted); margin-bottom: 0.2rem;

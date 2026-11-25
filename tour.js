@@ -58,6 +58,40 @@ function buildScene(data) {
         ),
       );
       break;
+    case 'mcp-claude':
+      root.append(
+        el('div', { className: 'pill-row' }, [
+          pill('Claude MCP', 'cr'),
+          data.runId ? pill(data.runId, 'pass') : null,
+          data.whoami ? pill(data.whoami) : null,
+        ]),
+        data.threadSample ? el('p', { className: 'mcp-sample', text: data.threadSample }) : null,
+        (data.thread || []).length
+          ? el(
+              'ul',
+              { className: 'mcp-thread tour-static' },
+              data.thread.map((line) =>
+                el('li', { className: line.who === 'you' ? 'mcp-you on' : 'mcp-angara on' }, [
+                  el('span', { className: 'mcp-who', text: line.who === 'you' ? 'You' : 'Angara' }),
+                  el('span', { className: 'mcp-text', text: line.text }),
+                ]),
+              ),
+            )
+          : null,
+        el('p', { className: 'mcp-cmds-head', text: 'Slash commands' }),
+        el(
+          'ul',
+          { className: 'mcp-cmds' },
+          (data.commands || []).map((c) =>
+            el('li', {}, [
+              el('code', { className: 'cmd', text: c.cmd }),
+              el('span', { text: c.p }),
+            ]),
+          ),
+        ),
+        data.note ? el('div', { className: 'result-banner', text: data.note }) : null,
+      );
+      break;
     case 'loop':
       root.append(
         el(

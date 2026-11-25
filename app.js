@@ -134,6 +134,25 @@ function buildScene(d) {
       break;
     case 'mcp-claude':
       root.append(
+        el('div', { className: 'pill-row' }, [
+          pill('Claude MCP', 'cr'),
+          d.runId ? pill(d.runId, 'pass') : null,
+          d.whoami ? pill(d.whoami) : null,
+        ]),
+        d.threadSample ? el('p', { className: 'mcp-sample', text: d.threadSample }) : null,
+        (d.thread || []).length
+          ? el(
+              'ul',
+              { className: 'mcp-thread tour-static' },
+              d.thread.map((line) =>
+                el('li', { className: line.who === 'you' ? 'mcp-you on' : 'mcp-angara on' }, [
+                  el('span', { className: 'mcp-who', text: line.who === 'you' ? 'You' : 'Angara' }),
+                  el('span', { className: 'mcp-text', text: line.text }),
+                ]),
+              ),
+            )
+          : null,
+        el('p', { className: 'mcp-cmds-head', text: 'Slash commands' }),
         el(
           'ul',
           { className: 'mcp-cmds' },

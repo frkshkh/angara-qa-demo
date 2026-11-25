@@ -110,6 +110,35 @@
       "kicker": "Claude connector",
       "title": "Angara QA inside Claude.",
       "body": "Hosted MCP connector \u2014 not a separate bot. Slash commands run as your Angara user with your permissions: generate, revise, save to test sets. claude.ai custom connector (OAuth) or Claude Code with a personal token.",
+      "runId": "gen-shop2048-m7k2",
+      "whoami": "QA engineer (sample) \u00b7 generate:create \u00b7 test-sets:create",
+      "threadSample": "Same thread as GO autopilot step 02 \u2014 fictional Northwind SHOP-2048",
+      "thread": [
+        {
+          "who": "you",
+          "text": "/generate SHOP-2048 Only regression on wrap toggle and checkout"
+        },
+        {
+          "who": "angara",
+          "text": "Started \u00b7 run gen-shop2048-m7k2 \u00b7 ledger + coverage check running"
+        },
+        {
+          "who": "you",
+          "text": "/status gen-shop2048-m7k2"
+        },
+        {
+          "who": "angara",
+          "text": "Draft complete \u00b7 61 cases \u00b7 dedupe queued \u00b7 ~$3.90"
+        },
+        {
+          "who": "you",
+          "text": "/cases gen-shop2048-m7k2 8"
+        },
+        {
+          "who": "angara",
+          "text": "#8 High \u2014 API 500 must not toast success (F1) \u00b7 From CR"
+        }
+      ],
       "commands": [
         {
           "cmd": "/generate <ticket>",
