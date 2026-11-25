@@ -957,6 +957,43 @@ function renderStage(j) {
         ),
       );
       break;
+    case 'investigation': {
+      const ch = j.charter || {};
+      wrap.append(
+        el('div', { className: 'intent-box' }, [
+          el('div', { className: 'kicker', text: 'Investigation charter' }),
+          el('p', { text: ch.objective || '' }),
+          el('div', { className: 'pill-row', style: 'margin-top:0.45rem' }, [
+            pill(`${ch.mandatory ?? 0} mandatory risks`, 'cr'),
+            ch.approvedBy ? pill(`Approved · ${ch.approvedBy}`, 'pass') : null,
+            pill(j.verdict || '', 'warn'),
+            pill(j.cost || ''),
+          ]),
+          ch.invariants?.length
+            ? el('p', { className: 'muted', text: `Invariants: ${ch.invariants.join(' · ')}` })
+            : null,
+        ]),
+        el(
+          'div',
+          { className: 'pill-row' },
+          (j.reportTabs || []).map((t) => pill(t, 'cr')),
+        ),
+        el(
+          'ul',
+          { className: 'cua-steps', id: 'investig-list' },
+          (j.risks || []).map((r) =>
+            el('li', { className: r.v === 'defect' ? 'fail-row' : '' }, [
+              el('div', {}, [
+                el('div', {}, [pill(r.id, 'cr'), ' ', r.risk]),
+                el('div', { className: 'muted', text: r.note }),
+              ]),
+              pill(r.v, r.v === 'defect' ? 'fail' : 'pass'),
+            ]),
+          ),
+        ),
+      );
+      break;
+    }
     case 'cua-adversarial':
       wrap.append(
         el('div', { className: 'pill-row' }, [
@@ -1319,7 +1356,11 @@ function animateGenerate() {
 }
 
 function animateCua() {
-  const sel = document.getElementById('dedupe-list') ? '#dedupe-list li' : '#cua-list li';
+  const sel = document.getElementById('investig-list')
+    ? '#investig-list li'
+    : document.getElementById('dedupe-list')
+      ? '#dedupe-list li'
+      : '#cua-list li';
   [...document.querySelectorAll(sel)].forEach((node, i) => {
     checklistTimers.push(
       setTimeout(() => {
@@ -1434,6 +1475,7 @@ function showStep(i, opts = {}) {
   panel.scrollTop = 0;
   if (
     j.ui === 'cua-adversarial' ||
+    j.ui === 'investigation' ||
     j.ui === 'bug' ||
     (j.ui === 'bva' && (j.runs || []).some((r) => r.v === 'FAIL')) ||
     (j.ui === 'pagespeed' && j.ai?.verdict === 'BAD')
@@ -1458,6 +1500,8 @@ function showStep(i, opts = {}) {
       if (p) p.hidden = false;
     } else if (j.ui === 'dedupe') {
       document.querySelectorAll('#dedupe-list li').forEach((n) => n.classList.add('on'));
+    } else if (j.ui === 'investigation') {
+      document.querySelectorAll('#investig-list li').forEach((n) => n.classList.add('on'));
     } else if (['cua-testset', 'cua-manual', 'cua-adversarial', 'cua-advisory', 'bva'].includes(j.ui)) {
       document.querySelectorAll('#cua-list li').forEach((n) => n.classList.add('on'));
     }
@@ -1465,7 +1509,7 @@ function showStep(i, opts = {}) {
     return;
   }
 
-  const listUi = ['generate', 'dedupe', 'cua-testset', 'cua-manual', 'cua-adversarial', 'cua-advisory', 'bva'].includes(j.ui);
+  const listUi = ['generate', 'dedupe', 'cua-testset', 'cua-manual', 'cua-adversarial', 'cua-advisory', 'investigation', 'bva'].includes(j.ui);
   if (j.ui === 'generate') animateGenerate();
   else if (listUi) animateCua();
   else animateStageWalk();

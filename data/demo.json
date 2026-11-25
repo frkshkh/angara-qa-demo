@@ -12,14 +12,14 @@
     "prompt": "test my Story",
     "placeholder": "SHOP-2048 · Express gift wrap on cart (Northwind)",
     "cta": "GO",
-    "hint": "GO = 17-step autopilot · scroll = same QA story (dedupe, QC, learning on tour too)"
+    "hint": "GO = autopilot · Investigation charter · Test Set · BVA · 17 QA steps"
   },
   "scenes": [
     {
       "id": "hero",
       "kicker": "Product tour",
       "title": "QA that runs the store — not a doc dump.",
-      "body": "Story → test cases → quality gate → Manual QA Agent runs → BVA regression → defect pack → perf check. QA only.",
+      "body": "Story → cases → gate → Describe / Test Set / Investigation charter → BVA → evidence → perf QA.",
       "stats": [
         { "v": "~12 min", "l": "story → runnable suite" },
         { "v": "47", "l": "cases · 118/118 proven" },
@@ -35,7 +35,7 @@
       "cards": [
         { "bad": true, "h": "Paste from chat", "p": "Reads fine. Dies on the real cart total." },
         { "bad": true, "h": "Manual-only TMS", "p": "No merge findings → no failure tests." },
-        { "bad": true, "h": "One CUA mode", "p": "No plain-English run, no risk plan, no $0 PDP script." },
+        { "bad": true, "h": "One CUA mode", "p": "No charter risks, no Describe, no $0 PDP script." },
         { "bad": true, "h": "Lighthouse PDF", "p": "No AI ship / no-ship · no $ per op." }
       ]
     },
@@ -47,7 +47,7 @@
       "steps": [
         { "n": "01", "h": "Ingest", "p": "Story + designs + live MRs" },
         { "n": "02", "h": "AI suite", "p": "Ledger · dedupe · QC · gate" },
-        { "n": "03", "h": "CUA", "p": "Describe · batch · explore" },
+        { "n": "03", "h": "CUA", "p": "Describe · Test Set · Investigation" },
         { "n": "04", "h": "BVA", "p": "PDP script · zero tokens" },
         { "n": "05", "h": "Close", "p": "Evidence · defect gate · perf · QA $" }
       ]
@@ -133,11 +133,11 @@
       "id": "run",
       "kicker": "CUA + BVA",
       "title": "Same suite. Three ways to run it.",
-      "body": "Plain English for one flow. Batch the set. Explore races. Script the PDP without burning tokens.",
+      "body": "Manual QA Agent (Describe + Test Set) and Exploratory QA Agent (approved Investigation charter). BVA script on PDP.",
       "panels": [
-        { "tag": "Describe", "h": "Plain English → agent", "lines": ["“Toggle wrap on hiking boots, bag should show +$8.00”", "AI step check before run", "~$0.35 · 6 steps"] },
+        { "tag": "Describe", "h": "Manual · plain English", "lines": ["“Toggle wrap … subtotal +$8.00”", "AI step check before run", "~$0.35 · 6 steps"] },
         { "tag": "Test Set", "h": "TS-SHOP-2048", "lines": ["12 picked · step-priced estimate", "FAIL on F1 — wrong subtotal on screen", "Recording + inspect_elements"] },
-        { "tag": "Exploratory", "h": "Risk plan", "lines": ["Double Pay · refresh mid-wrap", "Fake 500 on wrap API", "Human gates the defect card"] },
+        { "tag": "Investigation", "h": "Exploratory · charter", "lines": ["Draft from Story + F risks", "Approver signs · mandatory risks", "Coverage / Outcomes / Process report"] },
         { "tag": "BVA script", "h": "Northwind trail boot PDP", "lines": ["M1–M8 · cart matches PDP", "$0 · ~48 s", "Catches wrong option label"] }
       ]
     },
@@ -152,8 +152,9 @@
         { "h": "Semantic dedupe", "p": "Group → pairwise verify → merge steps into keeper" },
         { "h": "Suite QC", "p": "Linter · Fix with AI · baseline NEW/UPDATE · export gate" },
         { "h": "Learning analyse", "p": "Model groups corrections → validated rules on prompts" },
+        { "h": "Investigation charter", "p": "Draft risks · approve · per-risk evidence · no auto-file" },
         { "h": "PageSpeed QA", "p": "Lab run + AI pass/fail on checkout perf" },
-        { "h": "QA run cost", "p": "$ on generate · review · CUA · gate — not ops tooling" }
+        { "h": "QA run cost", "p": "$ on generate · review · CUA · gate" }
       ]
     },
     {
@@ -372,20 +373,27 @@
       "batch": "★ 1 FAIL — the defect review and F item predicted · evidence auto-attached"
     },
     {
-      "id": "cua-exploratory",
-      "phase": "10 · CUA · Exploratory",
-      "title": "Risks no script thought of.",
-      "voice": "Fake API reply, double Pay burst, refresh with wrap half-saved — exploratory settles with proof or inconclusive, never silent pass.",
-      "duration": 5200,
-      "ui": "cua-adversarial",
-      "plan": [
-        { "a": "wait_for_text · “Gift wrap added”", "v": "PASS", "note": "Polled until toast + subtotal moved" },
-        { "a": "Fake 500 on /api/wrap", "v": "FAIL", "note": "Same F1 — success toast with stale total" },
-        { "a": "Double-click Pay Now", "v": "PASS", "note": "Single payment intent" },
-        { "a": "Refresh during wrap save", "v": "FAIL", "note": "Bag shows wrap off but fee still in total" }
+      "id": "investigation",
+      "phase": "10 · Investigation charter",
+      "title": "Exploratory QA Agent — approved charter.",
+      "voice": "Draft from Story + merge findings → mandatory risks. Approver signs. Each risk settled with screenshots and checks — defect, validated, or inconclusive (never silent pass). Report: Coverage · Outcomes · Investigation · Process.",
+      "duration": 5400,
+      "ui": "investigation",
+      "charter": {
+        "objective": "Wrap toggle fee, API errors, payment races",
+        "mandatory": 4,
+        "approvedBy": "QA lead (sample)",
+        "invariants": ["Subtotal must reflect line items after wrap"]
+      },
+      "risks": [
+        { "id": "R1", "risk": "Fake 500 on /api/wrap", "v": "defect", "note": "F1 · success toast · stale total" },
+        { "id": "R2", "risk": "Refresh during wrap save", "v": "defect", "note": "Fee on bag · wrap off" },
+        { "id": "R3", "risk": "Double Pay burst (timing)", "v": "validated", "note": "Single payment intent" },
+        { "id": "R4", "risk": "wait_for_text · “Gift wrap added”", "v": "validated", "note": "Toast + subtotal moved" }
       ],
-      "verdict": "2 FAIL · awaiting_review",
-      "cost": "$1.12"
+      "reportTabs": ["Coverage", "Outcomes", "Investigation", "Process"],
+      "verdict": "2 defects · 2 validated · human-gated file",
+      "cost": "$1.12 · priced from past Exploratory runs"
     },
     {
       "id": "bva",
@@ -419,7 +427,9 @@
         { "k": "inspect_elements", "v": "[data-subtotal] still $142.00 (expected $150.00)" },
         { "k": "Network", "v": "POST /api/wrap → 500 · UI toast = success" },
         { "k": "BVA still", "v": "cart label Navy vs PDP Midnight" },
-        { "k": "Learning queue", "v": "Tester marked verdict wrong → candidate rule" }
+        { "k": "Investigation", "v": "Per-risk screenshots · V2_cua_evidence 90d" },
+        { "k": "Report tabs", "v": "Coverage / Outcomes / Investigation / Process" },
+        { "k": "Learning queue", "v": "Wrong verdict → candidate rule" }
       ]
     },
     {
@@ -433,7 +443,7 @@
         "status": "awaiting_review",
         "sev": "High",
         "summary": "Wrap API error still shows success toast; subtotal does not include $8 wrap fee",
-        "covers": "F1 · Test Set #8 · Exploratory fake 500",
+        "covers": "F1 · Test Set #8 · Investigation R1",
         "repro": [
           "Staging cart with Trail Boot",
           "Enable gift wrap",
@@ -505,7 +515,7 @@
         { "l": "Dedupe verify", "v": "$0.18", "calls": "pairwise merge checks" },
         { "l": "MR review (for tests)", "v": "$1.12", "calls": "F1/F2 → cases" },
         { "l": "Quality gate + QC", "v": "$0.42", "calls": "reviewer + lint pass" },
-        { "l": "CUA (3 modes)", "v": "$2.33", "calls": "step-priced runs" },
+        { "l": "CUA + Investigation", "v": "$2.33", "calls": "Test Set · Describe · charter" },
         { "l": "Learning analyse", "v": "$0.24", "calls": "scan + model rules" },
         { "l": "PageSpeed QA", "v": "$0.07", "calls": "mobile cart" },
         { "l": "BVA script", "v": "$0.00", "calls": "Playwright" }
@@ -524,7 +534,7 @@
         { "l": "Suite QC + gate", "v": "47 cases · 96/100" },
         { "l": "Describe CUA", "v": "PASS · plain English" },
         { "l": "Test Set", "v": "1 FAIL · F1 on screen" },
-        { "l": "Exploratory", "v": "2 FAIL" },
+        { "l": "Investigation", "v": "2 defects · 2 validated" },
         { "l": "BVA", "v": "1 FAIL · $0" },
         { "l": "Learning model", "v": "3 rules on prompts" },
         { "l": "PageSpeed QA", "v": "FAIL mobile" },
