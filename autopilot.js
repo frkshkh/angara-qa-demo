@@ -549,10 +549,10 @@ function showStep(i) {
 
   renderStage(j);
   if (j.ui === 'generate') animateGenerate();
-  if (j.ui === 'cua-testset' || j.ui === 'cua-manual' || j.ui === 'cua-adversarial' || j.ui === 'cua-advisory') {
+  if (j.ui === 'cua-testset' || j.ui === 'cua-manual' || j.ui === 'cua-adversarial' || j.ui === 'cua-advisory' || j.ui === 'investigation') {
     animateCua();
   }
-  if (j.ui === 'cua-adversarial' || j.ui === 'bug' || (j.ui === 'pagespeed' && j.ai?.verdict === 'BAD')) setAurora('fail');
+  if (j.ui === 'cua-adversarial' || j.ui === 'investigation' || j.ui === 'bug' || (j.ui === 'pagespeed' && j.ai?.verdict === 'BAD')) setAurora('fail');
   else if (j.ui === 'done') setAurora('done');
   else if (j.ui === 'pagespeed' && j.ai?.verdict === 'GOOD') setAurora('done');
   else setAurora('running');
