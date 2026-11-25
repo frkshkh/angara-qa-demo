@@ -747,6 +747,26 @@ function renderStage(j) {
   const wrap = el('div', { className: 'stage-inner' });
 
   switch (j.ui) {
+    case 'mcp':
+      wrap.append(
+        el('div', { className: 'pill-row' }, [
+          pill('Claude MCP', 'cr'),
+          pill(j.runId || '', 'pass'),
+          j.whoami ? pill(j.whoami) : null,
+        ]),
+        el(
+          'ul',
+          { className: 'mcp-thread', id: 'mcp-thread' },
+          (j.thread || []).map((line) =>
+            el('li', { className: line.who === 'you' ? 'mcp-you' : 'mcp-angara' }, [
+              el('span', { className: 'mcp-who', text: line.who === 'you' ? 'You' : 'Angara' }),
+              el('span', { className: 'mcp-text', text: line.text }),
+            ]),
+          ),
+        ),
+        j.note ? el('div', { className: 'result-banner', text: j.note }) : null,
+      );
+      break;
     case 'ticket': {
       const t = j.ticket;
       wrap.append(
@@ -1371,11 +1391,13 @@ function animateGenerate() {
 }
 
 function animateCua() {
-  const sel = document.getElementById('investig-list')
-    ? '#investig-list li'
-    : document.getElementById('dedupe-list')
-      ? '#dedupe-list li'
-      : '#cua-list li';
+  const sel = document.getElementById('mcp-thread')
+    ? '#mcp-thread li'
+    : document.getElementById('investig-list')
+      ? '#investig-list li'
+      : document.getElementById('dedupe-list')
+        ? '#dedupe-list li'
+        : '#cua-list li';
   [...document.querySelectorAll(sel)].forEach((node, i) => {
     checklistTimers.push(
       setTimeout(() => {
@@ -1513,6 +1535,8 @@ function showStep(i, opts = {}) {
       const p = document.getElementById('gen-preview');
       if (r) r.hidden = false;
       if (p) p.hidden = false;
+    } else if (j.ui === 'mcp') {
+      document.querySelectorAll('#mcp-thread li').forEach((n) => n.classList.add('on'));
     } else if (j.ui === 'dedupe') {
       document.querySelectorAll('#dedupe-list li').forEach((n) => n.classList.add('on'));
     } else if (j.ui === 'investigation') {
@@ -1524,7 +1548,7 @@ function showStep(i, opts = {}) {
     return;
   }
 
-  const listUi = ['generate', 'dedupe', 'cua-testset', 'cua-manual', 'cua-adversarial', 'cua-advisory', 'investigation', 'bva'].includes(j.ui);
+  const listUi = ['generate', 'mcp', 'dedupe', 'cua-testset', 'cua-manual', 'cua-adversarial', 'cua-advisory', 'investigation', 'bva'].includes(j.ui);
   if (j.ui === 'generate') animateGenerate();
   else if (listUi) animateCua();
   else animateStageWalk();

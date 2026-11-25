@@ -977,6 +977,22 @@ body.launching .layer-go .landing {
   font-family: var(--mono); font-size: 0.82rem; color: var(--accent);
   background: rgba(56, 189, 248, 0.12); padding: 0.15rem 0.45rem; border-radius: 6px;
 }
+.mcp-thread {
+  list-style: none; margin: 0.65rem 0 0; padding: 0; display: grid; gap: 0.35rem;
+}
+.mcp-thread li {
+  opacity: 0.35; transition: opacity 0.35s ease;
+  border: 1px solid var(--line); border-radius: 10px; padding: 0.55rem 0.7rem;
+  background: var(--card2); font-size: 0.84rem;
+}
+.mcp-thread li.on { opacity: 1; }
+.mcp-thread .mcp-who {
+  display: block; font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--muted); margin-bottom: 0.2rem;
+}
+.mcp-you { border-color: rgba(56, 189, 248, 0.35); }
+.mcp-angara { border-color: rgba(52, 211, 153, 0.35); }
+.mcp-angara .mcp-text { font-family: var(--mono); font-size: 0.8rem; }
 @media (max-width: 800px) {
   .run-panels, .meta-grid { grid-template-columns: 1fr; }
 }
